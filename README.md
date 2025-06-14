@@ -3,8 +3,6 @@
 Small and versatile static site generator.
 
 - More or less universal Markdown as source.
-- Compact, structured code.
-- Cleaner source structure.
 - Themes, using Nunjucks template language.
 - No tools required to install and run (except Node.js).
 - Links are relative; the site is extremely portable.
