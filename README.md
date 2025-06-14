@@ -1,17 +1,19 @@
 # Mukha SSG
 
-- More or less universal markdown as source.
+Small and versatile static site generator.
+
+- More or less universal Markdown as source.
 - Compact, structured code.
 - Cleaner source structure.
-- Themes.
-- No tools required to install and run (exept node).
-- Links are relative, site is extremely portable.
+- Themes, using Nunjucks template language.
+- No tools required to install and run (except Node.js).
+- Links are relative; the site is extremely portable.
 - Paginated lists.
 - Custom or automatically generated pages for tags.
-- Standart markdown + abilty to insert rich content.
-- Data attachment
+- Standard Markdown + ability to insert rich content.
+- Data attachment.
 
-**Project is on earliest stage**
+**Project is in the earliest stage.**
 
 ## Plan
 
