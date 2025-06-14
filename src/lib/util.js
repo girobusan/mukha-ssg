@@ -83,7 +83,7 @@ export function fitToWidth(text, width) {
   return lines.join(" \n");
 }
 
-export function writebyKeys(obj, keysArray, name, value) {
+export function writeObjByKeys(obj, keysArray, name, value) {
   if (!name && keysArray.length == 0) {
     throw "Can not write to object";
   }
@@ -102,4 +102,10 @@ export function writebyKeys(obj, keysArray, name, value) {
   }, obj);
   cursor[name] = value;
   return obj;
+}
+
+export function retrieveByStr(str, obj, sep) {
+  const separator = sep || ".";
+  let steps = str.split(separator).filter((e) => e);
+  return steps.reduce((a, e) => (a ? a[e] : undefined), obj);
 }

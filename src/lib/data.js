@@ -1,6 +1,7 @@
 const Papa = require("papaparse");
 const yaml = require("js-yaml");
 import { writebyKeys } from "./util";
+import { generateFromCol, generateFromRows, slugify } from "./data_transform";
 //
 // Data inclusion
 //
