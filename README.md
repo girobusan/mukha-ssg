@@ -1,23 +1,17 @@
-# Latid2
-
-Next generation of Latid SSG. First tests, maybe I'll rename it finally.
-
-## To change
+# Mukha SSG
 
 - More or less universal markdown as source.
 - Compact, structured code.
 - Cleaner source structure.
 - Themes.
-
-**Project is on earliest stage, experimental, unusable.**
-
-## Why bother?
-
 - No tools required to install and run (exept node).
 - Links are relative, site is extremely portable.
 - Paginated lists.
 - Custom or automatically generated pages for tags.
 - Standart markdown + abilty to insert rich content.
+- Data attachment
+
+**Project is on earliest stage**
 
 ## Plan
 
