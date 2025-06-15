@@ -97,6 +97,39 @@ function makeCopyFn(inDir, outDir) {
   };
 }
 
+function cleanup() {
+  let allThere = fs.readdirSync(outDir, {
+    recursive: true,
+    withFileTypes: true,
+  });
+  console.log("Cleaning up...");
+  const writtenFiles = written.map((e) => e.path);
+
+  let filesThere = allThere
+    .filter((f) => f.isFile())
+    .map((f) => path.join(f.parentPath, f.name));
+  // console.log(filesThere.slice(0, 5));
+  filesThere.forEach((f) => {
+    let rezpath = f.substring(outDir.length).replace(/[\\]/g, "/");
+    if (writtenFiles.indexOf(rezpath) == -1) {
+      console.log("Removing:", f);
+      fs.rmSync(f);
+    }
+  });
+
+  let dirsThere = allThere.filter((e) => e.isDirectory());
+  dirsThere.forEach((d) => {
+    // console.log(d);
+    let dir = path.join(d.parentPath, d.name);
+    if (fs.readdirSync(dir).length === 0) {
+      console.log("Removing empty dir:", dir);
+      fs.rmdirSync(dir);
+    }
+  });
+  console.log("All clean.");
+  // console.log(writtenFiles);
+}
+
 // load and parse config
 // must be done at platform-dependent part
 let Config;
@@ -128,6 +161,7 @@ runSSG({
       console.log("Written", written.length, "files total.");
       //debug :DELETE:
       fs.writeFileSync("written.csv", Papa.unparse(written));
+      if (params.values.cleanup) cleanup();
     }
   },
   config: Config,

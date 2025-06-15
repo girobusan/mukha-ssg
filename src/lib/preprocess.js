@@ -34,6 +34,7 @@ function preparseMdFile(f) {
 function sortAndRun(lst, writeFn, config, templates, data) {
   //render data
   // fix date
+  let today = new Date();
   lst.forEach((page) => {
     if (page.meta.date && typeof page.meta.date === "string") {
       let dateParts = page.meta.date.split(/\D+/).map((e) => +e);
@@ -49,6 +50,17 @@ function sortAndRun(lst, writeFn, config, templates, data) {
       page.meta.date = new Date(42);
     }
   });
+  // filter future posts if timed option is set
+  if (config.timed) {
+    lst = lst.filter((p) => {
+      try {
+        if (p.meta.date.getTime() > today.getTime()) {
+          return false;
+        }
+      } catch (e) {}
+      return true;
+    });
+  }
   // sort by date
   lst.sort((a, b) => {
     const atime = a.meta.date.getTime();
@@ -80,6 +92,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
     }
     page.meta.image = img[1];
   });
+  // if timed option is
   //...and...
   // wrap to lister
   // for future operations

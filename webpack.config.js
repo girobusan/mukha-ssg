@@ -51,7 +51,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -87,7 +87,8 @@ module.exports = function(_, argv) {
       new webpack.DefinePlugin({
         // Definitions...
         VERSION: JSON.stringify(pkg.version),
-        BUILD: argv.mode,
+        MODE: argv.mode,
+        BUILDDATE: new Date().toISOString(),
       }),
     ],
   };
