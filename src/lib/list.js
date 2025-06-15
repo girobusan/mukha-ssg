@@ -7,6 +7,7 @@ export function makeLister(LIST) {
   let tags; // = lst.filter((f) => f.tag);
   const byPath = {};
   const byMeta = {};
+  const allByMeta = {};
   return {
     replace: (l) => makeLister(l),
     append: (list2add) => makeLister(LIST.concat(list2add)),
@@ -52,6 +53,19 @@ export function makeLister(LIST) {
       let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
       byMeta[name][val] = r.length === 0 ? null : r[0];
       return byMeta[name][val];
+    },
+
+    getAllByMeta: (name, val) => {
+      // console.log(`"${name}":"${val}"`);
+      if (allByMeta[name] && allByMeta[name][val]) {
+        return allByMeta[name][val];
+      }
+      if (!allByMeta[name]) {
+        allByMeta[name] = {};
+      }
+      let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
+      allByMeta[name][val] = r.length === 0 ? null : r;
+      return allByMeta[name][val];
     },
     getNearFiles: (pth) => {
       let base = path.dirname(pth);

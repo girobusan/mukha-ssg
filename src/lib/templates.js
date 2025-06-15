@@ -92,6 +92,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         util: {
           niceDate: niceDate,
           makeTable: tableFilter,
+          debug: (o) => JSON.stringify(o, null, 2),
         },
       };
       let html = tpl.render(

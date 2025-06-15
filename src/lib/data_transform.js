@@ -45,7 +45,7 @@ export function slugify(tbl, input_col, slug_col_name) {
   return tbl;
 }
 
-export function generateFromRows(tbl, { meta, content, path }) {
+export function generateFromRows(tbl, { meta, content, path, html }) {
   let pages = [];
   tbl.forEach((r) => {
     let p_meta = substValues(meta, r);
@@ -56,6 +56,7 @@ export function generateFromRows(tbl, { meta, content, path }) {
       p_meta,
       makeSubst(content, r),
       makeSubst(path, r),
+      html || "",
     );
     page.local_data = r;
     pages.push(page);
@@ -63,26 +64,29 @@ export function generateFromRows(tbl, { meta, content, path }) {
   return pages;
 }
 
-export function generateFromCol(tbl, col_name, { title, meta, content, path }) {
+export function generateFromCol(tbl, col_name, { meta, content, path, html }) {
   let pages = [];
   let values = Array.from(new Set(tbl.map((r) => r[col_name])));
   values.forEach((v) => {
-    let data = tbl.filter((f) => r[col_name] === value);
+    let data = tbl.filter((r) => r[col_name] === v);
     let repDict = { value: v };
 
-    let p_title = makeSubst(title, repDict);
-    let p_meta = Object.assign({}, meta);
-    Object.keys(p_meta).forEach(
-      (k) => (p_meta[k] = makeSubst(p_meta[k], repDict)),
-    );
-    p_meta.title = p_title;
+    let p_meta = substValues(meta, repDict);
 
     const page = makePageLikeObj(
       p_meta,
       makeSubst(content, repDict),
       makeSubst(path, repDict),
+      html || "",
     );
+    // console.log("---data---");
+    // console.log(data);
+    // console.log("---end---");
     page.local_data = data;
+
+    // page.list = data;
+    page.degug = JSON.stringify(data, null, 2);
+    // console.log(page);
     pages.push(page);
   });
   return pages;

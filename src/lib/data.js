@@ -23,7 +23,7 @@ function parseDataConfig(conf, lang) {
       let t = yaml.load(conf);
       data_tasks = t;
     } catch (e) {
-      console.log("Can not render data conf (yaml).");
+      console.log("Can not render data conf (yaml):", e);
     }
   }
   render_tasks = data_tasks.filter((t) => t.task === "render");
@@ -45,21 +45,39 @@ function runRenderTasks() {
   let pages = [];
   if (render_tasks.length === 0) {
     console.log("No render tasks.");
-    return;
+    return [];
   }
   render_tasks.forEach((t) => {
     // console.log(t);
     let ds = retrieveByStr(t.dataset, datasets);
+    //
+    if (!ds || ds.length === 0) {
+      console.log("No data in", t.dataset);
+      // console.log(datasets);
+      return;
+    }
     switch (t.type) {
       case "row":
-        console.log("render by row");
         let lst = generateFromRows(ds, {
           meta: t.meta,
-          content: t.content,
+          content: t.content || t.markdown || "",
           path: t.path,
+          html: t.html || "",
         });
         // console.log(lst[0]);
         pages = pages.concat(lst);
+        break;
+      case "col":
+        console.log("render by column");
+        let lstc = generateFromCol(ds, t.col, {
+          meta: t.meta,
+          content: t.content || t.markdown || "",
+          path: t.path,
+          html: t.html || "",
+        });
+        // console.log("FIRST", lstc[0]);
+        pages = pages.concat(lstc);
+        break;
     }
   });
   return pages;

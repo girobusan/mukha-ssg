@@ -107,7 +107,11 @@ function sortAndRun(lst, writeFn, config, templates, data) {
   lister = makeTags(lister, config);
   // console.log(lister.tags().map((e) => e.meta.title));
   // render html content — move to template module
-  lister.forEach((page) => (page.html = md2html(page.content || "")));
+  lister.forEach((page) => {
+    if (!page.html) {
+      page.html = md2html(page.content || "");
+    }
+  });
   // templating
   renderAndSave(lister, config, templates, writeFn, data);
 }
