@@ -85,7 +85,7 @@ export function generateFromCol(tbl, col_name, { meta, content, path, html }) {
     page.local_data = data;
 
     // page.list = data;
-    page.degug = JSON.stringify(data, null, 2);
+    page.debug = JSON.stringify(data, null, 2);
     // console.log(page);
     pages.push(page);
   });
