@@ -1,5 +1,6 @@
 const nunjucks = require("nunjucks");
 import { tableFilter } from "./template_additions";
+import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
 import postprocess from "./postprocess";
 
@@ -34,7 +35,6 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // console.log(tpl.filters);
 
   let virtuals = [];
-  const commonContext = { list: fullLister, config: config }; // +
   //
   // creates fn
   // which makes multipage list
@@ -81,12 +81,16 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   function renderList(list, writeFn, pass) {
     list.forEach((page) => {
       // console.log(f.meta);
-      let localContext = {
-        makePagination: pass === 1 ? makeMP(page) : () => false,
+      let safeContext = {
+        config: config,
         data: data,
+        makePagination: () =>
+          console.log(
+            "Attempt to call unsafe function in safe context",
+            page.file.path,
+          ),
         meta: page.meta,
         path: page.file.path,
-        html: page.html,
         file: page, // deprecated
         page: page, // — must be page
         util: {
@@ -95,11 +99,26 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           debug: (o) => JSON.stringify(o, null, 2),
         },
       };
-      let html = tpl.render(
-        "index.njk",
-        Object.assign(commonContext, localContext),
-      );
-      html = nunjucks.renderString(html, localContext);
+
+      // md2html
+      page.meta.excerpt && (page.meta.excerpt = md2html(page.meta.excerpt));
+      // render nunjucks in content
+      if (page.html) {
+        page.html = tpl.renderString(page.html, safeContext);
+      } else {
+        if (page.content) {
+          page.html = md2html(tpl.renderString(page.content, safeContext));
+        }
+      }
+      //
+
+      let adultContext = Object.assign(safeContext, {
+        list: fullLister,
+        makePagination: pass === 1 ? makeMP(page) : () => false,
+        html: page.html,
+      });
+      //
+      let html = tpl.render("index.njk", adultContext);
       html = postprocess(html, page.file.path, fullLister);
       writeFn(page.file.path, html);
     });

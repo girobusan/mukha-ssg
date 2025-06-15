@@ -136,7 +136,7 @@ export function initData(fileList, initialData) {
   return {
     datasets: datasets,
     find: (dataset, column, value) => dataset.filter((r) => r[column] == value),
-    render: (lister) =>
+    render: () =>
       rendered
         ? console.log("Data pages rendering must be done once!")
         : runRenderTasks(),

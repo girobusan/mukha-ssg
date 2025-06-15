@@ -3,7 +3,6 @@ import { extractFM } from "./fm_extractor";
 import { makeLister } from "./list";
 import { makeFeed } from "./feeds";
 import { makeTags } from "./tags";
-import { md2html } from "./md_parser";
 import { renderAndSave } from "./templates";
 // import postprocess from "./postprocess";
 
@@ -45,8 +44,9 @@ function sortAndRun(lst, writeFn, config, templates, data) {
         dateParts[3] || 0,
         dateParts[4] || 0,
       );
-    } else {
-      page.meta.date = new Date(1980, 0, 1);
+    }
+    if (!page.meta.date) {
+      page.meta.date = new Date(42);
     }
   });
   // sort by date
@@ -63,7 +63,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
       if (!firstP) {
         return;
       }
-      page.meta.excerpt = md2html(firstP[0].trim());
+      page.meta.excerpt = firstP[0].trim();
     }
     if (!page.meta.excerpt) {
       return;
@@ -99,19 +99,10 @@ function sortAndRun(lst, writeFn, config, templates, data) {
     }
     let feeds_content = makeFeed(lister, config, feeds);
     uris.forEach((u, i) => writeFn(u, feeds_content[i]));
-    // writeFn(config.rss_uri, makeFeed(lister, config));
   }
-  //postprocess excerpts? NO!
-  console.log("We have", lister.length, "pages to process");
+  // console.log("We have", lister.length, "pages to process");
   // tags
   lister = makeTags(lister, config);
-  // console.log(lister.tags().map((e) => e.meta.title));
-  // render html content — move to template module
-  lister.forEach((page) => {
-    if (!page.html) {
-      page.html = md2html(page.content || "");
-    }
-  });
   // templating
   renderAndSave(lister, config, templates, writeFn, data);
 }
