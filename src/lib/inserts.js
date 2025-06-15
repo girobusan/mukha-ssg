@@ -76,6 +76,9 @@ ${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
   badge: (m, params) => {
     return `<div class="badge ${params.className || params.class}" > ${md.renderInline(m)}</div>`;
   },
+  raw: (m) => {
+    return m;
+  },
 };
 
 export function runInsert(name, md, params) {

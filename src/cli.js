@@ -21,7 +21,7 @@ if (params.values.version) {
   process.exit(0);
 }
 
-console.log("SSG", VERSION);
+console.log("Mukha SSG", VERSION);
 const inDir = path.normalize(params.values.input || "./site");
 const outDir = path.normalize(params.values.output || "./static");
 const timed = params.values.timed;

@@ -64,18 +64,15 @@ function runRenderTasks() {
           path: t.path,
           html: t.html || "",
         });
-        // console.log(lst[0]);
         pages = pages.concat(lst);
         break;
       case "col":
-        console.log("render by column");
         let lstc = generateFromCol(ds, t.col, {
           meta: t.meta,
           content: t.content || t.markdown || "",
           path: t.path,
           html: t.html || "",
         });
-        // console.log("FIRST", lstc[0]);
         pages = pages.concat(lstc);
         break;
     }

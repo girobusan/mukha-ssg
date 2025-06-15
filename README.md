@@ -26,7 +26,8 @@ Small and versatile static site generator.
    - [x] Pack SSG code to platform-agnostic module
 
 - [x] Data attachment
-- [ ] Data → pages generation
+- [x] Data → pages generation
+- [ ] Attach data for JS (future)
 
 3. [ ] Server & WebUI
 
