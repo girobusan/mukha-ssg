@@ -37,3 +37,5 @@ Small and versatile static site generator.
 - [x] Inserts syntax
 - [ ] Basic, but nice theme
 - [ ] Test site
+
+मुख

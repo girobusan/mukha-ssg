@@ -2,16 +2,26 @@ import { translit } from "./util";
 import { makePageLikeObj } from "./util";
 
 function makeSubst(str, dict) {
+  if (typeof str !== "string") {
+    return str;
+  }
   let rexps = Object.entries(dict).map(([k, v]) => {
-    return [new RegExp(`/[${key}]/gi`), v];
+    return [new RegExp(`\\[${k}]`, "gi"), v];
   });
   let r = str;
-  rexp.forEach(([rx, rp]) => (r = r.replace(rx, rp)));
+
+  rexps.forEach(([rx, rp]) => (r = r.replace(rx, rp)));
   return r;
+}
+
+function substValues(obj, substDict) {
+  Object.keys(obj).forEach((k) => (obj[k] = makeSubst(obj[k], substDict)));
+  return obj;
 }
 
 export function slugify(tbl, input_col, slug_col_name) {
   const col_values = Array.from(new Set(tbl.map((r) => r[input_col])));
+  // console.log("Get values", col_values.length);
   if (col_values.length == 0) {
     console.error("No values to slugify in", input_col);
     return tbl;
@@ -21,7 +31,7 @@ export function slugify(tbl, input_col, slug_col_name) {
     let slug_base = translit(cv) || "empty_";
     let preslug = slug_base;
     let num = 1;
-    while (slugs.indexOf(preslug) == -1) {
+    while (slugs.indexOf(preslug) != -1) {
       preslug = slug_base + num;
       num += 1;
     }
@@ -35,13 +45,12 @@ export function slugify(tbl, input_col, slug_col_name) {
   return tbl;
 }
 
-export function generateFromRows(tbl, { title, meta, content, path }) {
+export function generateFromRows(tbl, { meta, content, path }) {
   let pages = [];
   tbl.forEach((r) => {
-    let p_title = makeSubst(title, r);
-    let p_meta = Object.assign({}, meta);
-    Object.keys(p_meta).forEach((k) => (p_meta[k] = makeSubst(p_meta[k], r)));
-    p_meta.title = p_title;
+    let p_meta = substValues(meta, r);
+
+    // Object.keys(p_meta).forEach((k) => (p_meta[k] = makeSubst(p_meta[k], r)));
 
     const page = makePageLikeObj(
       p_meta,

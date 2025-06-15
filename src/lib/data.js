@@ -1,20 +1,68 @@
 const Papa = require("papaparse");
 const yaml = require("js-yaml");
-import { writebyKeys } from "./util";
+import { retrieveByStr, writeObjByKeys } from "./util";
 import { generateFromCol, generateFromRows, slugify } from "./data_transform";
 //
 // Data inclusion
 //
 const datatypeRx = /\.(csv|tsv|json|dsv|yaml)$/i;
+const configFile = /data\.config\.(json|yaml)$/i;
+var NS = {};
 var datasets = {};
-var tasks = [];
+var data_tasks = [];
 var rendered = false;
 var render_tasks = [];
 
-function parseConfig(conf) {
+function parseDataConfig(conf, lang) {
   console.log("Data config file found...");
-  tasks = yaml.load(conf);
-  render_tasks = tasks.filter((t) => t.task === "render");
+  if (lang === "json") {
+    data_tasks = JSON.parse(conf);
+  }
+  if (lang === "yaml") {
+    try {
+      let t = yaml.load(conf);
+      data_tasks = t;
+    } catch (e) {
+      console.log("Can not render data conf (yaml).");
+    }
+  }
+  render_tasks = data_tasks.filter((t) => t.task === "render");
+}
+
+function runDataTasks() {
+  data_tasks.forEach((t) => {
+    switch (t.task) {
+      case "slugify":
+        let ds = retrieveByStr(t.dataset, datasets);
+        ds = slugify(ds, t.input_col, t.output_col);
+        // console.log("slugify", ds.slice(0, 5));
+        break;
+    }
+  });
+}
+
+function runRenderTasks() {
+  let pages = [];
+  if (render_tasks.length === 0) {
+    console.log("No render tasks.");
+    return;
+  }
+  render_tasks.forEach((t) => {
+    // console.log(t);
+    let ds = retrieveByStr(t.dataset, datasets);
+    switch (t.type) {
+      case "row":
+        console.log("render by row");
+        let lst = generateFromRows(ds, {
+          meta: t.meta,
+          content: t.content,
+          path: t.path,
+        });
+        // console.log(lst[0]);
+        pages = pages.concat(lst);
+    }
+  });
+  return pages;
 }
 
 export function initData(fileList, initialData) {
@@ -26,8 +74,10 @@ export function initData(fileList, initialData) {
   //  { dir , name , getContent() }
   // return data closure
   fileList.forEach((f) => {
-    if (f.name === "data.config.yaml") {
-      return parseConfig(f.getContent());
+    let confm;
+    if ((confm = f.name.match(configFile))) {
+      parseDataConfig(f.getContent(), confm[1].toLowerCase());
+      return;
     }
     const fext = f.name.match(datatypeRx);
     if (!fext) {
@@ -60,15 +110,20 @@ export function initData(fileList, initialData) {
           header: true,
         }).data;
     }
-    writebyKeys(datasets, dataset_ns, dataset_name, value);
+    writeObjByKeys(datasets, dataset_ns, dataset_name, value);
+    if (dataset_ns.length > 0) {
+      writeObjByKeys(NS, dataset_ns, "", {});
+    }
   });
   // console.log(datasets);
+  // console.log(NS);
+  runDataTasks();
   return {
     datasets: datasets,
     find: (dataset, column, value) => dataset.filter((r) => r[column] == value),
     render: (lister) =>
       rendered
         ? console.log("Data pages rendering must be done once!")
-        : console.log("Request to execute renders..."),
+        : runRenderTasks(),
   };
 }

@@ -73,8 +73,8 @@ module.exports = function(_, argv) {
 
     mode: argv.mode,
     entry: {
-      l2l2: "./src/l2l2.js",
-      l2_cli: "./src/cli.js",
+      latid2mukha: "./src/latid2mukha.js",
+      mukha: "./src/cli.js",
     },
     devtool: argv.mode != "production" ? "inline-source-map" : false,
 

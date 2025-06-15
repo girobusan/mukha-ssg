@@ -87,7 +87,7 @@ export function writeObjByKeys(obj, keysArray, name, value) {
   if (!name && keysArray.length == 0) {
     throw "Can not write to object";
   }
-  if (!name && keysArray.length > 0) {
+  if (!name && keysArray.length > 1) {
     name = keysArray.pop();
   }
   if (!keysArray || keysArray.length == 0) {

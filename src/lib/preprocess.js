@@ -33,9 +33,10 @@ function preparseMdFile(f) {
 }
 
 function sortAndRun(lst, writeFn, config, templates, data) {
+  //render data
   // fix date
   lst.forEach((page) => {
-    if (page.meta.date) {
+    if (page.meta.date && typeof page.meta.date === "string") {
       let dateParts = page.meta.date.split(/\D+/).map((e) => +e);
       page.meta.date = new Date(
         dateParts[0],
@@ -114,6 +115,10 @@ function sortAndRun(lst, writeFn, config, templates, data) {
 export function preprocessFileList(lst, writeFn, config, templates, data) {
   let copyList = [];
   let processList = [];
+  const data_pages = data.render();
+  if (data_pages.length > 0) {
+    console.log("Rendered from data:", data_pages.length);
+  }
 
   // GENERATE LIST OF OUTPUT FILES, INCLUDING
   //  - tags pages
@@ -132,6 +137,7 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
     preparsed.file.path = preparsed.file.path.replace(/\.[^.]+$/, ".html");
     processList.push(preparsed);
   });
+  processList = processList.concat(data_pages);
   console.info("Source files to process:", processList.length);
   sortAndRun(processList, writeFn, config, templates, data);
   return copyList;
