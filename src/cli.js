@@ -51,6 +51,10 @@ function makeReadSrcListFn(inDir) {
   return (pth) => {
     pth = pth.replace(/[\/]/g, path.sep);
     const srcInputDir = path.join(inDir, pth);
+    if (!fs.existsSync(srcInputDir)) {
+      // console.log(srcInputDir);
+      return [];
+    }
     // console.log("reading list of", srcInputDir);
     // console.log(fs.existsSync(srcInputDir));
     const lst = fs

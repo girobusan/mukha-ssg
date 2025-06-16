@@ -66,7 +66,7 @@ export function runSSG({
     f.name.match(templateRx),
   );
   if (templateFiles.length === 0) {
-    throw "No theme files";
+    throw "No theme files at " + templateSrcPath;
   }
   const Templates = templateFiles.reduce((a, f) => {
     let tname = posixpath.join(f.parentPath, f.name);
