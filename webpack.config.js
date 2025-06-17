@@ -51,13 +51,13 @@ const commonSettings = {
   },
 };
 
-module.exports = function (_, argv) {
+module.exports = function(_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
     watch: argv.mode != "production",
     optimization: {
-      minimize: true,
+      minimize: argv.mode === "production" ? true : false,
       minimizer: [
         new TerserPlugin({
           terserOptions: {

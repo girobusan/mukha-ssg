@@ -11,19 +11,32 @@ function makeObjectLoader(obj) {
   //it's automatically root
   //
   const tpnames = Object.keys(obj);
+  console.log(
+    "Templates files are:\n" + tpnames.map((t) => " -" + t).join("\n"),
+  );
+
   if (tpnames.length == 1 && tpnames[0] != "index.njk") {
     obj = { "index.njk": obj[tpnames[0]] };
   }
   return {
     getSource: (n) => {
-      return { src: obj[n], path: n, noCache: false };
+      // console.log("Getting", n);
+      // console.log("Testing:", typeof obj[n], obj[n] ? true : false);
+      if (!obj[n]) {
+        throw ("No template:", n);
+      }
+      console.log("Packing result");
+      let r = { src: obj[n], path: n, noCache: false };
+      // console.log("Returning:", r);
+      return r;
     },
   };
 }
 
 export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // Environment
-  const tpl = new nunjucks.Environment([makeObjectLoader(templates)], {
+  const objLoader = makeObjectLoader(templates);
+  const tpl = new nunjucks.Environment([objLoader], {
     autoescape: false,
     trimBlocks: true,
     lstripBlocks: true,
@@ -79,8 +92,8 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   }
 
   function renderList(list, writeFn, pass) {
+    // console.log("Render list");
     list.forEach((page) => {
-      // console.log(f.meta);
       let safeContext = {
         config: config,
         data: data,
