@@ -7,7 +7,7 @@ import { renderAndSave } from "./templates";
 // import postprocess from "./postprocess";
 
 const mdfileRx = /\.(md|markdown)$/i;
-const paragraphRx = /^([^-[{<#\n])(.+?)\n\n/gm;
+const paragraphRx = /^([^-![{<#])(.+?)\n\n/gm;
 const imageRx = /!\[.*?\]\s*\((.*?)\)/m;
 
 /**
@@ -75,10 +75,8 @@ function sortAndRun(lst, writeFn, config, templates, data) {
       if (!firstP) {
         return;
       }
+      // console.log("Excerpt found", firstP[0]);
       page.meta.excerpt = firstP[0].trim();
-    }
-    if (!page.meta.excerpt) {
-      return;
     }
   });
   // find images

@@ -21,18 +21,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-          let aval = a.meta.title.toLowerCase();
-          let bval = b.meta.title.toLowerCase();
-          if (aval === bval) {
-            return 0;
-          }
-          if (aval > bval) {
-            return 1;
-          }
-          if (aval < bval) {
-            return -1;
-          }
-        })),
+            let aval = a.meta.title.toLowerCase();
+            let bval = b.meta.title.toLowerCase();
+            if (aval === bval) {
+              return 0;
+            }
+            if (aval > bval) {
+              return 1;
+            }
+            if (aval < bval) {
+              return -1;
+            }
+          })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -91,13 +91,15 @@ export function makeLister(LIST) {
           !e.file.path.endsWith("index.html"),
       );
     },
-    getBreadcrumbs: (p, skip) => {
+    getBreadcrumbs: (p, skip_first) => {
+      let skip = skip_first || 0;
       let dirs = path
         .dirname(p)
         .split("/")
         .filter((e) => e);
+      if (skip >= dirs.path) return [];
       let bc = [];
-      for (let i = skip || 0; i < dirs.length; i++) {
+      for (let i = skip; i < dirs.length; i++) {
         let cp = "/" + dirs.slice(0, i).join("/") + "/index.html";
         let f = LIST.filter((e) => e.file.path == cp);
         if (f.length > 0) {

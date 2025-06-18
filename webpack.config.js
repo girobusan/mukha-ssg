@@ -1,4 +1,5 @@
 const path = require("path");
+const WebpackShellPlugin = require("webpack-shell-plugin-next");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
@@ -51,7 +52,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -89,6 +90,14 @@ module.exports = function(_, argv) {
         VERSION: JSON.stringify(pkg.version),
         MODE: argv.mode,
         BUILDDATE: new Date().toISOString(),
+      }),
+      new webpack.BannerPlugin({
+        entryOnly: true,
+        banner: "#!/usr/bin/env node",
+        raw: true,
+      }),
+      new WebpackShellPlugin({
+        onBuildEnd: ["chmod +x dist/mukha.js", "chmod +x dist/latid2mukha.js"],
       }),
     ],
   };

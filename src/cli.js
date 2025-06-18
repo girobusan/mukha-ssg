@@ -5,6 +5,11 @@ const path = require("path");
 const yaml = require("js-yaml");
 import { runSSG } from "./lib/core";
 //
+process.on("uncaughtException", (error) => {
+  console.error(error.message, error.code); // Message and code
+  process.exit(1); //
+});
+//
 // parse input params
 
 const options = {
@@ -21,7 +26,7 @@ if (params.values.version) {
   process.exit(0);
 }
 
-console.log("\x1b[1mMukha SSG\x1b[0m", VERSION);
+console.log("\x1b[1mMukha SSG", VERSION, "\x1b[0m");
 const inDir = path.normalize(params.values.input || "./site");
 const outDir = path.normalize(params.values.output || "./static");
 const timed = params.values.timed;
@@ -144,8 +149,8 @@ try {
     }),
   );
 } catch (e) {
-  console.error("Can not load or parse config", e);
-  process.exit(0);
+  console.log("Can not load or parse config.", e.message);
+  process.exit(1);
 }
 if (timed) {
   Config.timed = timed;

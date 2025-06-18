@@ -148,8 +148,7 @@ export function runSSG({
     const subdir = f.parentPath.substring(themeFilesPath.length + 1);
     // console.log("subdir", subdir);
     // console.log(f);
-    //:FIXME:
-    let p_to = posixpath.join("/_themes", Config.theme, subdir, f.name);
+    let p_to = posixpath.join("/_theme", subdir, f.name);
     Callback.file("copy", f.src, p_to, "theme_assets");
     copyFile(f.src, p_to);
   });
