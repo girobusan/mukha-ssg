@@ -25,7 +25,6 @@ function makeObjectLoader(obj) {
       if (!obj[n]) {
         throw ("No template:", n);
       }
-      console.log("Packing result");
       let r = { src: obj[n], path: n, noCache: false };
       // console.log("Returning:", r);
       return r;
@@ -59,7 +58,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       if (lst.length <= onPage) {
         f.page_count = 1;
         f.page_links = [];
-        f.page = 1;
+        f.page_number = 1;
         f.list_page = lst;
         return;
       }
@@ -79,7 +78,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           return;
         } //skip 1st page
         let clone = cloneFile(f);
-        clone.page = n;
+        clone.page_number = n;
         clone.file = { path: urls[i] };
         clone.virtual = true;
         let sliced = lst.slice(i * onPage, (i + 1) * onPage);

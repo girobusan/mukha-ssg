@@ -21,18 +21,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-            let aval = a.meta.title.toLowerCase();
-            let bval = b.meta.title.toLowerCase();
-            if (aval === bval) {
-              return 0;
-            }
-            if (aval > bval) {
-              return 1;
-            }
-            if (aval < bval) {
-              return -1;
-            }
-          })),
+          let aval = a.meta.title.toLowerCase();
+          let bval = b.meta.title.toLowerCase();
+          if (aval === bval) {
+            return 0;
+          }
+          if (aval > bval) {
+            return 1;
+          }
+          if (aval < bval) {
+            return -1;
+          }
+        })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -85,7 +85,7 @@ export function makeLister(LIST) {
       let base = p ? path.dirname(p) : "/";
       return LIST.filter(
         (e) =>
-          !e.file.path.startsWith(base) &&
+          e.file.path.startsWith(base) &&
           !e.tag &&
           !e.virtual &&
           !e.file.path.endsWith("index.html"),
@@ -94,19 +94,25 @@ export function makeLister(LIST) {
     getBreadcrumbs: (p, skip_first) => {
       let skip = skip_first || 0;
       let dirs = path
-        .dirname(p)
+        .dirname(p.file.path)
         .split("/")
         .filter((e) => e);
-      if (skip >= dirs.path) return [];
       let bc = [];
-      for (let i = skip; i < dirs.length; i++) {
-        let cp = "/" + dirs.slice(0, i).join("/") + "/index.html";
+      for (let i = 0; i <= dirs.length; i++) {
+        let cp = dirs.slice(0, i).join("/") + "/index.html";
+        console.log(cp);
+        // :TODO: redo
+        if (!cp.startsWith("/")) {
+          cp = "/" + cp;
+        }
         let f = LIST.filter((e) => e.file.path == cp);
         if (f.length > 0) {
           bc.push(f[0]);
         }
       }
-      return bc;
+      // console.log(bc.map((e) => e.file.path).join("|"));
+      // console.log("length", bc.length, "skip", skip);
+      return skip ? bc.slice(skip) : bc;
     },
   };
 }
