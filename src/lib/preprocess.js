@@ -9,6 +9,7 @@ import { renderAndSave } from "./templates";
 const mdfileRx = /\.(md|markdown)$/i;
 const paragraphRx = /^([^-![{<#])(.+?)\n\n/gm;
 const imageRx = /!\[.*?\]\s*\((.*?)\)/m;
+const indexRx = /index\.html?$/i;
 
 /**
  * @param { Object[] } lst - list of file info objects
@@ -141,6 +142,7 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
     }
     // path on site will be html
     preparsed.file.path = preparsed.file.path.replace(/\.[^.]+$/, ".html");
+    if (preparsed.file.path.match(indexRx)) preparsed.index = true;
     processList.push(preparsed);
   });
   processList = processList.concat(data_pages);

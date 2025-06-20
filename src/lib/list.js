@@ -22,18 +22,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-          let aval = a.meta.title.toLowerCase();
-          let bval = b.meta.title.toLowerCase();
-          if (aval === bval) {
-            return 0;
-          }
-          if (aval > bval) {
-            return 1;
-          }
-          if (aval < bval) {
-            return -1;
-          }
-        })),
+            let aval = a.meta.title.toLowerCase();
+            let bval = b.meta.title.toLowerCase();
+            if (aval === bval) {
+              return 0;
+            }
+            if (aval > bval) {
+              return 1;
+            }
+            if (aval < bval) {
+              return -1;
+            }
+          })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -85,19 +85,12 @@ export function makeLister(LIST) {
     getAllFiles: (p) => {
       let base = p ? path.dirname(p) : "/";
       return LIST.filter(
-        (e) =>
-          e.file.path.startsWith(base) &&
-          !e.tag &&
-          !e.virtual &&
-          !e.file.path.endsWith("index.html"),
+        (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && !e.index,
       );
     },
     getBreadcrumbs: (p, skip_first) => {
       let skip = skip_first || 0;
-      let isIndex = p.file.path.match(indexRx);
-      if (isIndex) console.log("index", p.file.path);
-
-      let startPath = isIndex ? path.dirname(p.file.path) : p.file.path;
+      let startPath = p.index ? path.dirname(p.file.path) : p.file.path;
 
       let dirs = path
         .dirname(startPath)
