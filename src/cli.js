@@ -121,20 +121,30 @@ function cleanup() {
   filesThere.forEach((f) => {
     let rezpath = f.substring(outDir.length).replace(/[\\]/g, "/");
     if (writtenFiles.indexOf(rezpath) == -1) {
-      console.log("Removing:", f);
+      console.log(" - Removing unknown file:", f);
       fs.rmSync(f);
     }
   });
 
   let dirsThere = allThere.filter((e) => e.isDirectory());
-  dirsThere.forEach((d) => {
-    // console.log(d);
-    let dir = path.join(d.parentPath, d.name);
-    if (fs.readdirSync(dir).length === 0) {
-      console.log("Removing empty dir:", dir);
-      fs.rmdirSync(dir);
-    }
-  });
+  let emptyDirs = dirsThere
+    .filter((d) => {
+      // console.log(d);
+      let dir = path.join(d.parentPath, d.name);
+      if (
+        fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isFile())
+          .length === 0
+      ) {
+        return true;
+      }
+      return false;
+    })
+    .map((e) => path.join(e.parentPath, e.name))
+    .sort((a, b) => b.length - a.length)
+    .forEach((p) => {
+      console.log(" - Removing empty dir:", p);
+      fs.rmdirSync(p);
+    });
   console.log("All clean.");
   // console.log(writtenFiles);
 }

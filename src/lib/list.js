@@ -1,5 +1,6 @@
 const nodepath = require("path");
 const path = nodepath.posix;
+const indexRx = /index_?\d*\.html$/i;
 // list operations
 //
 //
@@ -93,14 +94,19 @@ export function makeLister(LIST) {
     },
     getBreadcrumbs: (p, skip_first) => {
       let skip = skip_first || 0;
+      let isIndex = p.file.path.match(indexRx);
+      if (isIndex) console.log("index", p.file.path);
+
+      let startPath = isIndex ? path.dirname(p.file.path) : p.file.path;
+
       let dirs = path
-        .dirname(p.file.path)
+        .dirname(startPath)
         .split("/")
         .filter((e) => e);
       let bc = [];
       for (let i = 0; i <= dirs.length; i++) {
         let cp = dirs.slice(0, i).join("/") + "/index.html";
-        console.log(cp);
+        // console.log(cp);
         // :TODO: redo
         if (!cp.startsWith("/")) {
           cp = "/" + cp;
