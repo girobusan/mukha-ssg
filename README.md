@@ -13,6 +13,16 @@ Small and versatile static site generator.
 
 **Project is in the earliest stage.**
 
+## Specs and requirements
+
+### Run
+
+- Node.js v20+
+
+### Build
+
+- shx not included in package.json.
+
 ## Plan
 
 1. Convertor from L1
