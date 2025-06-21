@@ -98,10 +98,10 @@ function makeWriteFn(outDir) {
 }
 
 function makeCopyFn(inDir, outDir) {
-  return (fr, t) => {
+  return (source, dest) => {
     // :TEST:
-    let from_p = fr; //path.join(inDir, path2os(fr));
-    let to_p = path.join(outDir, path2os(t));
+    let from_p = source; //path.join(inDir, path2os(fr));
+    let to_p = path.join(outDir, path2os(dest));
     fs.cpSync(from_p, to_p, { recursive: true, force: true });
   };
 }
