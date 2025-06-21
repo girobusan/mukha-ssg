@@ -26,14 +26,15 @@ export function makeLister(LIST) {
   const byMeta = {};
   const allByMeta = {};
   return {
+    [Symbol.iterator]: () => LIST[Symbol.iterator](),
     replace: (l) => makeLister(l),
     append: (list2add) => makeLister(LIST.concat(list2add)),
-    // add: (i) => makeLister(LIST.concat([i])),
     forEach: (f) => LIST.forEach(f),
     map: (f) => makeLister(LIST.map(f)),
     unwrap: () => LIST.slice(),
     length: LIST.length,
     sort: (f) => makeLister(LIST.slice().sort(f)),
+    slice: (f, t) => LIST.slice(f, t),
     tags: () =>
       tags !== undefined
         ? tags
@@ -86,15 +87,16 @@ export function makeLister(LIST) {
         allByMeta[name] = {};
       }
       let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
-      allByMeta[name][val] = r.length === 0 ? null : r;
-      return makeLister(allByMeta[name][val]);
+      allByMeta[name][val] = r.length === 0 ? null : makeLister(r);
+      return allByMeta[name][val];
     },
     getNearFiles: (pth) => {
       let base = path.dirname(pth);
       let r = LIST.filter((e) => !e.file.path.endsWith("index.html")).filter(
         (e) => path.dirname(e.file.path) === base,
       );
-      return makeLister(r);
+      // return r;
+      return makeLister(r); // makes error!
     },
     getNearDirs: (p) => {
       let base = path.dirname(p);
@@ -103,6 +105,7 @@ export function makeLister(LIST) {
           path.dirname(e.file.path) != base &&
           path.dirname(path.dirname(e.file.path)) === base,
       );
+      // return r;
       return makeLister(r);
     },
     getAllFiles: (p) => {
@@ -110,6 +113,7 @@ export function makeLister(LIST) {
       let r = LIST.filter(
         (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && !e.index,
       );
+      // return r;
       return makeLister(r);
     },
     getAllDirs: (p) => {
@@ -117,6 +121,7 @@ export function makeLister(LIST) {
       let r = LIST.filter(
         (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && e.index,
       );
+      // return r;
       return makeLister(r);
     },
     getBreadcrumbs: (p, skip_first) => {

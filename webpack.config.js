@@ -97,10 +97,7 @@ module.exports = function (_, argv) {
         raw: true,
       }),
       new WebpackShellPlugin({
-        onBuildEnd: [
-          "shx chmod +x dist/mukha.js",
-          "shx chmod +x dist/latid2mukha.js",
-        ],
+        onBuildEnd: ["chmod +x dist/mukha.js", "chmod +x dist/latid2mukha.js"],
       }),
     ],
   };
