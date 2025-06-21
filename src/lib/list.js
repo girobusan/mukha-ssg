@@ -4,14 +4,14 @@ const indexRx = /index_?\d*\.html$/i;
 
 const numSort = (arr, accessor, desc) => {
   return arr.sort((a, b) =>
-    desc ? accessor(a) - accessor(b) : accessor(b) - accessor(a),
+    !desc ? +accessor(a) - accessor(b) : +accessor(b) - accessor(a),
   );
 };
 
 const strSort = (arr, accessor, desc) => {
   return arr.sort((a, b) => {
-    let av = accessor(a);
-    let bv = accessor(b);
+    let av = accessor(a).toString();
+    let bv = accessor(b).toString();
     if (av == bv) return 0;
     if (av > bv) return desc ? -1 : 1;
     if (av < bv) return desc ? 1 : -1;
@@ -63,7 +63,14 @@ export function makeLister(LIST) {
     sortByMeta: (name, asNumber, desc) => {
       let r = LIST.slice();
       let sortfn = asNumber ? numSort : strSort;
-      return makeLister(sortfn(r, (e) => e.meta[name], desc));
+      let def = asNumber ? 0 : "";
+      return makeLister(
+        sortfn(
+          r,
+          (e) => (e.meta[name] !== undefined ? e.meta[name] : def),
+          desc,
+        ),
+      );
     },
     getByMeta: (name, val) => {
       // console.log(`"${name}":"${val}"`);

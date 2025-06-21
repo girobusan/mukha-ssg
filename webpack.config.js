@@ -96,9 +96,9 @@ module.exports = function (_, argv) {
         banner: "#!/usr/bin/env node",
         raw: true,
       }),
-      new WebpackShellPlugin({
-        onBuildEnd: ["chmod +x dist/mukha.js", "chmod +x dist/latid2mukha.js"],
-      }),
+      // new WebpackShellPlugin({
+      //   onBuildEnd: ["chmod +x dist/mukha.js", "chmod +x dist/latid2mukha.js"],
+      // }),
     ],
   };
 
