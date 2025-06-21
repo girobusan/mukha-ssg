@@ -23,7 +23,6 @@ function makeCallbacks(callback) {
   };
 }
 
-const templateRx = /\.(njk|html|htm|nunjucks)$/i;
 /**
  *
  * @param {Object} Config
@@ -34,7 +33,24 @@ const templateRx = /\.(njk|html|htm|nunjucks)$/i;
  * @property {function} Config.callback - callback fn
  * @property {object} Config.env - environment data
  */
-export function runSSG({
+export function createCore(opts) {
+  var options = opts;
+
+  return {
+    run: () => runSSG(options),
+    changeOption: (n, v) => {
+      options[n] = v;
+      return createCore(opts);
+    },
+    changeConfig: (n, v) => {
+      options.config[n] = v;
+      return createCore(opts);
+    },
+  };
+}
+
+const templateRx = /\.(njk|html|htm|nunjucks)$/i;
+function runSSG({
   listSourceFiles,
   writeOutputFile,
   copyFile,

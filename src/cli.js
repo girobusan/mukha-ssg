@@ -3,7 +3,7 @@ const Papa = require("papaparse");
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
-import { runSSG } from "./lib/core";
+import { createCore } from "./lib/core";
 //
 process.on("uncaughtException", (error) => {
   console.error(error.message, error.code); // Message and code
@@ -107,37 +107,32 @@ function makeCopyFn(inDir, outDir) {
 }
 
 function cleanup() {
+  console.log("Cleaning up...");
   let allThere = fs.readdirSync(outDir, {
     recursive: true,
     withFileTypes: true,
   });
-  console.log("Cleaning up...");
   const writtenFiles = written.map((e) => e.path);
 
-  let filesThere = allThere
+  allThere
     .filter((f) => f.isFile())
-    .map((f) => path.join(f.parentPath, f.name));
-  // console.log(filesThere.slice(0, 5));
-  filesThere.forEach((f) => {
-    let rezpath = f.substring(outDir.length).replace(/[\\]/g, "/");
-    if (writtenFiles.indexOf(rezpath) == -1) {
-      console.log(" - Removing unknown file:", f);
-      fs.rmSync(f);
-    }
-  });
+    .map((f) => path.join(f.parentPath, f.name))
+    .forEach((f) => {
+      let rezpath = f.substring(outDir.length).replace(/[\\]/g, "/");
+      if (writtenFiles.indexOf(rezpath) == -1) {
+        console.log(" - Removing unknown file:", f);
+        fs.rmSync(f);
+      }
+    });
 
-  let dirsThere = allThere.filter((e) => e.isDirectory());
-  let emptyDirs = dirsThere
+  allThere
+    .filter((e) => e.isDirectory())
     .filter((d) => {
-      // console.log(d);
       let dir = path.join(d.parentPath, d.name);
-      if (
+      return (
         fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isFile())
           .length === 0
-      ) {
-        return true;
-      }
-      return false;
+      );
     })
     .map((e) => path.join(e.parentPath, e.name))
     .sort((a, b) => b.length - a.length)
@@ -166,7 +161,7 @@ if (timed) {
   Config.timed = timed;
 }
 
-runSSG({
+createCore({
   listSourceFiles: makeReadSrcListFn(inDir),
   writeOutputFile: makeWriteFn(outDir),
   copyFile: makeCopyFn(inDir, outDir),
@@ -185,4 +180,4 @@ runSSG({
   },
   config: Config,
   env: { version: VERSION },
-});
+}).run();

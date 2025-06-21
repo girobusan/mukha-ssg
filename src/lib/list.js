@@ -17,6 +17,19 @@ const strSort = (arr, accessor, desc) => {
     if (av < bv) return desc ? 1 : -1;
   });
 };
+const dateSort = (arr, _, desc) => {
+  return arr.sort((a, b) => {
+    let av = 0;
+    let bv = 0;
+    try {
+      av = a.date.getTime();
+    } catch (e) { }
+    try {
+      bv = b.date.getTime();
+    } catch (e) { }
+    return !desc ? av - bv : bv - av;
+  });
+};
 // list operations
 //
 //
@@ -39,18 +52,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-            let aval = a.meta.title.toLowerCase();
-            let bval = b.meta.title.toLowerCase();
-            if (aval === bval) {
-              return 0;
-            }
-            if (aval > bval) {
-              return 1;
-            }
-            if (aval < bval) {
-              return -1;
-            }
-          })),
+          let aval = a.meta.title.toLowerCase();
+          let bval = b.meta.title.toLowerCase();
+          if (aval === bval) {
+            return 0;
+          }
+          if (aval > bval) {
+            return 1;
+          }
+          if (aval < bval) {
+            return -1;
+          }
+        })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -62,7 +75,12 @@ export function makeLister(LIST) {
     },
     sortByMeta: (name, asNumber, desc) => {
       let r = LIST.slice();
-      let sortfn = asNumber ? numSort : strSort;
+      let sortfn;
+      if (name === "date") {
+        sortfn = dateSort;
+      } else {
+        sortfn = asNumber ? numSort : strSort;
+      }
       let def = asNumber ? 0 : "";
       return makeLister(
         sortfn(
@@ -99,7 +117,7 @@ export function makeLister(LIST) {
     },
     getNearFiles: (pth) => {
       let base = path.dirname(pth);
-      let r = LIST.filter((e) => !e.file.path.endsWith("index.html")).filter(
+      let r = LIST.filter((e) => !e.index).filter(
         (e) => path.dirname(e.file.path) === base,
       );
       // return r;
@@ -107,7 +125,7 @@ export function makeLister(LIST) {
     },
     getNearDirs: (p) => {
       let base = path.dirname(p);
-      let r = LIST.filter((e) => e.file.path.endsWith("index.html")).filter(
+      let r = LIST.filter((e) => e.index).filter(
         (e) =>
           path.dirname(e.file.path) != base &&
           path.dirname(path.dirname(e.file.path)) === base,
@@ -125,8 +143,17 @@ export function makeLister(LIST) {
     },
     getAllDirs: (p) => {
       let base = p ? path.dirname(p) : "/";
+      let baselen = base.length;
+      let isindex = p.match(indexRx);
       let r = LIST.filter(
-        (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && e.index,
+        (e) =>
+          (isindex
+            ? path.dirname(e.file.path).startsWith(base) &&
+            path.dirname(e.file.path).length > baselen
+            : e.file.path.startsWith(base)) &&
+          !e.tag &&
+          !e.virtual &&
+          e.index,
       );
       // return r;
       return makeLister(r);
