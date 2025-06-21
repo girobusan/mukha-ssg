@@ -20,13 +20,10 @@ function makeObjectLoader(obj) {
   }
   return {
     getSource: (n) => {
-      // console.log("Getting", n);
-      // console.log("Testing:", typeof obj[n], obj[n] ? true : false);
       if (!obj[n]) {
         throw ("No template:", n);
       }
       let r = { src: obj[n], path: n, noCache: false };
-      // console.log("Returning:", r);
       return r;
     },
   };
@@ -41,7 +38,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function(str, count) {
+  tpl.addFilter("shorten", function (str, count) {
     return str.slice(0, count || 5);
   });
   // console.log(tpl.filters);
@@ -52,7 +49,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function(lst, length) {
+    return function (lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -108,7 +105,10 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         util: {
           niceDate: niceDate,
           makeTable: tableFilter,
-          debug: (o) => JSON.stringify(o, null, 2),
+          debugObj: (o) => JSON.stringify(o, null, 2),
+          debug: function () {
+            console.log.apply(this, arguments);
+          },
         },
       };
 

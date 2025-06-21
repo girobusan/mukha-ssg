@@ -1,6 +1,22 @@
 const nodepath = require("path");
 const path = nodepath.posix;
 const indexRx = /index_?\d*\.html$/i;
+
+const numSort = (arr, accessor, desc) => {
+  return arr.sort((a, b) =>
+    desc ? accessor(a) - accessor(b) : accessor(b) - accessor(a),
+  );
+};
+
+const strSort = (arr, accessor, desc) => {
+  return arr.sort((a, b) => {
+    let av = accessor(a);
+    let bv = accessor(b);
+    if (av == bv) return 0;
+    if (av > bv) return desc ? -1 : 1;
+    if (av < bv) return desc ? 1 : -1;
+  });
+};
 // list operations
 //
 //
@@ -14,8 +30,8 @@ export function makeLister(LIST) {
     append: (list2add) => makeLister(LIST.concat(list2add)),
     // add: (i) => makeLister(LIST.concat([i])),
     forEach: (f) => LIST.forEach(f),
-    // map: (f) => makeLister(LIST.map(f)), — map must unwrap
-    unwrap: () => LIST,
+    map: (f) => makeLister(LIST.map(f)),
+    unwrap: () => LIST.slice(),
     length: LIST.length,
     sort: (f) => makeLister(LIST.slice().sort(f)),
     tags: () =>
@@ -43,6 +59,11 @@ export function makeLister(LIST) {
       byPath[p] = r1;
       return r1;
     },
+    sortByMeta: (name, asNumber, desc) => {
+      let r = LIST.slice();
+      let sortfn = asNumber ? numSort : strSort;
+      return makeLister(sortfn(r, (e) => e.meta[name], desc));
+    },
     getByMeta: (name, val) => {
       // console.log(`"${name}":"${val}"`);
       if (byMeta[name] && byMeta[name][val]) {
@@ -66,27 +87,37 @@ export function makeLister(LIST) {
       }
       let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
       allByMeta[name][val] = r.length === 0 ? null : r;
-      return allByMeta[name][val];
+      return makeLister(allByMeta[name][val]);
     },
     getNearFiles: (pth) => {
       let base = path.dirname(pth);
-      return LIST.filter((e) => !e.file.path.endsWith("index.html")).filter(
+      let r = LIST.filter((e) => !e.file.path.endsWith("index.html")).filter(
         (e) => path.dirname(e.file.path) === base,
       );
+      return makeLister(r);
     },
     getNearDirs: (p) => {
       let base = path.dirname(p);
-      return LIST.filter((e) => e.file.path.endsWith("index.html")).filter(
+      let r = LIST.filter((e) => e.file.path.endsWith("index.html")).filter(
         (e) =>
           path.dirname(e.file.path) != base &&
           path.dirname(path.dirname(e.file.path)) === base,
       );
+      return makeLister(r);
     },
     getAllFiles: (p) => {
       let base = p ? path.dirname(p) : "/";
-      return LIST.filter(
+      let r = LIST.filter(
         (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && !e.index,
       );
+      return makeLister(r);
+    },
+    getAllDirs: (p) => {
+      let base = p ? path.dirname(p) : "/";
+      let r = LIST.filter(
+        (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && e.index,
+      );
+      return makeLister(r);
     },
     getBreadcrumbs: (p, skip_first) => {
       let skip = skip_first || 0;
