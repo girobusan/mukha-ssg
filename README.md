@@ -28,7 +28,7 @@ Small and versatile static site generator.
 1. Convertor from L1
    - [x] blocks
    - [x] files
-   - [ ] test on large site
+   - [x] test on large site
 2. CLI utility
    - [x] RSS
    - [x] New list mechanics
