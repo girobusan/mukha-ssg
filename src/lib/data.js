@@ -1,7 +1,12 @@
 const Papa = require("papaparse");
 const yaml = require("js-yaml");
 import { retrieveByStr, writeObjByKeys } from "./util";
-import { generateFromCol, generateFromRows, slugify } from "./data_transform";
+import {
+  generateFromCol,
+  generateFromRows,
+  slugify,
+  aggregate,
+} from "./data_transform";
 //
 // Data inclusion
 //
@@ -9,33 +14,39 @@ const datatypeRx = /\.(csv|tsv|json|dsv|yaml)$/i;
 const configFile = /data\.config\.(json|yaml)$/i;
 var NS = {};
 var datasets = {};
-var data_tasks = [];
+var transform_tasks = [];
 var rendered = false;
 var render_tasks = [];
 
 function parseDataConfig(conf, lang) {
   console.log("Data config file found...");
   if (lang === "json") {
-    data_tasks = JSON.parse(conf);
+    try {
+      transform_tasks = JSON.parse(conf);
+    } catch (e) {
+      console.log("Can not render data conf (json):", e);
+    }
   }
   if (lang === "yaml") {
     try {
-      let t = yaml.load(conf);
-      data_tasks = t;
+      transform_tasks = yaml.load(conf);
     } catch (e) {
       console.log("Can not render data conf (yaml):", e);
     }
   }
-  render_tasks = data_tasks.filter((t) => t.task === "render");
+  render_tasks = transform_tasks.filter((t) => t.task === "render");
 }
 
-function runDataTasks() {
-  data_tasks.forEach((t) => {
+function runTransformTasks() {
+  transform_tasks.forEach((t) => {
+    let ds = retrieveByStr(t.dataset, datasets);
     switch (t.task) {
       case "slugify":
-        let ds = retrieveByStr(t.dataset, datasets);
         ds = slugify(ds, t.input_col, t.output_col);
         // console.log("slugify", ds.slice(0, 5));
+        break;
+      case "aggregate":
+        ds = aggregate(ds, t.type, t.input_col, t.output_col);
         break;
     }
   });
@@ -132,7 +143,7 @@ export function initData(fileList, initialData) {
   });
   // console.log(datasets);
   // console.log(NS);
-  runDataTasks();
+  runTransformTasks();
   return {
     datasets: datasets,
     find: (dataset, column, value) => dataset.filter((r) => r[column] == value),

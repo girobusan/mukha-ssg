@@ -1,6 +1,17 @@
 import { translit } from "./util";
 import { makePageLikeObj } from "./util";
 
+function median(numbers) {
+  const sorted = Array.from(numbers).sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 0) {
+    return (sorted[middle - 1] + sorted[middle]) / 2;
+  }
+
+  return sorted[middle];
+}
+
 function makeSubst(str, dict) {
   if (typeof str !== "string") {
     return str;
@@ -17,6 +28,27 @@ function makeSubst(str, dict) {
 function substValues(obj, substDict) {
   Object.keys(obj).forEach((k) => (obj[k] = makeSubst(obj[k], substDict)));
   return obj;
+}
+
+function slugifyArray(arr) {
+  const col_values = Array.from(new Set(arr));
+  const slugSet = new Set();
+  const slugs = col_values.map((cv) => {
+    let slug_base = translit(cv.toString()) || "empty_";
+    let preslug = slug_base;
+    let num = 1;
+    while (slugSet.has(preslug)) {
+      preslug = slug_base + num;
+      num += 1;
+    }
+    slugSet.add(preslug);
+    return preslug;
+  });
+
+  return col_values.reduce((a, e, i) => {
+    a[e] = slugs[i];
+    return a;
+  }, {});
 }
 
 export function slugify(tbl, input_col, slug_col_name) {
@@ -44,6 +76,42 @@ export function slugify(tbl, input_col, slug_col_name) {
   tbl.forEach((r) => (r[slug_col_name] = slugdict[r[input_col]]));
   return tbl;
 }
+export function aggregate(tbl, aggregateType, col, out_col) {
+  let val;
+  switch (aggregateType) {
+    case "count_u":
+      val = new Set(tbl.map((r) => r[col])).size;
+      break;
+    case "sum":
+      val = tbl
+        .map((r) => r[col])
+        .map((v) => +v)
+        .filter((v) => !Number.isNaN(v))
+        .reduce((a, e) => a + e, 0);
+      break;
+    case "avg":
+      let nums = tbl
+        .map((r) => r[col])
+        .map((v) => +v)
+        .filter((v) => !Number.isNaN(v));
+      let summ = nums.reduce((a, e) => a + e, 0);
+      val = nums.legth > 0 ? summ / nums.length : null;
+
+      break;
+    case "median":
+      let vals = tbl
+        .map((r) => r[col])
+        .map((v) => +v)
+        .filter((v) => !Number.isNaN(v));
+      val = vals.length > 0 ? median(vals) : 0;
+      break;
+
+    default:
+      return tbl.length; // count *
+  }
+  tbl.forEach((r) => (r[out_col] = value));
+  return tbl;
+}
 
 export function generateFromRows(tbl, { meta, content, path, html }) {
   let pages = [];
@@ -69,19 +137,17 @@ export function generateFromCol(tbl, col_name, { meta, content, path, html }) {
   let values = Array.from(new Set(tbl.map((r) => r[col_name])));
   values.forEach((v) => {
     let data = tbl.filter((r) => r[col_name] === v);
-    let repDict = { value: v };
+    let repDict = data.length > 0 ? data[0] : { value: v };
 
-    let p_meta = substValues(meta, repDict);
+    let page_meta = substValues(meta, repDict);
 
     const page = makePageLikeObj(
-      p_meta,
-      makeSubst(content, repDict),
+      page_meta,
+      content ? makeSubst(content, repDict) : "",
       makeSubst(path, repDict),
-      html || "",
+      html ? makeSubst(html, repDict) : "",
     );
-    // console.log("---data---");
     // console.log(data);
-    // console.log("---end---");
     page.local_data = data;
 
     // page.list = data;

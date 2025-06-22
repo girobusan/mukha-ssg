@@ -57,11 +57,8 @@ function makeReadSrcListFn(inDir) {
     pth = pth.replace(/[\/]/g, path.sep);
     const srcInputDir = path.join(inDir, pth);
     if (!fs.existsSync(srcInputDir)) {
-      // console.log(srcInputDir);
       return [];
     }
-    // console.log("reading list of", srcInputDir);
-    // console.log(fs.existsSync(srcInputDir));
     const lst = fs
       .readdirSync(srcInputDir, {
         recursive: true,
@@ -70,7 +67,6 @@ function makeReadSrcListFn(inDir) {
       // .forEach((e) => console.log(e.name, e.isFile()))
       .filter((f) => f.isFile())
       .map((f) => {
-        // console.log(f.name);
         // this path required if file
         //  later copied
         const fullSrcPath = path.join(f.parentPath, f.name);
@@ -90,7 +86,6 @@ function makeWriteFn(outDir) {
     normp = path.join(outDir, normp);
     const pdir = path.dirname(normp);
     if (!fs.existsSync(pdir)) {
-      // console.log("must make dir", pdir);
       fs.mkdirSync(pdir, { recursive: true, force: true });
     }
     fs.writeFileSync(normp, c, { encoding: "utf8" });
