@@ -48,7 +48,7 @@ ${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
 
   quote: (_, params) => {
     return `<figure class="quote" >
-  <blockquote>${text}</blockquote>
+  <blockquote>${params.text}</blockquote>
 ${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
 </figure > `;
   },
@@ -78,6 +78,11 @@ ${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
   },
   raw: (m) => {
     return m;
+  },
+  attachment: (m, params) => {
+    return `<div class="file-attachment ${params.className}">
+<a href="${params.url}">${params.title || params.url}</a>
+</div>`;
   },
 };
 

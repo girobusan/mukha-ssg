@@ -38,7 +38,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function (str, count) {
+  tpl.addFilter("shorten", function(str, count) {
     return str.slice(0, count || 5);
   });
   // console.log(tpl.filters);
@@ -49,7 +49,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function (lst, length) {
+    return function(lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -90,6 +90,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   function renderList(list, writeFn, pass) {
     // console.log("Render list");
     list.forEach((page) => {
+      // console.log(page.file.path);
       let safeContext = {
         config: config,
         data: data,
@@ -106,7 +107,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           niceDate: niceDate,
           makeTable: tableFilter,
           debugObj: (o) => JSON.stringify(o, null, 2),
-          debug: function () {
+          debug: function() {
             console.log.apply(this, arguments);
           },
         },
@@ -116,10 +117,23 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       page.meta.excerpt && (page.meta.excerpt = md2html(page.meta.excerpt));
       // render nunjucks in content
       if (page.html) {
-        page.html = tpl.renderString(page.html, safeContext);
+        try {
+          page.html = tpl.renderString(page.html, safeContext);
+        } catch (e) {
+          console.log("Malformed template tags in html", page.file.path);
+        }
       } else {
         if (page.content) {
-          page.html = md2html(tpl.renderString(page.content, safeContext));
+          try {
+            let renderedInMd = tpl.renderString(page.content, safeContext);
+            page.html = md2html(renderedInMd);
+          } catch (e) {
+            console.log(
+              "malformed template tags in markdown at",
+              page.file.path,
+            );
+            page.html = md2html(page.content);
+          }
         }
       }
       //
@@ -136,6 +150,9 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     });
   }
   //passes
+  // console.log("pass 1...");
   renderList(fullLister, writeFn, 1);
+  // console.log("pass 2...");
   renderList(virtuals, writeFn, 2);
+  // console.log("ready");
 }

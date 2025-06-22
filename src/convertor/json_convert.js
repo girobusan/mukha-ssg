@@ -7,7 +7,17 @@ function boolList(list, obj) {
 }
 
 function unBR(txt) {
-  return txt.replace(/<br\/?>\s*$/, "");
+  // console.log("inbr", txt);
+  if (!txt) return "";
+  return txt.replace(/<br\/?>\s*$/g, "").replace(/\n/g, "");
+}
+function stripTags(txt) {
+  // console.log("striptgs");
+  if (!txt) {
+    return "";
+  }
+  let newTxt = txt.replace(/\n/g, "");
+  return newTxt.replace(/<[^>]*>/g, "");
 }
 
 const fence = "```";
@@ -86,7 +96,8 @@ export function convertBlocks(blocks) {
         txt += "```\n" + unBR(b.code) + "\n```\n\n";
         break;
       case "header":
-        txt += "#######".substring(0, +b.level) + " " + unBR(b.text) + "\n\n";
+        txt +=
+          "#######".substring(0, +b.level) + " " + stripTags(b.text) + "\n\n";
         break;
       case "list":
         let lt = b.style === "ordered" ? "1. " : "* ";
@@ -118,9 +129,9 @@ export function convertBlocks(blocks) {
         break;
       case "attachment":
         if (!b.hidden) {
-          txt += helpers.attachment(b.url, b.title || b.filename, b.class);
+          txt += helpers.attachment(b.href, b.title || b.filename, b.class);
         } else {
-          txt += "\n\n" + `<!--attached: ${b.url}-->` + "\n\n";
+          txt += "\n\n" + `<!--attached: ${b.url || b.href}-->` + "\n\n";
         }
         break;
       case "image":
@@ -129,7 +140,7 @@ export function convertBlocks(blocks) {
           b,
         );
 
-        txt += helpers.image(b.caption, b.file.url, b.link, classes);
+        txt += helpers.image(unBR(b.caption), b.file.url, b.link, classes);
         break;
 
       case "quote":

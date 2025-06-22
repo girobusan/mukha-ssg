@@ -8,6 +8,10 @@ import { convertBlocks, convertJson } from "./convertor/json_convert";
 -o — output dir
 
 */
+process.on("uncaughtException", (error) => {
+  console.error(error.message, error.code); // Message and code
+  process.exit(1); //
+});
 
 function testJSON(fn) {
   const fc = fs.readFileSync(fn);

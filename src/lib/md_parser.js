@@ -38,10 +38,21 @@ export function md2html(md_src) {
     inserts_short.push(runInsert(g1, g2, guessParams));
     return `<!--##${inserts_short.length - 1}##-->`;
   });
-
-  let newHTML = md.render(newMd);
+  let newHTML;
+  try {
+    newHTML = md.render(newMd);
+  } catch (e) {
+    console.log("Markdown render error", e);
+  }
   // replace markers with inserts result
-  newHTML = newHTML.replace(/<!--##(\d+)##-->/g, (_, g1) => inserts_short[+g1]);
-  newHTML = newHTML.replace(/<!--#(\d+)#-->/g, (_, g1) => inserts_full[+g1]);
+  try {
+    newHTML = newHTML.replace(
+      /<!--##(\d+)##-->/g,
+      (_, g1) => inserts_short[+g1],
+    );
+    newHTML = newHTML.replace(/<!--#(\d+)#-->/g, (_, g1) => inserts_full[+g1]);
+  } catch (e) {
+    console.log("Inserts insertion error", e);
+  }
   return newHTML;
 }

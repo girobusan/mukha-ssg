@@ -7,7 +7,8 @@ import { renderAndSave } from "./templates";
 // import postprocess from "./postprocess";
 
 const mdfileRx = /\.(md|markdown)$/i;
-const paragraphRx = /^([^-![{<#])(.+?)\n\n/gm;
+// const paragraphRx = /^([^-![{<#])(.+?)\n\n/gm;
+const paragraphRx = /(\n\n|^)([^-![\](\){\}<#].+?)\n\n/gs;
 const imageRx = /!\[.*?\]\s*\((.*?)\)/m;
 const indexRx = /index\.html?$/i;
 
@@ -58,7 +59,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
         if (p.meta.date.getTime() > today.getTime()) {
           return false;
         }
-      } catch (e) {}
+      } catch (e) { }
       return true;
     });
   }

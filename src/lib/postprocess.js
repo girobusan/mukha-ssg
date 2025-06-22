@@ -4,6 +4,7 @@ const path = require("path");
 const linkRe = /(<[^>]*(src|href|poster)\s*=\s*["'])\s*(.*?)\s*(["'])/gim;
 
 function fixLink(to, from, lister, site_url) {
+  // console.log("fix link", to, from);
   let linkedto = to;
   // external link — do not rewrite
   if (!to.startsWith("/")) {
@@ -28,11 +29,20 @@ function fixLink(to, from, lister, site_url) {
       linkstr.substring(0, splitAt - 2),
       linkstr.substring(splitAt - 1),
     ].map((p) => p.trim());
+    if (!parts[1]) {
+      console.log("Malformed /+ link, no value at", from);
+      return to;
+    }
+    // console.log("looking for", to);
     let f = lister.getByMeta(parts[0], parts[1]);
+
     if (!f) {
       console.log("Can not find target of /+ link from", from, ":", linkstr);
       return to;
     }
+    // else {
+    //   console.log("found...");
+    // }
     linkedto = f.file.path;
   }
   return site_url
