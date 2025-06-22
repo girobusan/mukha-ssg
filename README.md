@@ -2,14 +2,14 @@
 
 Small and versatile static site generator.
 
-- More or less universal Markdown as source.
-- Themes, using Nunjucks template language.
-- No tools required to install and run (except Node.js).
+- No external tools required (except Node.js).
 - Links are relative; the site is extremely portable.
-- Paginated lists.
-- Custom or automatically generated pages for tags.
+- Paginated lists (ANY lists).
+- Data attachment, bsaic data tranforms.
+- Pages from data generation.
+- Themes, using Nunjucks template language.
+- Custom and automatically generated pages for tags.
 - Standard Markdown + ability to insert rich content.
-- Data attachment.
 
 **Project is in the earliest stage.**
 
@@ -46,7 +46,7 @@ Small and versatile static site generator.
 - [x] Template data format
 - [x] HTML postprocessing
 - [x] Inserts syntax
-- [ ] Basic, but nice theme
+- [x] Basic, but nice theme
 - [ ] Test site
 
 मुख
