@@ -5,7 +5,7 @@ Small and versatile static site generator.
 - No external tools required (except Node.js).
 - Links are relative; the site is extremely portable.
 - Paginated lists (ANY lists).
-- Data attachment, bsaic data tranforms.
+- Data attachment, basic data tranforms.
 - Pages from data generation.
 - Themes, using Nunjucks template language.
 - Custom and automatically generated pages for tags.
