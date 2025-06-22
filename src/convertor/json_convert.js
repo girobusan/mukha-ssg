@@ -54,14 +54,14 @@ ${fence}
   },
   image: (caption, url, link, classes) => {
     let imgtag = link
-      ? `[![${caption}](${url})](${link})${caption}`
-      : `![${caption}](${url})${caption}`;
+      ? `[![${caption || ""}](${url})](${link})${caption || ""}`
+      : `![${caption || ""}](${url})${caption || ""}`;
     return `
 <!--@image-->
 ${imgtag}
 
 ${fence}
-${dump({ caption, url, link, classes })}
+${dump({ caption: caption || "", url: url, link: link, classes: classes })}
 ${fence}
 <!--//-->
 
@@ -132,13 +132,25 @@ export function convertBlocks(blocks) {
         txt += helpers.image(b.caption, b.file.url, b.link, classes);
         break;
 
+      case "quote":
+        txt += helpers.quote(b.text, b.caption);
+        break;
+
+      case "divider":
+        txt += "\n---\n\n";
+        break;
+
+      case "raw":
+        txt += b.html + "\n\n";
+        break;
+
       default:
         if (b.html) {
-          console.log("Raw html block");
+          console.log("Raw html block", blk.type);
           txt += "\n" + b.html + "\n";
-          break;
         }
-        console.log("Unknown block", b);
+
+        console.log("Unknown block", b, blk.type);
     }
   });
   return txt;
