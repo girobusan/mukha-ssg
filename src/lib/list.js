@@ -22,10 +22,10 @@ const dateSort = (arr, _, desc) => {
     let av = 0;
     let bv = 0;
     try {
-      av = a.date.getTime();
+      av = a.meta.date.getTime();
     } catch (e) { }
     try {
-      bv = b.date.getTime();
+      bv = b.meta.date.getTime();
     } catch (e) { }
     return !desc ? av - bv : bv - av;
   });
