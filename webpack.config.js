@@ -52,7 +52,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function (_, argv) {
+module.exports = function(_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -64,6 +64,7 @@ module.exports = function (_, argv) {
           terserOptions: {
             format: {
               comments: false,
+              max_line_len: 120,
             },
           },
           extractComments: false,

@@ -34,12 +34,18 @@ Small and versatile static site generator.
    - [x] New list mechanics
    - [x] Improved templating
    - [x] Pack SSG code to platform-agnostic module
+   - [ ] Separate backends (node-fs, node-memory)
+   - [ ] Implement watch mode
+3. All
+   - [x] Data attachment
+   - [x] Data → pages generation
+   - [ ] Documentation (in process)
+   - [ ] Site
 
-- [x] Data attachment
-- [x] Data → pages generation
+#### Post-release
+
 - [ ] Attach data for JS (future)
-
-3. [ ] Server & WebUI
+- [ ] WebUI
 
 ## Tasks
 
