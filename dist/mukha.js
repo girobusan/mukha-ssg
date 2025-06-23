@@ -4826,10 +4826,10 @@ i.o=(e,n)=>Object.prototype.hasOwnProperty.call(e,n),i.r=e=>{
 Object.defineProperty(e,"__esModule",{value:!0})},(()=>{"use strict"
 ;const e=i(6928).posix,n=/index_?\d*\.html$/i,t=(e,n,i)=>e.sort(((e,t)=>i?+n(t)-n(e):+n(e)-n(t))),a=(e,n,i)=>e.sort(((e,t)=>{
 let a=n(e).toString(),o=n(t).toString();return a==o?0:a>o?i?-1:1:a<o?i?1:-1:void 0})),o=(e,n,i)=>e.sort(((e,n)=>{
-let t=0,a=0;try{t=e.date.getTime()}catch(e){}try{a=n.date.getTime()}catch(e){}return i?a-t:t-a}));function r(i){let s
-;const u={},l={},c={};return{[Symbol.iterator]:()=>i[Symbol.iterator](),replace:e=>r(e),append:e=>r(i.concat(e)),
-forEach:e=>i.forEach(e),map:e=>r(i.map(e)),unwrap:()=>i.slice(),length:i.length,sort:e=>r(i.slice().sort(e)),
-slice:(e,n)=>i.slice(e,n),tags:()=>void 0!==s?s:s=i.filter((e=>e.tag)).sort(((e,n)=>{
+let t=0,a=0;try{t=e.meta.date.getTime()}catch(e){}try{a=n.meta.date.getTime()}catch(e){}return i?a-t:t-a}))
+;function r(i){let s;const u={},l={},c={};return{[Symbol.iterator]:()=>i[Symbol.iterator](),replace:e=>r(e),
+append:e=>r(i.concat(e)),forEach:e=>i.forEach(e),map:e=>r(i.map(e)),unwrap:()=>i.slice(),length:i.length,
+sort:e=>r(i.slice().sort(e)),slice:(e,n)=>i.slice(e,n),tags:()=>void 0!==s?s:s=i.filter((e=>e.tag)).sort(((e,n)=>{
 let i=e.meta.title.toLowerCase(),t=n.meta.title.toLowerCase();return i===t?0:i>t?1:i<t?-1:void 0})),getByPath:e=>{
 if(u[e])return u[e];let n=i.filter((n=>n.file.path===e)),t=0==n.length?null:n[0];return u[e]=t,t},sortByMeta:(e,n,s)=>{
 let u,l=i.slice();u="date"===e?o:n?t:a;let c=n?0:"";return r(u(l,(n=>void 0!==n.meta[e]?n.meta[e]:c),s))},
