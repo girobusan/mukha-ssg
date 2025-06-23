@@ -35,9 +35,12 @@ const dateSort = (arr, _, desc) => {
 //
 export function makeLister(LIST) {
   let tags; // = lst.filter((f) => f.tag);
-  const byPath = {};
   const byMeta = {};
   const allByMeta = {};
+  const byPath = LIST.reduce((a, p) => {
+    a[p.file.path] = p;
+    return a;
+  }, {});
   return {
     [Symbol.iterator]: () => LIST[Symbol.iterator](),
     replace: (l) => makeLister(l),

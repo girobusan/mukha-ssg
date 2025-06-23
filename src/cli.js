@@ -174,5 +174,7 @@ createCore({
     }
   },
   config: Config,
-  env: { version: VERSION },
+  env: {
+    app: { version: VERSION, build_mode: "MODE", build_date: "BUILDDATE" },
+  },
 }).run();

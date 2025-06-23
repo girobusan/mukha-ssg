@@ -65,6 +65,7 @@ module.exports = function(_, argv) {
             format: {
               comments: false,
               max_line_len: 120,
+              // preamble: "#!/usr/bin/env node",
             },
           },
           extractComments: false,

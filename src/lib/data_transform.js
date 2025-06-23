@@ -11,6 +11,11 @@ function median(numbers) {
 
   return sorted[middle];
 }
+function groupBy(arr, key) {
+  let vals = Array.from(new Set(arr.map((e) => e[key])));
+  let groups = {};
+  vals.forEach((v) => (groups[v] = arr.filter((r) => r[key] == v)));
+}
 
 function makeSubst(str, dict) {
   if (typeof str !== "string") {

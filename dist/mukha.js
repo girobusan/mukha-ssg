@@ -4827,15 +4827,16 @@ Object.defineProperty(e,"__esModule",{value:!0})},(()=>{"use strict"
 ;const e=i(6928).posix,n=/index_?\d*\.html$/i,t=(e,n,i)=>e.sort(((e,t)=>i?+n(t)-n(e):+n(e)-n(t))),a=(e,n,i)=>e.sort(((e,t)=>{
 let a=n(e).toString(),o=n(t).toString();return a==o?0:a>o?i?-1:1:a<o?i?1:-1:void 0})),o=(e,n,i)=>e.sort(((e,n)=>{
 let t=0,a=0;try{t=e.meta.date.getTime()}catch(e){}try{a=n.meta.date.getTime()}catch(e){}return i?a-t:t-a}))
-;function r(i){let s;const u={},l={},c={};return{[Symbol.iterator]:()=>i[Symbol.iterator](),replace:e=>r(e),
-append:e=>r(i.concat(e)),forEach:e=>i.forEach(e),map:e=>r(i.map(e)),unwrap:()=>i.slice(),length:i.length,
-sort:e=>r(i.slice().sort(e)),slice:(e,n)=>i.slice(e,n),tags:()=>void 0!==s?s:s=i.filter((e=>e.tag)).sort(((e,n)=>{
-let i=e.meta.title.toLowerCase(),t=n.meta.title.toLowerCase();return i===t?0:i>t?1:i<t?-1:void 0})),getByPath:e=>{
-if(u[e])return u[e];let n=i.filter((n=>n.file.path===e)),t=0==n.length?null:n[0];return u[e]=t,t},sortByMeta:(e,n,s)=>{
-let u,l=i.slice();u="date"===e?o:n?t:a;let c=n?0:"";return r(u(l,(n=>void 0!==n.meta[e]?n.meta[e]:c),s))},
-getByMeta:(e,n)=>{if(l[e]&&l[e][n])return l[e][n];l[e]||(l[e]={});let t=i.filter((i=>i.meta[e]&&i.meta[e].trim()==n))
-;return l[e][n]=0===t.length?null:t[0],l[e][n]},getAllByMeta:(e,n)=>{if(c[e]&&c[e][n])return c[e][n];c[e]||(c[e]={})
-;let t=i.filter((i=>i.meta[e]&&i.meta[e].trim()==n));return c[e][n]=0===t.length?null:r(t),c[e][n]},getNearFiles:n=>{
+;function r(i){let s;const u={},l={},c=i.reduce(((e,n)=>(e[n.file.path]=n,e)),{});return{
+[Symbol.iterator]:()=>i[Symbol.iterator](),replace:e=>r(e),append:e=>r(i.concat(e)),forEach:e=>i.forEach(e),
+map:e=>r(i.map(e)),unwrap:()=>i.slice(),length:i.length,sort:e=>r(i.slice().sort(e)),slice:(e,n)=>i.slice(e,n),
+tags:()=>void 0!==s?s:s=i.filter((e=>e.tag)).sort(((e,n)=>{let i=e.meta.title.toLowerCase(),t=n.meta.title.toLowerCase()
+;return i===t?0:i>t?1:i<t?-1:void 0})),getByPath:e=>{if(c[e])return c[e]
+;let n=i.filter((n=>n.file.path===e)),t=0==n.length?null:n[0];return c[e]=t,t},sortByMeta:(e,n,s)=>{let u,l=i.slice()
+;u="date"===e?o:n?t:a;let c=n?0:"";return r(u(l,(n=>void 0!==n.meta[e]?n.meta[e]:c),s))},getByMeta:(e,n)=>{
+if(u[e]&&u[e][n])return u[e][n];u[e]||(u[e]={});let t=i.filter((i=>i.meta[e]&&i.meta[e].trim()==n))
+;return u[e][n]=0===t.length?null:t[0],u[e][n]},getAllByMeta:(e,n)=>{if(l[e]&&l[e][n])return l[e][n];l[e]||(l[e]={})
+;let t=i.filter((i=>i.meta[e]&&i.meta[e].trim()==n));return l[e][n]=0===t.length?null:r(t),l[e][n]},getNearFiles:n=>{
 let t=e.dirname(n);return r(i.filter((e=>!e.index)).filter((n=>e.dirname(n.file.path)===t)))},getNearDirs:n=>{
 let t=e.dirname(n)
 ;return r(i.filter((e=>e.index)).filter((n=>e.dirname(n.file.path)!=t&&e.dirname(e.dirname(n.file.path))===t)))},
@@ -5084,5 +5085,5 @@ let i=e.substring(_e.length).replace(/[\\]/g,"/");-1==n.indexOf(i)&&(console.log
 me.rmSync(e))})),e.filter((e=>e.isDirectory())).filter((e=>{let n=be.join(e.parentPath,e.name)
 ;return 0===me.readdirSync(n,{withFileTypes:!0}).filter((e=>e.isFile())).length
 })).map((e=>be.join(e.parentPath,e.name))).sort(((e,n)=>n.length-e.length)).forEach((e=>{
-console.log(" - Removing empty dir:",e),me.rmdirSync(e)})),console.log("All clean.")}())},config:je,env:{
-version:"0.0.3b"}}).run()})()})();
+console.log(" - Removing empty dir:",e),me.rmdirSync(e)})),console.log("All clean.")}())},config:je,env:{app:{
+version:"0.0.3b",build_mode:"MODE",build_date:"BUILDDATE"}}}).run()})()})();
