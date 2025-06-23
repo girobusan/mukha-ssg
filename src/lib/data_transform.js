@@ -15,6 +15,7 @@ function groupBy(arr, key) {
   let vals = Array.from(new Set(arr.map((e) => e[key])));
   let groups = {};
   vals.forEach((v) => (groups[v] = arr.filter((r) => r[key] == v)));
+  return groups;
 }
 
 function makeSubst(str, dict) {
