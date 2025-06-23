@@ -23,10 +23,10 @@ const dateSort = (arr, _, desc) => {
     let bv = 0;
     try {
       av = a.meta.date.getTime();
-    } catch (e) { }
+    } catch (e) {}
     try {
       bv = b.meta.date.getTime();
-    } catch (e) { }
+    } catch (e) {}
     return !desc ? av - bv : bv - av;
   });
 };
@@ -41,7 +41,7 @@ export function makeLister(LIST) {
     a[p.file.path] = p;
     return a;
   }, {});
-  return {
+  const L = {
     [Symbol.iterator]: () => LIST[Symbol.iterator](),
     replace: (l) => makeLister(l),
     append: (list2add) => makeLister(LIST.concat(list2add)),
@@ -55,18 +55,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-          let aval = a.meta.title.toLowerCase();
-          let bval = b.meta.title.toLowerCase();
-          if (aval === bval) {
-            return 0;
-          }
-          if (aval > bval) {
-            return 1;
-          }
-          if (aval < bval) {
-            return -1;
-          }
-        })),
+            let aval = a.meta.title.toLowerCase();
+            let bval = b.meta.title.toLowerCase();
+            if (aval === bval) {
+              return 0;
+            }
+            if (aval > bval) {
+              return 1;
+            }
+            if (aval < bval) {
+              return -1;
+            }
+          })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -152,7 +152,7 @@ export function makeLister(LIST) {
         (e) =>
           (isindex
             ? path.dirname(e.file.path).startsWith(base) &&
-            path.dirname(e.file.path).length > baselen
+              path.dirname(e.file.path).length > baselen
             : e.file.path.startsWith(base)) &&
           !e.tag &&
           !e.virtual &&
@@ -160,6 +160,15 @@ export function makeLister(LIST) {
       );
       // return r;
       return makeLister(r);
+    },
+    getParent: (p) => {
+      const isindex = p.match(indexRx);
+      let maybe = isindex ? path.dirname(path.dirname(p)) : path.dirname(p);
+      maybe = path.join(maybe, "index.html");
+      while (!L.getByPath(maybe) || maybe == "/index.html") {
+        maybe = path.join(path.dirname(path.dirname(maybe)), "index.html");
+      }
+      return L.getByPath(maybe);
     },
     getBreadcrumbs: (p, skip_first) => {
       let skip = skip_first || 0;
@@ -177,9 +186,9 @@ export function makeLister(LIST) {
         if (!cp.startsWith("/")) {
           cp = "/" + cp;
         }
-        let f = LIST.filter((e) => e.file.path == cp);
-        if (f.length > 0) {
-          bc.push(f[0]);
+        let f = L.getByPath(cp);
+        if (f) {
+          bc.push(f);
         }
       }
       // console.log(bc.map((e) => e.file.path).join("|"));
@@ -187,4 +196,5 @@ export function makeLister(LIST) {
       return skip ? bc.slice(skip) : bc;
     },
   };
+  return L;
 }
