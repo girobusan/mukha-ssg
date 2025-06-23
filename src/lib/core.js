@@ -78,9 +78,11 @@ function runSSG({
     Config.theme,
     "templates",
   );
-  const templateFiles = listSourceFiles(templateSrcPath).filter((f) =>
-    f.name.match(templateRx),
-  );
+  let templateFiles = listSourceFiles(templateSrcPath);
+  if (!templateFiles) {
+    throw "No templates files present";
+  }
+  templateFiles = templateFiles.filter((f) => f.name.match(templateRx));
   if (templateFiles.length === 0) {
     throw "No theme files at " + templateSrcPath;
   }

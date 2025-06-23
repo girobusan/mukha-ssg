@@ -4827,7 +4827,7 @@ Object.defineProperty(e,"__esModule",{value:!0})},(()=>{"use strict"
 ;const e=i(6928).posix,n=/index_?\d*\.html$/i,t=(e,n,i)=>e.sort(((e,t)=>i?+n(t)-n(e):+n(e)-n(t))),a=(e,n,i)=>e.sort(((e,t)=>{
 let a=n(e).toString(),o=n(t).toString();return a==o?0:a>o?i?-1:1:a<o?i?1:-1:void 0})),o=(e,n,i)=>e.sort(((e,n)=>{
 let t=0,a=0;try{t=e.meta.date.getTime()}catch(e){}try{a=n.meta.date.getTime()}catch(e){}return i?a-t:t-a}))
-;function r(i){let s;const u={},l={},c=i.reduce(((e,n)=>(e[n.file.path]=n,e)),{});return{
+;function r(i){let s;const u={},l={},c=i.reduce(((e,n)=>(e[n.file.path]=n,e)),{}),g={
 [Symbol.iterator]:()=>i[Symbol.iterator](),replace:e=>r(e),append:e=>r(i.concat(e)),forEach:e=>i.forEach(e),
 map:e=>r(i.map(e)),unwrap:()=>i.slice(),length:i.length,sort:e=>r(i.slice().sort(e)),slice:(e,n)=>i.slice(e,n),
 tags:()=>void 0!==s?s:s=i.filter((e=>e.tag)).sort(((e,n)=>{let i=e.meta.title.toLowerCase(),t=n.meta.title.toLowerCase()
@@ -4844,10 +4844,12 @@ getAllFiles:n=>{let t=n?e.dirname(n):"/"
 ;return r(i.filter((e=>e.file.path.startsWith(t)&&!e.tag&&!e.virtual&&!e.index)))},getAllDirs:t=>{
 let a=t?e.dirname(t):"/",o=a.length,s=t.match(n)
 ;return r(i.filter((n=>(s?e.dirname(n.file.path).startsWith(a)&&e.dirname(n.file.path).length>o:n.file.path.startsWith(a))&&!n.tag&&!n.virtual&&n.index)))
-},getBreadcrumbs:(n,t)=>{
-let a=t||0,o=n.index?e.dirname(n.file.path):n.file.path,r=e.dirname(o).split("/").filter((e=>e)),s=[]
-;for(let e=0;e<=r.length;e++){let n=r.slice(0,e).join("/")+"/index.html";n.startsWith("/")||(n="/"+n)
-;let t=i.filter((e=>e.file.path==n));t.length>0&&s.push(t[0])}return a?s.slice(a):s}}}var s=i(8990)
+},getParent:i=>{let t=i.match(n)?e.dirname(e.dirname(i)):e.dirname(i)
+;for(t=e.join(t,"index.html");!g.getByPath(t)||"/index.html"==t;)t=e.join(e.dirname(e.dirname(t)),"index.html")
+;return g.getByPath(t)},getBreadcrumbs:(n,i)=>{
+let t=i||0,a=n.index?e.dirname(n.file.path):n.file.path,o=e.dirname(a).split("/").filter((e=>e)),r=[]
+;for(let e=0;e<=o.length;e++){let n=o.slice(0,e).join("/")+"/index.html";n.startsWith("/")||(n="/"+n)
+;let i=g.getByPath(n);i&&r.push(i)}return t?r.slice(t):r}};return g}var s=i(8990)
 ;const u="https://github.com/jpmonette/feed";function l(e){if(void 0!==e)return e.replace(/&/g,"&amp;")}const c=e=>{
 const{name:n,email:i,link:t}=e,a={name:n};return i&&(a.email=i),t&&(a.uri=l(t)),a},g=(e,n="image")=>{
 if("string"==typeof e){return{_attributes:{rel:"enclosure",href:e,
@@ -5053,9 +5055,8 @@ console.log("Can not load or parse config.",e.message),process.exit(1)}ke&&(je.t
 run:()=>function({listSourceFiles:e,writeOutputFile:n,copyFile:i,callback:t,config:a,env:o}){const r=a,s=function(e){
 const n="function"==typeof e?e:null;return{status:(e,i,t)=>n?n({type:"status",status:e,value:i,stage:t}):"",
 file:(e,i,t,a)=>n?n({type:"file",operation:e,from:i,to:t,stage:a}):""}}(t);s.status("start",0);const u=(e,i)=>{
-s.file("write",null,e,"processing"),n(e,i)
-},l=ce.join("config/themes",r.theme,"templates"),c=e(l).filter((e=>e.name.match(he)))
-;if(0===c.length)throw"No theme files at "+l
+s.file("write",null,e,"processing"),n(e,i)},l=ce.join("config/themes",r.theme,"templates");let c=e(l)
+;if(!c)throw"No templates files present";if(c=c.filter((e=>e.name.match(he))),0===c.length)throw"No theme files at "+l
 ;const g=c.reduce(((e,n)=>(e[ce.join(n.parentPath,n.name).substring(l.length+1)]=n.getContent(),e)),{}),h="src",p=e(h)
 ;p.forEach((e=>{let n=e.parentPath.substring(h.length);e.path=ge(n,e.name)}));var d={_env:o}
 ;const m="data",b=e(m).map((e=>(e.dir=e.parentPath.substring(m.length),e)));d=le(b,d);const f=function(e,n,i,t,a){

@@ -1,7 +1,7 @@
 const path = require("path");
-const WebpackShellPlugin = require("webpack-shell-plugin-next");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+// const WebpackShellPlugin = require("webpack-shell-plugin-next");
+// const HtmlWebpackPlugin = require("html-webpack-plugin");
+// const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
 const pkg = require("./package.json");
 const TerserPlugin = require("terser-webpack-plugin");
