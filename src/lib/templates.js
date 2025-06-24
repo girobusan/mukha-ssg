@@ -142,7 +142,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       }
       //
       //
-      if (pass == 2) console.log("prep unsafe context", page.file.path);
+      // if (pass == 2) console.log("prep unsafe context", page.file.path);
 
       let adultContext = Object.assign(safeContext, {
         list: fullLister,
@@ -161,9 +161,9 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     });
   }
   //passes
-  console.log("pass 1...", fullLister.length);
+  // console.log("pass 1...", fullLister.length);
   renderList(fullLister, writeFn, 1);
-  console.log("pass 2...", virtuals.length);
+  // console.log("pass 2...", virtuals.length);
   renderList(virtuals, writeFn, 2);
   // console.log("ready");
 }

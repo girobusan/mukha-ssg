@@ -137,7 +137,6 @@ export function makeLister(LIST) {
       // return r;
       return makeLister(r);
     },
-    // :BUG:
     getAllFiles: (p) => {
       let cacheKey;
       if (
@@ -196,7 +195,7 @@ export function makeLister(LIST) {
       const isindex = p.match(indexRx);
       let maybe = isindex ? path.dirname(path.dirname(p)) : path.dirname(p);
       maybe = path.join(maybe, "index.html");
-      while (!L.getByPath(maybe) || maybe == "/index.html") {
+      while (!L.getByPath(maybe) && maybe != "/index.html") {
         maybe = path.join(path.dirname(path.dirname(maybe)), "index.html");
       }
       return L.getByPath(maybe);

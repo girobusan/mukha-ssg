@@ -4840,14 +4840,14 @@ if(u[e]&&u[e][n])return u[e][n];u[e]||(u[e]={});let t=i.filter((i=>i.meta[e]&&i.
 let t=e.dirname(n);return r(i.filter((e=>!e.index)).filter((n=>e.dirname(n.file.path)===t)))},getNearDirs:n=>{
 let t=e.dirname(n)
 ;return r(i.filter((e=>e.index)).filter((n=>e.dirname(n.file.path)!=t&&e.dirname(e.dirname(n.file.path))===t)))},
-getAllFiles:n=>{let t;if(t=n&&"/index.html"!=n.toLowerCase&&"/"!=e.dirname(n)?n:"_all",
-c[t]&&"_all"==t&&console.log("Getting all files from cache",c[t].length,n),c[t])return console.log("ready"),c[t]
+getAllFiles:n=>{let t;if(t=n&&"/index.html"!=n.toLowerCase&&"/"!=e.dirname(n)&&e.dirname?n:"_all",
+c[t]&&"_all"==t&&console.log("Getting all files from cache",c[t].length,n),c[t])return console.log("cached all"),c[t]
 ;if("_all"==t){const e=i.filter((e=>!e.tag&&!e.virtual&&!e.index));return console.log("total",e.length),c[t]=r(e),c[t]}
 let a=n?e.dirname(n):"/",o=i.filter((e=>e.file.path.startsWith(a)&&!e.tag&&!e.virtual&&!e.index));return c[t]=r(o),c[t]
 },getAllDirs:t=>{let a=t?e.dirname(t):"/",o=a.length,s=t.match(n)
 ;return r(i.filter((n=>(s?e.dirname(n.file.path).startsWith(a)&&e.dirname(n.file.path).length>o:n.file.path.startsWith(a))&&!n.tag&&!n.virtual&&n.index)))
 },getParent:i=>{let t=i.match(n)?e.dirname(e.dirname(i)):e.dirname(i)
-;for(t=e.join(t,"index.html");!h.getByPath(t)||"/index.html"==t;)t=e.join(e.dirname(e.dirname(t)),"index.html")
+;for(t=e.join(t,"index.html");!h.getByPath(t)&&"/index.html"!=t;)t=e.join(e.dirname(e.dirname(t)),"index.html")
 ;return h.getByPath(t)},getBreadcrumbs:(n,i)=>{
 let t=i||0,a=n.index?e.dirname(n.file.path):n.file.path,o=e.dirname(a).split("/").filter((e=>e)),r=[]
 ;for(let e=0;e<=o.length;e++){let n=o.slice(0,e).join("/")+"/index.html";n.startsWith("/")||(n="/"+n)
@@ -4985,10 +4985,9 @@ meta:i.meta,path:i.file.path,file:i,page:i,util:{niceDate:T,makeTable:D,debugObj
 debug:function(){console.log.apply(this,arguments)}}};if(1==o&&i.meta.excerpt&&(i.meta.excerpt=B(i.meta.excerpt)),
 i.html)try{i.html=r.renderString(i.html,s)}catch(e){console.log("Malformed template tags in html",i.file.path)
 }else if(i.content)try{let e=r.renderString(i.content,s);i.html=B(e)}catch(e){
-console.log("malformed template tags in markdown at",i.file.path),i.html=B(i.content)}
-2==o&&console.log("prep unsafe context",i.file.path);let l=Object.assign(s,{list:e,makePagination:1===o?u(i):()=>!0,
-html:i.html}),c=r.render("index.njk",l);c=j(c,i.file.path,e),t(i.file.path,c)}))}console.log("pass 1...",e.length),
-l(e,t,1),console.log("pass 2...",s.length),l(s,t,2)}
+console.log("malformed template tags in markdown at",i.file.path),i.html=B(i.content)}let l=Object.assign(s,{list:e,
+makePagination:1===o?u(i):()=>!0,html:i.html}),c=r.render("index.njk",l);c=j(c,i.file.path,e),t(i.file.path,c)}))}
+l(e,t,1),l(s,t,2)}
 const P=i(7210),I=/\.(md|markdown)$/i,G=/(\n\n|^)([^-![\](\){\}<#].+?)\n\n/gs,Q=/!\[.*?\]\s*\((.*?)\)/m,K=/index\.html?$/i
 ;function W(e){let n=e.getContent();e.getContent=()=>n;let i=function(e){const n=e.match(/^-{3,5}\s*\n/);if(!n)return{
 meta:"",markdown:e};const i=Array.from(n[0].trim()).length,t=new RegExp(`^-{${i}}s*$`,""),a=e.split("\n");let o=""
