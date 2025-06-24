@@ -7,6 +7,7 @@ dist/hatcher*
 test/
 dist/**.*
 dist/
+dist/*
 refs/
 libs/
 *.zip

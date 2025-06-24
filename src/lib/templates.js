@@ -2,6 +2,7 @@ const nunjucks = require("nunjucks");
 import { tableFilter } from "./template_additions";
 import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
+import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
 
 function makeObjectLoader(obj) {
@@ -38,7 +39,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function (str, count) {
+  tpl.addFilter("shorten", function(str, count) {
     return str.slice(0, count || 5);
   });
   // console.log(tpl.filters);
@@ -49,7 +50,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function (lst, length) {
+    return function(lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -95,7 +96,8 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       let safeContext = {
         config: config,
         data: data,
-        makePagination: () =>
+        makePagination: () => safeContext.splitToPages(), // deprecated
+        splitToPages: () =>
           console.log(
             "Attempt to call unsafe function in safe context",
             page.file.path,
@@ -107,9 +109,31 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         util: {
           niceDate: niceDate,
           makeTable: tableFilter,
-          debugObj: (o) => JSON.stringify(o, null, 2),
-          debug: function () {
+          debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
+          debug: function() {
             console.log.apply(this, arguments);
+          },
+          paginate: (edges, center) => {
+            if (!page.page_count || page.page_count < 2) return [];
+            let sequence = makePaginationSeq(
+              page.page_number,
+              page.page_count,
+              edges || 1,
+              center || 1,
+              0,
+            );
+            return sequence.map((n) => {
+              return {
+                label: n === 0 ? "&hellip;" : n,
+                type:
+                  n === 0
+                    ? "ellipsis"
+                    : n === page.page_number
+                      ? "current"
+                      : "link",
+                link: n === 0 ? null : page.page_links[n - 1],
+              };
+            });
           },
         },
       };
@@ -124,7 +148,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         try {
           page.html = tpl.renderString(page.html, safeContext);
         } catch (e) {
-          console.log("Malformed template tags in html", page.file.path);
+          console.log("Malformed template tags in html at", page.file.path);
         }
       } else {
         if (page.content) {
@@ -133,7 +157,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
             page.html = md2html(renderedInMd);
           } catch (e) {
             console.log(
-              "malformed template tags in markdown at",
+              "Malformed template tags in markdown at",
               page.file.path,
             );
             page.html = md2html(page.content);
@@ -146,7 +170,8 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
 
       let adultContext = Object.assign(safeContext, {
         list: fullLister,
-        makePagination: pass === 1 ? makeMP(page) : () => true,
+        makePagination: () => adultContext.splitToPages(), // deprecated
+        splitToPages: pass === 1 ? makeMP(page) : () => true,
         html: page.html,
       });
       // if (pass == 2) console.log("prepared", page.file.path);
