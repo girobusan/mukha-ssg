@@ -150,15 +150,9 @@ export function makeLister(LIST) {
         cacheKey = p;
       }
       if (allFiles[cacheKey] && cacheKey == "_all")
-        console.log(
-          "Getting all files from cache",
-          allFiles[cacheKey].length,
-          p,
-        );
-      if (allFiles[cacheKey]) {
-        console.log("cached all");
-        return allFiles[cacheKey];
-      }
+        if (allFiles[cacheKey]) {
+          return allFiles[cacheKey];
+        }
       if (cacheKey == "_all") {
         const resAll = LIST.filter((e) => !e.tag && !e.virtual && !e.index);
         console.log("total", resAll.length);

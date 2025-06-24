@@ -87,7 +87,13 @@ export function convertBlocks(blocks) {
     switch (t) {
       //simple ones
       case "paragraph":
-        txt += fitToWidth(unBR(b.text.trim())) + "\n\n";
+        let preptext = unBR(b.text.trim());
+        if (preptext.match(/^<li>/gi)) {
+          preptext = "<ul>" + preptext + "</ul>";
+        } else {
+          preptext = fitToWidth(preptext);
+        }
+        txt += preptext + "\n\n";
         break;
       case "markdown":
         txt += b.markdown + "\n\n";

@@ -4841,8 +4841,8 @@ let t=e.dirname(n);return r(i.filter((e=>!e.index)).filter((n=>e.dirname(n.file.
 let t=e.dirname(n)
 ;return r(i.filter((e=>e.index)).filter((n=>e.dirname(n.file.path)!=t&&e.dirname(e.dirname(n.file.path))===t)))},
 getAllFiles:n=>{let t;if(t=n&&"/index.html"!=n.toLowerCase&&"/"!=e.dirname(n)&&e.dirname?n:"_all",
-c[t]&&"_all"==t&&console.log("Getting all files from cache",c[t].length,n),c[t])return console.log("cached all"),c[t]
-;if("_all"==t){const e=i.filter((e=>!e.tag&&!e.virtual&&!e.index));return console.log("total",e.length),c[t]=r(e),c[t]}
+c[t]&&"_all"==t&&c[t])return c[t];if("_all"==t){const e=i.filter((e=>!e.tag&&!e.virtual&&!e.index))
+;return console.log("total",e.length),c[t]=r(e),c[t]}
 let a=n?e.dirname(n):"/",o=i.filter((e=>e.file.path.startsWith(a)&&!e.tag&&!e.virtual&&!e.index));return c[t]=r(o),c[t]
 },getAllDirs:t=>{let a=t?e.dirname(t):"/",o=a.length,s=t.match(n)
 ;return r(i.filter((n=>(s?e.dirname(n.file.path).startsWith(a)&&e.dirname(n.file.path).length>o:n.file.path.startsWith(a))&&!n.tag&&!n.virtual&&n.index)))

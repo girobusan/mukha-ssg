@@ -634,15 +634,15 @@ caption:a||"",url:n,link:i,classes:e})}\n${Za}\n\x3c!--//--\x3e\n\n`;function Ca
 ;return i||console.log(a),
 i.date&&(i.date=i.date.replace(/\//g,".")),"blocks"!==a.content_format?(console.log("Ancient content format:",a.content_format),
 console.log(a.content),n=a.content):n=function(a){let n="";return a.forEach((a=>{let i=a.type,e=a.data;switch(i){
-case"paragraph":n+=ca(ma(e.text.trim()))+"\n\n";break;case"markdown":n+=e.markdown+"\n\n";break;case"code":
-n+="```\n"+ma(e.code)+"\n```\n\n";break;case"header":n+="#######".substring(0,+e.level)+" "+function(a){
-return a?a.replace(/\n/g,"").replace(/<[^>]*>/g,""):""}(e.text)+"\n\n";break;case"list":
-let i="ordered"===e.style?"1. ":"* ";n+=e.items.map((a=>`${i}${ma(a)}`)).join("\n"),n+="\n\n";break;case"video":
-n+=ka("video",e.caption,[e.file.url],e.autoplay,e.loop,e.controls,e.preload);break;case"audio":
-n+=ka("audio",e.caption,[e.file.url],e.autoplay,e.loop,e.controls,e.preload);break;case"attachment":
+case"paragraph":let i=ma(e.text.trim());i.match(/^<li>/gi)&&(i="<ul>"+i+"</ul>"),n+=ca(i)+"\n\n";break;case"markdown":
+n+=e.markdown+"\n\n";break;case"code":n+="```\n"+ma(e.code)+"\n```\n\n";break;case"header":
+n+="#######".substring(0,+e.level)+" "+function(a){return a?a.replace(/\n/g,"").replace(/<[^>]*>/g,""):""
+}(e.text)+"\n\n";break;case"list":let o="ordered"===e.style?"1. ":"* ";n+=e.items.map((a=>`${o}${ma(a)}`)).join("\n"),
+n+="\n\n";break;case"video":n+=ka("video",e.caption,[e.file.url],e.autoplay,e.loop,e.controls,e.preload);break
+;case"audio":n+=ka("audio",e.caption,[e.file.url],e.autoplay,e.loop,e.controls,e.preload);break;case"attachment":
 e.hidden?n+=`\n\n\x3c!--attached: ${e.url||e.href}--\x3e\n\n`:n+=La(e.href,e.title||e.filename,e.class);break
-;case"image":const o=(u=e,["left","right","stretched","noresize","border"].filter((a=>u[a])))
-;n+=Sa(ma(e.caption),e.file.url,e.link,o);break;case"quote":n+=Ja(e.text,e.caption);break;case"divider":n+="\n---\n\n"
+;case"image":const g=(u=e,["left","right","stretched","noresize","border"].filter((a=>u[a])))
+;n+=Sa(ma(e.caption),e.file.url,e.link,g);break;case"quote":n+=Ja(e.text,e.caption);break;case"divider":n+="\n---\n\n"
 ;break;case"raw":n+=e.html+"\n\n";break;default:e.html&&(console.log("Raw html block",a.type),n+="\n"+e.html+"\n"),
 console.log("Unknown block",e,a.type)}var u})),n}(a.content.blocks),`---\n${Ya(i)}---\n${n}\n`}
 const Xa=i(9896),Ha=i(6928),{parseArgs:Ta}=i(7975);process.on("uncaughtException",(a=>{console.error(a.message,a.code),
