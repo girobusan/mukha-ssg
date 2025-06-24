@@ -39,7 +39,10 @@ export function makePageLikeObj(meta, markdown, path, html) {
 }
 
 export function cloneFile(f) {
-  return Object.assign({}, f);
+  let clone = Object.assign({}, f);
+  clone.meta = Object.assign({}, f.meta);
+  clone.file = Object.assign({}, f.file);
+  return clone;
 }
 
 export function rangeArray(start, length) {

@@ -38,7 +38,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function(str, count) {
+  tpl.addFilter("shorten", function (str, count) {
     return str.slice(0, count || 5);
   });
   // console.log(tpl.filters);
@@ -49,7 +49,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function(lst, length) {
+    return function (lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -69,6 +69,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       f.page_links = urls;
       f.page_number = 1;
       f.list_page = lst.slice(0, onPage);
+      // console.log("paginated:", urls.join(", "));
       pages.forEach((n, i) => {
         if (i == 0) {
           //skip first
@@ -76,12 +77,12 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         } //skip 1st page
         let clone = cloneFile(f);
         clone.page_number = n;
-        clone.file = { path: urls[i] };
+        clone.file.path = urls[i];
         clone.virtual = true;
         let sliced = lst.slice(i * onPage, (i + 1) * onPage);
         clone.list_page = sliced;
 
-        // console.log("CLONE", clone.list_page);
+        // console.log("CLONE", clone);
         virtuals.push(clone);
       });
     };
@@ -90,7 +91,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   function renderList(list, writeFn, pass) {
     // console.log("Render list");
     list.forEach((page) => {
-      // console.log(page.file.path);
+      // if (pass == 2) console.log("pass2 start", page.file.path);
       let safeContext = {
         config: config,
         data: data,
@@ -107,14 +108,17 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           niceDate: niceDate,
           makeTable: tableFilter,
           debugObj: (o) => JSON.stringify(o, null, 2),
-          debug: function() {
+          debug: function () {
             console.log.apply(this, arguments);
           },
         },
       };
 
+      // if (pass == 2) console.log("context done", page.file.path);
       // md2html
-      page.meta.excerpt && (page.meta.excerpt = md2html(page.meta.excerpt));
+      if (pass == 1) {
+        page.meta.excerpt && (page.meta.excerpt = md2html(page.meta.excerpt));
+      }
       // render nunjucks in content
       if (page.html) {
         try {
@@ -137,22 +141,29 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         }
       }
       //
+      //
+      if (pass == 2) console.log("prep unsafe context", page.file.path);
 
       let adultContext = Object.assign(safeContext, {
         list: fullLister,
-        makePagination: pass === 1 ? makeMP(page) : () => false,
+        makePagination: pass === 1 ? makeMP(page) : () => true,
         html: page.html,
       });
+      // if (pass == 2) console.log("prepared", page.file.path);
       //
       let html = tpl.render("index.njk", adultContext);
+      // if (pass == 2) console.log("template rendered", page.file.path);
       html = postprocess(html, page.file.path, fullLister);
+      // if (pass == 2) console.log("pass2: write", page.file.path);
       writeFn(page.file.path, html);
+      // delete page;
+      // if (pass == 2) console.log("pass2: written");
     });
   }
   //passes
-  // console.log("pass 1...");
+  console.log("pass 1...", fullLister.length);
   renderList(fullLister, writeFn, 1);
-  // console.log("pass 2...");
+  console.log("pass 2...", virtuals.length);
   renderList(virtuals, writeFn, 2);
   // console.log("ready");
 }

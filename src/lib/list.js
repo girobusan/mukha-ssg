@@ -37,6 +37,7 @@ export function makeLister(LIST) {
   let tags; // = lst.filter((f) => f.tag);
   const byMeta = {};
   const allByMeta = {};
+  const allFiles = {};
   const byPath = LIST.reduce((a, p) => {
     a[p.file.path] = p;
     return a;
@@ -136,13 +137,43 @@ export function makeLister(LIST) {
       // return r;
       return makeLister(r);
     },
+    // :BUG:
     getAllFiles: (p) => {
+      let cacheKey;
+      if (
+        !p ||
+        p.toLowerCase == "/index.html" ||
+        path.dirname(p) == "/" ||
+        !path.dirname
+      ) {
+        cacheKey = "_all";
+      } else {
+        cacheKey = p;
+      }
+      if (allFiles[cacheKey] && cacheKey == "_all")
+        console.log(
+          "Getting all files from cache",
+          allFiles[cacheKey].length,
+          p,
+        );
+      if (allFiles[cacheKey]) {
+        console.log("cached all");
+        return allFiles[cacheKey];
+      }
+      if (cacheKey == "_all") {
+        const resAll = LIST.filter((e) => !e.tag && !e.virtual && !e.index);
+        console.log("total", resAll.length);
+        allFiles[cacheKey] = makeLister(resAll);
+        return allFiles[cacheKey];
+      }
+
       let base = p ? path.dirname(p) : "/";
       let r = LIST.filter(
         (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && !e.index,
       );
       // return r;
-      return makeLister(r);
+      allFiles[cacheKey] = makeLister(r);
+      return allFiles[cacheKey];
     },
     getAllDirs: (p) => {
       let base = p ? path.dirname(p) : "/";

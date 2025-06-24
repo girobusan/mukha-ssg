@@ -4827,12 +4827,12 @@ Object.defineProperty(e,"__esModule",{value:!0})},(()=>{"use strict"
 ;const e=i(6928).posix,n=/index_?\d*\.html$/i,t=(e,n,i)=>e.sort(((e,t)=>i?+n(t)-n(e):+n(e)-n(t))),a=(e,n,i)=>e.sort(((e,t)=>{
 let a=n(e).toString(),o=n(t).toString();return a==o?0:a>o?i?-1:1:a<o?i?1:-1:void 0})),o=(e,n,i)=>e.sort(((e,n)=>{
 let t=0,a=0;try{t=e.meta.date.getTime()}catch(e){}try{a=n.meta.date.getTime()}catch(e){}return i?a-t:t-a}))
-;function r(i){let s;const u={},l={},c=i.reduce(((e,n)=>(e[n.file.path]=n,e)),{}),g={
+;function r(i){let s;const u={},l={},c={},g=i.reduce(((e,n)=>(e[n.file.path]=n,e)),{}),h={
 [Symbol.iterator]:()=>i[Symbol.iterator](),replace:e=>r(e),append:e=>r(i.concat(e)),forEach:e=>i.forEach(e),
 map:e=>r(i.map(e)),unwrap:()=>i.slice(),length:i.length,sort:e=>r(i.slice().sort(e)),slice:(e,n)=>i.slice(e,n),
 tags:()=>void 0!==s?s:s=i.filter((e=>e.tag)).sort(((e,n)=>{let i=e.meta.title.toLowerCase(),t=n.meta.title.toLowerCase()
-;return i===t?0:i>t?1:i<t?-1:void 0})),getByPath:e=>{if(c[e])return c[e]
-;let n=i.filter((n=>n.file.path===e)),t=0==n.length?null:n[0];return c[e]=t,t},sortByMeta:(e,n,s)=>{let u,l=i.slice()
+;return i===t?0:i>t?1:i<t?-1:void 0})),getByPath:e=>{if(g[e])return g[e]
+;let n=i.filter((n=>n.file.path===e)),t=0==n.length?null:n[0];return g[e]=t,t},sortByMeta:(e,n,s)=>{let u,l=i.slice()
 ;u="date"===e?o:n?t:a;let c=n?0:"";return r(u(l,(n=>void 0!==n.meta[e]?n.meta[e]:c),s))},getByMeta:(e,n)=>{
 if(u[e]&&u[e][n])return u[e][n];u[e]||(u[e]={});let t=i.filter((i=>i.meta[e]&&i.meta[e].trim()==n))
 ;return u[e][n]=0===t.length?null:t[0],u[e][n]},getAllByMeta:(e,n)=>{if(l[e]&&l[e][n])return l[e][n];l[e]||(l[e]={})
@@ -4840,16 +4840,18 @@ if(u[e]&&u[e][n])return u[e][n];u[e]||(u[e]={});let t=i.filter((i=>i.meta[e]&&i.
 let t=e.dirname(n);return r(i.filter((e=>!e.index)).filter((n=>e.dirname(n.file.path)===t)))},getNearDirs:n=>{
 let t=e.dirname(n)
 ;return r(i.filter((e=>e.index)).filter((n=>e.dirname(n.file.path)!=t&&e.dirname(e.dirname(n.file.path))===t)))},
-getAllFiles:n=>{let t=n?e.dirname(n):"/"
-;return r(i.filter((e=>e.file.path.startsWith(t)&&!e.tag&&!e.virtual&&!e.index)))},getAllDirs:t=>{
-let a=t?e.dirname(t):"/",o=a.length,s=t.match(n)
+getAllFiles:n=>{let t;if(t=n&&"/index.html"!=n.toLowerCase&&"/"!=e.dirname(n)?n:"_all",
+c[t]&&"_all"==t&&console.log("Getting all files from cache",c[t].length,n),c[t])return console.log("ready"),c[t]
+;if("_all"==t){const e=i.filter((e=>!e.tag&&!e.virtual&&!e.index));return console.log("total",e.length),c[t]=r(e),c[t]}
+let a=n?e.dirname(n):"/",o=i.filter((e=>e.file.path.startsWith(a)&&!e.tag&&!e.virtual&&!e.index));return c[t]=r(o),c[t]
+},getAllDirs:t=>{let a=t?e.dirname(t):"/",o=a.length,s=t.match(n)
 ;return r(i.filter((n=>(s?e.dirname(n.file.path).startsWith(a)&&e.dirname(n.file.path).length>o:n.file.path.startsWith(a))&&!n.tag&&!n.virtual&&n.index)))
 },getParent:i=>{let t=i.match(n)?e.dirname(e.dirname(i)):e.dirname(i)
-;for(t=e.join(t,"index.html");!g.getByPath(t)||"/index.html"==t;)t=e.join(e.dirname(e.dirname(t)),"index.html")
-;return g.getByPath(t)},getBreadcrumbs:(n,i)=>{
+;for(t=e.join(t,"index.html");!h.getByPath(t)||"/index.html"==t;)t=e.join(e.dirname(e.dirname(t)),"index.html")
+;return h.getByPath(t)},getBreadcrumbs:(n,i)=>{
 let t=i||0,a=n.index?e.dirname(n.file.path):n.file.path,o=e.dirname(a).split("/").filter((e=>e)),r=[]
 ;for(let e=0;e<=o.length;e++){let n=o.slice(0,e).join("/")+"/index.html";n.startsWith("/")||(n="/"+n)
-;let i=g.getByPath(n);i&&r.push(i)}return t?r.slice(t):r}};return g}var s=i(8990)
+;let i=h.getByPath(n);i&&r.push(i)}return t?r.slice(t):r}};return h}var s=i(8990)
 ;const u="https://github.com/jpmonette/feed";function l(e){if(void 0!==e)return e.replace(/&/g,"&amp;")}const c=e=>{
 const{name:n,email:i,link:t}=e,a={name:n};return i&&(a.email=i),t&&(a.uri=l(t)),a},g=(e,n="image")=>{
 if("string"==typeof e){return{_attributes:{rel:"enclosure",href:e,
@@ -4952,8 +4954,8 @@ n+="</tbody></table>",n}function Y(e,n,i){const t=function(e){let n={}
 ;return["autoplay","loop","controls","muted"].forEach((e=>{t[e]&&(a+=e+" ")
 })),["width","height","preload","poster"].forEach((e=>{t[e]&&(a+=e+"='"+t[e]+"' ")})),
 `<${e} ${a}>\n   ${n.map((e=>`  <source src="${e}" />`)).join("\n")}\n</${e} > `}const M={image:(e,n)=>{
-let i=(n.alt||n.caption||"").replace(/<[^>]*>/g,"")
-;return`<figure class="image ${n.classes||""}">\n    ${n.link?`<a href="${n.link}">`:""}\n  <img src="${n.url}" alt="${i}" />\n      ${n.link?"</a>":""} \n${n.caption?`<figcaption>${n.caption}</figcaption>`:""}\n</figure > `
+let i,t=(n.alt||n.caption||"").replace(/<[^>]*>/g,"");return i="string"==typeof n.classes?n.classes:n.classes.join(" "),
+`<figure class="image ${i}">\n    ${n.link?`<a href="${n.link}">`:""}\n  <img src="${n.url}" alt="${t}" />\n      ${n.link?"</a>":""} \n${n.caption?`<figcaption>${n.caption}</figcaption>`:""}\n</figure > `
 },
 quote:(e,n)=>`<figure class="quote" >\n  <blockquote>${n.text}</blockquote>\n${n.caption?`<figcaption>${n.caption}</figcaption>`:""}\n</figure > `,
 video:(e,n)=>(n.src&&!n.urls&&(n.urls=n.src),Y("video",Array.isArray(n.urls)?n.urls:[n.urls],n)),
@@ -4976,16 +4978,17 @@ return e.slice(0,n||5)}));let s=[];function u(e){return function(i,t){let a=t||n
 ;for(let t=0;t<n;t++)i.push(t+e);return i}(1,Math.ceil(i.length/a)),r=o.map(((n,i)=>{
 return 0==i?e.file.path:(t=e.file.path,a=n,t.replace(/\.([^.]+)$/,`_${a}.$1`));var t,a}));e.page_count=o.length,
 e.page_links=r,e.page_number=1,e.list_page=i.slice(0,a),o.forEach(((n,t)=>{if(0==t)return;let o=function(e){
-return Object.assign({},e)}(e);o.page_number=n,o.file={path:r[t]},o.virtual=!0;let u=i.slice(t*a,(t+1)*a);o.list_page=u,
-s.push(o)}))}}function l(i,t,o){i.forEach((i=>{let s={config:n,data:a,
-makePagination:()=>console.log("Attempt to call unsafe function in safe context",i.file.path),meta:i.meta,
-path:i.file.path,file:i,page:i,util:{niceDate:T,makeTable:D,debugObj:e=>JSON.stringify(e,null,2),debug:function(){
-console.log.apply(this,arguments)}}};if(i.meta.excerpt&&(i.meta.excerpt=B(i.meta.excerpt)),i.html)try{
-i.html=r.renderString(i.html,s)}catch(e){console.log("Malformed template tags in html",i.file.path)
+let n=Object.assign({},e);return n.meta=Object.assign({},e.meta),n.file=Object.assign({},e.file),n}(e);o.page_number=n,
+o.file.path=r[t],o.virtual=!0;let u=i.slice(t*a,(t+1)*a);o.list_page=u,s.push(o)}))}}function l(i,t,o){i.forEach((i=>{
+let s={config:n,data:a,makePagination:()=>console.log("Attempt to call unsafe function in safe context",i.file.path),
+meta:i.meta,path:i.file.path,file:i,page:i,util:{niceDate:T,makeTable:D,debugObj:e=>JSON.stringify(e,null,2),
+debug:function(){console.log.apply(this,arguments)}}};if(1==o&&i.meta.excerpt&&(i.meta.excerpt=B(i.meta.excerpt)),
+i.html)try{i.html=r.renderString(i.html,s)}catch(e){console.log("Malformed template tags in html",i.file.path)
 }else if(i.content)try{let e=r.renderString(i.content,s);i.html=B(e)}catch(e){
-console.log("malformed template tags in markdown at",i.file.path),i.html=B(i.content)}let l=Object.assign(s,{list:e,
-makePagination:1===o?u(i):()=>!1,html:i.html}),c=r.render("index.njk",l);c=j(c,i.file.path,e),t(i.file.path,c)}))}
-l(e,t,1),l(s,t,2)}
+console.log("malformed template tags in markdown at",i.file.path),i.html=B(i.content)}
+2==o&&console.log("prep unsafe context",i.file.path);let l=Object.assign(s,{list:e,makePagination:1===o?u(i):()=>!0,
+html:i.html}),c=r.render("index.njk",l);c=j(c,i.file.path,e),t(i.file.path,c)}))}console.log("pass 1...",e.length),
+l(e,t,1),console.log("pass 2...",s.length),l(s,t,2)}
 const P=i(7210),I=/\.(md|markdown)$/i,G=/(\n\n|^)([^-![\](\){\}<#].+?)\n\n/gs,Q=/!\[.*?\]\s*\((.*?)\)/m,K=/index\.html?$/i
 ;function W(e){let n=e.getContent();e.getContent=()=>n;let i=function(e){const n=e.match(/^-{3,5}\s*\n/);if(!n)return{
 meta:"",markdown:e};const i=Array.from(n[0].trim()).length,t=new RegExp(`^-{${i}}s*$`,""),a=e.split("\n");let o=""
