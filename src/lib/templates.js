@@ -39,7 +39,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function(str, count) {
+  tpl.addFilter("shorten", function (str, count) {
     return str.slice(0, count || 5);
   });
   // console.log(tpl.filters);
@@ -50,7 +50,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function(lst, length) {
+    return function (lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -110,7 +110,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           niceDate: niceDate,
           makeTable: tableFilter,
           debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
-          debug: function() {
+          debug: function () {
             console.log.apply(this, arguments);
           },
           paginate: (edges, center) => {
