@@ -1,6 +1,6 @@
 const nodepath = require("path");
 const path = nodepath.posix;
-const indexRx = /index_?\d*\.html$/i;
+export const indexPageRx = /index(_\d*)?\.html$/i;
 
 const numSort = (arr, accessor, desc) => {
   return arr.sort((a, b) =>
@@ -23,12 +23,28 @@ const dateSort = (arr, _, desc) => {
     let bv = 0;
     try {
       av = a.meta.date.getTime();
-    } catch (e) {}
+    } catch (e) { }
     try {
       bv = b.meta.date.getTime();
-    } catch (e) {}
+    } catch (e) { }
     return !desc ? av - bv : bv - av;
   });
+};
+
+const ensurePath = (something) => {
+  if (typeof something === "string") return something;
+  try {
+    return something.file.path;
+  } catch (e) {
+    return null;
+  }
+};
+
+const ensurePage = (something, lister) => {
+  if (typeof somethig === "string") {
+    return lister.getByPath(something);
+  }
+  return something;
 };
 // list operations
 //
@@ -56,18 +72,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-            let aval = a.meta.title.toLowerCase();
-            let bval = b.meta.title.toLowerCase();
-            if (aval === bval) {
-              return 0;
-            }
-            if (aval > bval) {
-              return 1;
-            }
-            if (aval < bval) {
-              return -1;
-            }
-          })),
+          let aval = a.meta.title.toLowerCase();
+          let bval = b.meta.title.toLowerCase();
+          if (aval === bval) {
+            return 0;
+          }
+          if (aval > bval) {
+            return 1;
+          }
+          if (aval < bval) {
+            return -1;
+          }
+        })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -119,7 +135,8 @@ export function makeLister(LIST) {
       allByMeta[name][val] = r.length === 0 ? null : makeLister(r);
       return allByMeta[name][val];
     },
-    getNearFiles: (pth) => {
+    getNearFiles: (p) => {
+      let pth = ensurePath(p);
       let base = path.dirname(pth);
       let r = LIST.filter((e) => !e.index).filter(
         (e) => path.dirname(e.file.path) === base,
@@ -128,7 +145,8 @@ export function makeLister(LIST) {
       return makeLister(r); // makes error!
     },
     getNearDirs: (p) => {
-      let base = path.dirname(p);
+      let pth = ensurePath(p);
+      let base = path.dirname(pth);
       let r = LIST.filter((e) => e.index).filter(
         (e) =>
           path.dirname(e.file.path) != base &&
@@ -138,16 +156,17 @@ export function makeLister(LIST) {
       return makeLister(r);
     },
     getAllFiles: (p) => {
+      let pth = ensurePath(p);
       let cacheKey;
       if (
-        !p ||
-        p.toLowerCase == "/index.html" ||
-        path.dirname(p) == "/" ||
+        !pth ||
+        pth.toLowerCase == "/index.html" ||
+        path.dirname(pth) == "/" ||
         !path.dirname
       ) {
         cacheKey = "_all";
       } else {
-        cacheKey = p;
+        cacheKey = pth;
       }
       if (allFiles[cacheKey] && cacheKey == "_all")
         if (allFiles[cacheKey]) {
@@ -160,7 +179,7 @@ export function makeLister(LIST) {
         return allFiles[cacheKey];
       }
 
-      let base = p ? path.dirname(p) : "/";
+      let base = pth ? path.dirname(pth) : "/";
       let r = LIST.filter(
         (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && !e.index,
       );
@@ -169,14 +188,16 @@ export function makeLister(LIST) {
       return allFiles[cacheKey];
     },
     getAllDirs: (p) => {
-      let base = p ? path.dirname(p) : "/";
+      let pg = ensurePage(p, L);
+      let pth = pg.file.path;
+      let base = pth ? path.dirname(pth) : "/";
       let baselen = base.length;
-      let isindex = p.match(indexRx);
+      let isindex = pg.index;
       let r = LIST.filter(
         (e) =>
           (isindex
             ? path.dirname(e.file.path).startsWith(base) &&
-              path.dirname(e.file.path).length > baselen
+            path.dirname(e.file.path).length > baselen
             : e.file.path.startsWith(base)) &&
           !e.tag &&
           !e.virtual &&
@@ -186,17 +207,22 @@ export function makeLister(LIST) {
       return makeLister(r);
     },
     getParent: (p) => {
-      const isindex = p.match(indexRx);
-      let maybe = isindex ? path.dirname(path.dirname(p)) : path.dirname(p);
+      let pg = ensurePage(p);
+      if (!pg) return null;
+      let pth = pg.file.path; //ensurePath(p);
+      const isindex = pg.index;
+      let maybe = isindex ? path.dirname(path.dirname(pth)) : path.dirname(pth);
       maybe = path.join(maybe, "index.html");
       while (!L.getByPath(maybe) && maybe != "/index.html") {
         maybe = path.join(path.dirname(path.dirname(maybe)), "index.html");
       }
       return L.getByPath(maybe);
     },
-    getBreadcrumbs: (p, skip_first) => {
+    getBreadcrumbs: (arg, skip_first) => {
+      let pg = ensurePage(arg, L);
+      if (!pg) return null;
       let skip = skip_first || 0;
-      let startPath = p.index ? path.dirname(p.file.path) : p.file.path;
+      let startPath = pg.index ? path.dirname(pg.file.path) : pg.file.path;
 
       let dirs = path
         .dirname(startPath)

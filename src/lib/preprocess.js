@@ -30,39 +30,21 @@ function preparseMdFile(f) {
   if (!metadata.title) {
     return { file: f, meta: null, content: content };
   }
+  if (metadata.date && typeof metadata.date === "string") {
+    let dateParts = metadata.date.split(/\D+/).map((e) => +e);
+    metadata.date = new Date(
+      dateParts[0],
+      dateParts[1] - 1,
+      dateParts[2],
+      dateParts[3] || 0,
+      dateParts[4] || 0,
+    );
+  }
+  if (!metadata.date) metadata.date = new Date(0);
   return { file: f, meta: metadata, content: parts.markdown };
 }
 
 function sortAndRun(lst, writeFn, config, templates, data) {
-  //render data
-  // fix date
-  let today = new Date();
-  lst.forEach((page) => {
-    if (page.meta.date && typeof page.meta.date === "string") {
-      let dateParts = page.meta.date.split(/\D+/).map((e) => +e);
-      page.meta.date = new Date(
-        dateParts[0],
-        dateParts[1] - 1,
-        dateParts[2],
-        dateParts[3] || 0,
-        dateParts[4] || 0,
-      );
-    }
-    if (!page.meta.date) {
-      page.meta.date = new Date(42);
-    }
-  });
-  // filter future posts if timed option is set
-  if (config.timed) {
-    lst = lst.filter((p) => {
-      try {
-        if (p.meta.date.getTime() > today.getTime()) {
-          return false;
-        }
-      } catch (e) { }
-      return true;
-    });
-  }
   // sort by date
   lst.sort((a, b) => {
     const atime = a.meta.date.getTime();
@@ -121,6 +103,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
 }
 
 export function preprocessFileList(lst, writeFn, config, templates, data) {
+  let timeFrame = config.timed ? new Date().getTime() : Infinity;
   let copyList = [];
   let processList = [];
   const data_pages = data.render();
@@ -144,7 +127,14 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
     // path on site will be html
     preparsed.file.path = preparsed.file.path.replace(/\.[^.]+$/, ".html");
     if (preparsed.file.path.match(indexRx)) preparsed.index = true;
-    processList.push(preparsed);
+    let skipIt =
+      preparsed.meta.date && preparsed.meta.date.getTime() > timeFrame;
+    skipIt = skipIt || preparsed.meta.draft;
+    if (!skipIt) {
+      processList.push(preparsed);
+    } else {
+      console.log("Skipping:", preparsed.file.path);
+    }
   });
   processList = processList.concat(data_pages);
   console.info("Source files to process:", processList.length);
