@@ -12,7 +12,9 @@ function makeSitePath(sitedir, filename) {
 }
 
 function makeCallbacks(callback) {
-  const cb = typeof callback === "function" ? callback : null;
+  if (typeof callback !== "function")
+    return { status: () => false, file: () => false };
+  const cb = callback;
   return {
     status: (s, v, stage) =>
       cb ? cb({ type: "status", status: s, value: v, stage: stage }) : "",

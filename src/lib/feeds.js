@@ -17,6 +17,7 @@ export function makeFeed(lst, config, feeds) {
   let posts = lst.unwrap().slice(0, config.rss_length || config.feed_length);
   posts.forEach((p) => {
     // :TODO: — remove ↓
+    // console.log(p);
     let finalUrl = cleanURL + p.file.path.replace(/\.[^.]+$/, ".html");
     let txt = md.renderInline(p.meta.excerpt || "");
     txt = postprocess(txt, "", lst, cleanURL);
@@ -30,8 +31,10 @@ export function makeFeed(lst, config, feeds) {
     });
   });
   if (feeds) {
+    console.log("return feeds");
     return feeds.map((e) => TheFeed[e]());
   }
+  console.log("return one feed");
 
   return TheFeed.rss2();
 }
