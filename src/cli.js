@@ -31,20 +31,24 @@ console.log("\x1b[1mMukha SSG", VERSION, "\x1b[0m");
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 
-let node_b = node_backend({
-  in_dir: input_dir,
-  out_dir: output_dir,
-  timed: params.values.timed,
-  cleanup: params.values.cleanup,
-});
-
-let watch_b = watch_backend({});
-
 if (params.values.watch) {
+  let watch_b = watch_backend({
+    in_dir: input_dir,
+    out_dir: output_dir,
+    timed: params.values.timed,
+    port: 4000,
+  });
+  console.log("watch mode on...", options.values);
   watch_b.run({
     in_dir: input_dir,
-    out_dir: options.values.output ? output_dir : null,
+    out_dir: params.values.output ? output_dir : null,
   });
 } else {
+  let node_b = node_backend({
+    in_dir: input_dir,
+    out_dir: output_dir,
+    timed: params.values.timed,
+    cleanup: params.values.cleanup,
+  });
   node_b.run();
 }

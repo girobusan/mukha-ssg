@@ -16,7 +16,7 @@ function path2os(p) {
   return p.replace(/[\/]/g, path.sep);
 }
 
-function makeReadSrcListFn(inDir) {
+export function makeReadSrcListFn(inDir) {
   return (pth) => {
     pth = pth.replace(/[\/]/g, path.sep);
     const srcInputDir = path.join(inDir, pth);

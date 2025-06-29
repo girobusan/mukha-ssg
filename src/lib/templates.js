@@ -12,9 +12,9 @@ function makeObjectLoader(obj) {
   //it's automatically root
   //
   const tpnames = Object.keys(obj);
-  console.log(
-    "Templates files are:\n" + tpnames.map((t) => " -" + t).join("\n"),
-  );
+  // console.log(
+  //   "Templates files are:\n" + tpnames.map((t) => " -" + t).join("\n"),
+  // );
 
   if (tpnames.length == 1 && tpnames[0] != "index.njk") {
     obj = { "index.njk": obj[tpnames[0]] };
@@ -39,10 +39,9 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function (str, count) {
+  tpl.addFilter("shorten", function(str, count) {
     return str.slice(0, count || 5);
   });
-  // console.log(tpl.filters);
 
   let virtuals = [];
   //
@@ -50,7 +49,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function (lst, length) {
+    return function(lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -110,7 +109,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           niceDate: niceDate,
           makeTable: tableFilter,
           debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
-          debug: function () {
+          debug: function() {
             console.log.apply(this, arguments);
           },
           paginate: (edges, center) => {
@@ -138,7 +137,6 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         },
       };
 
-      // if (pass == 2) console.log("context done", page.file.path);
       // md2html
       if (pass == 1) {
         page.meta.excerpt && (page.meta.excerpt = md2html(page.meta.excerpt));
@@ -166,7 +164,6 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       }
       //
       //
-      // if (pass == 2) console.log("prep unsafe context", page.file.path);
 
       let adultContext = Object.assign(safeContext, {
         list: fullLister,
@@ -177,18 +174,11 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       // if (pass == 2) console.log("prepared", page.file.path);
       //
       let html = tpl.render("index.njk", adultContext);
-      // if (pass == 2) console.log("template rendered", page.file.path);
       html = postprocess(html, page.file.path, fullLister);
-      // if (pass == 2) console.log("pass2: write", page.file.path);
       writeFn(page.file.path, html);
-      // delete page;
-      // if (pass == 2) console.log("pass2: written");
     });
   }
   //passes
-  // console.log("pass 1...", fullLister.length);
   renderList(fullLister, writeFn, 1);
-  // console.log("pass 2...", virtuals.length);
   renderList(virtuals, writeFn, 2);
-  // console.log("ready");
 }
