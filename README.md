@@ -34,8 +34,8 @@ Small and versatile static site generator.
    - [x] New list mechanics
    - [x] Improved templating
    - [x] Pack SSG code to platform-agnostic module
-   - [ ] Separate backends (node-fs, node-memory)
-   - [ ] Implement watch mode
+   - [x] Separate backends (node-fs, node-memory)
+   - [x] Implement watch mode
 3. In general
    - [x] Data attachment
    - [x] Data transforms
