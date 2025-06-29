@@ -41,7 +41,7 @@ const ensurePath = (something) => {
 };
 
 const ensurePage = (something, lister) => {
-  if (typeof somethig === "string") {
+  if (typeof something === "string") {
     return lister.getByPath(something);
   }
   return something;
@@ -207,7 +207,7 @@ export function makeLister(LIST) {
       return makeLister(r);
     },
     getParent: (p) => {
-      let pg = ensurePage(p);
+      let pg = ensurePage(p, L);
       if (!pg) return null;
       let pth = pg.file.path; //ensurePath(p);
       const isindex = pg.index;

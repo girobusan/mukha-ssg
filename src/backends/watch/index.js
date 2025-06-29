@@ -33,12 +33,8 @@ function createServer(port, in_dir, timed, config) {
   });
   //
   const server = http.createServer((req, res) => {
-    // Парсим URL и получаем путь
     const parsedUrl = url.parse(req.url, true);
     const requestedPath = parsedUrl.pathname;
-
-    // Выводим в консоль запрошеный путь
-    console.log(`Запрошен путь: ${requestedPath}`);
 
     let filePath = decodeURIComponent(requestedPath).substring(basePath.length);
     // console.log("File path is", filePath);
@@ -112,12 +108,13 @@ function createServer(port, in_dir, timed, config) {
   };
   const closeServer = () => {
     console.log("\nStopping server...");
-    wss.terminate();
+    clients.forEach((ws) => ws.close());
+    wss.close();
     server.close(() => {
       console.log("Server stopped.");
       process.exit(0);
     });
-    // На случай, если сервер не отвечает — принудительный выход через таймаут
+    //
     setTimeout(() => {
       console.log("Forcing server to quit...");
       process.exit(1);
