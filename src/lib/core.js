@@ -48,6 +48,11 @@ export function createCore(opts) {
       options.config[n] = v;
       return createCore(opts);
     },
+    changeConfigFile: (c) => {
+      options.config = c;
+      console.log(options);
+      return createCore(opts);
+    },
   };
 }
 

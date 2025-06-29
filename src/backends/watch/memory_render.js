@@ -1,13 +1,34 @@
+const fs = require("fs");
+const path = require("path");
+const yaml = require("js-yaml");
 import { makeReadSrcListFn } from "../node_fs";
 import { createCore } from "../../lib/core";
 
-export function createMemoryRenderer(in_dir, config) {
-  console.log(config);
+function loadConfig(in_dir, timed) {
+  let Config;
+  try {
+    Config = yaml.load(
+      fs.readFileSync(path.join(in_dir, "config", "site.yaml"), {
+        encoding: "utf8",
+      }),
+    );
+  } catch (e) {
+    console.log("Can not load or parse config.", e.message);
+    process.exit(1);
+  }
+  if (timed) {
+    Config.timed = timed;
+  }
+  return Config;
+}
+
+export function createMemoryRenderer(in_dir, _) {
+  var config = loadConfig(in_dir);
   var inProcess = false;
   var hasToRerun = false;
   var cache = {};
-
-  const core = createCore({
+  var onEndFn = () => console.log("ready");
+  var options = {
     listSourceFiles: makeReadSrcListFn(in_dir),
     writeOutputFile: (p, c) =>
       (cache[p] = { path: p, type: "written", content: c }),
@@ -20,6 +41,7 @@ export function createMemoryRenderer(in_dir, config) {
       //   console.log(obj.operation, obj.to);
       // }
       if (obj.type === "status" && obj.status === "done") {
+        onEndFn();
         console.log("ready");
         inProcess === false;
         if (hasToRerun) {
@@ -28,14 +50,17 @@ export function createMemoryRenderer(in_dir, config) {
         }
       }
     },
-  });
+  };
+
+  var core = createCore(options);
   console.log("Initial render....");
   core.run();
 
   return {
+    onEnd: (fn) => (onEndFn = fn),
     ready: () => !inProcess,
     run: () => {
-      inProcess = true;
+      (core = core.changeConfigFile(loadConfig(in_dir))), (inProcess = true);
       core.run();
     },
     get: (p) => cache[p],

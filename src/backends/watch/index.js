@@ -1,5 +1,6 @@
 const http = require("node:http");
 const url = require("node:url");
+const WebSocket = require("ws");
 const fs = require("node:fs");
 const path = require("node:path");
 const yaml = require("js-yaml");
@@ -10,9 +11,26 @@ import { startWatcher } from "./watcher";
 
 const basePath = "";
 
+function injectWS(html, port) {
+  const code = `<script>
+ const ws = new WebSocket("ws://localhost:${port}");
+ ws.onmessage = function(event) {
+    console.log("Message:", event.data);
+    if(event.data==='reload') location.reload();
+   };
+ </script></body>`;
+
+  let r = html.replace("</body>", code);
+  return r;
+}
+
 function createServer(port, in_dir, timed, config) {
   const memoryRenderer = createMemoryRenderer(in_dir, config);
   const watcher = startWatcher(in_dir, memoryRenderer.run);
+  memoryRenderer.onEnd(() => {
+    console.log("time to reload!");
+    broadcast("reload");
+  });
   //
   const server = http.createServer((req, res) => {
     // Парсим URL и получаем путь
@@ -52,9 +70,35 @@ function createServer(port, in_dir, timed, config) {
       const readStream = fs.createReadStream(fileObj.src);
       readStream.pipe(res);
     } else {
-      res.end(fileObj.content);
+      res.end(
+        extname === ".html" ? injectWS(fileObj.content, port) : fileObj.content,
+      );
     }
   });
+
+  const wss = new WebSocket.Server({ server });
+  const clients = new Set();
+  wss.on("connection", (ws) => {
+    console.log("New WS client!");
+
+    clients.add(ws);
+
+    ws.on("close", () => {
+      clients.delete(ws);
+      console.log("WS client disconnected.");
+    });
+
+    ws.on("error", (err) => {
+      console.error("WebSocket error:", err);
+    });
+  });
+  function broadcast(message) {
+    for (const client of clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
 
   const runServer = () => {
     console.log("run server");
@@ -68,6 +112,7 @@ function createServer(port, in_dir, timed, config) {
   };
   const closeServer = () => {
     console.log("\nStopping server...");
+    wss.terminate();
     server.close(() => {
       console.log("Server stopped.");
       process.exit(0);
