@@ -99,8 +99,7 @@ function createServer(port, in_dir, timed, config) {
   const runServer = () => {
     console.log("run server");
     server.listen(port, () => {
-      console.log(`Сервер запущен на http://localhost:${port}`);
-      console.log(open);
+      console.log(`Server running at http://localhost:${port}`);
       open("http://localhost:" + port).catch((err) =>
         console.log("Can not open browser", err),
       );
@@ -108,6 +107,7 @@ function createServer(port, in_dir, timed, config) {
   };
   const closeServer = () => {
     console.log("\nStopping server...");
+    watcher.close().then(() => console.log("Watch stopped."));
     clients.forEach((ws) => ws.close());
     wss.close();
     server.close(() => {
