@@ -49,7 +49,7 @@ function runTransformTasks() {
     let ds = retrieveByStr(t.dataset, datasets);
     switch (t.task) {
       case "sort":
-        ds = sort(ds, t.col, t.desc);
+        ds = sort(ds, t.col, t.as_number, t.desc);
         break;
       case "slugify":
         ds = slugify(ds, t.input_col, t.output_col);

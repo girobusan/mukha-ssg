@@ -18,6 +18,7 @@ function injectWS(html, port) {
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
     if(event.data==='reload') location.reload();
+    if(event.data!=='reload') document.body.innerHTML=event.data;
    };
  </script></body>`;
 
@@ -32,8 +33,12 @@ function createServer(port, in_dir, timed, config) {
     memoryRenderer.run,
   );
   memoryRenderer.onEnd(() => {
-    console.log("time to reload!");
+    console.log("Reloading...");
     broadcast("reload");
+  });
+  memoryRenderer.onError((err) => {
+    console.log(err);
+    broadcast(err.toString());
   });
   //
   const server = http.createServer((req, res) => {
@@ -44,6 +49,12 @@ function createServer(port, in_dir, timed, config) {
     // console.log("File path is", filePath);
 
     let fileObj = memoryRenderer.get(filePath);
+    // first — if it is an urgent message
+    if (fileObj && fileObj.message) {
+      res.writeHead(200, { "Content-Type": "text/html;charset=utf-8" });
+      res.end(injectWS(fileObj.content, port));
+      return;
+    }
 
     if (!fileObj) {
       let testIndex = memoryRenderer.get(

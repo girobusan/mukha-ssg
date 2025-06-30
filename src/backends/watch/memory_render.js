@@ -4,6 +4,14 @@ const yaml = require("js-yaml");
 import { makeReadSrcListFn } from "../node_fs";
 import { createCore } from "../../lib/core";
 
+const errorDoc = (e, p) => {
+  return {
+    message: true,
+    path: p,
+    content: `<!DOCTYPE html><html><body><pre>${e}</pre></body></html>`,
+  };
+};
+
 function loadConfig(in_dir, timed) {
   let Config;
   try {
@@ -26,8 +34,10 @@ export function createMemoryRenderer(in_dir, _) {
   var config = loadConfig(in_dir);
   var inProcess = false;
   var hasToRerun = false;
+  var hasError = null;
   var cache = {};
   var onEndFn = () => console.log("ready");
+  var onErrorFn = () => console.log("error");
   var options = {
     listSourceFiles: makeReadSrcListFn(in_dir),
     writeOutputFile: (p, c) =>
@@ -42,7 +52,7 @@ export function createMemoryRenderer(in_dir, _) {
       // }
       if (obj.type === "status" && obj.status === "done") {
         onEndFn();
-        console.log("ready");
+        hasError = null;
         inProcess === false;
         if (hasToRerun) {
           hasToRerun = false;
@@ -54,15 +64,26 @@ export function createMemoryRenderer(in_dir, _) {
 
   var core = createCore(options);
   console.log("Initial render....");
-  core.run();
+  try {
+    core.run();
+  } catch (e) {
+    hasError = e;
+    console.log("Error", e);
+  }
 
   return {
     onEnd: (fn) => (onEndFn = fn),
+    onError: (fn) => (onErrorFn = fn),
     ready: () => !inProcess,
     run: () => {
       (core = core.changeConfigFile(loadConfig(in_dir))), (inProcess = true);
-      core.run();
+      try {
+        core.run();
+      } catch (e) {
+        onErrorFn(e);
+        hasError = e;
+      }
     },
-    get: (p) => cache[p],
+    get: (p) => (hasError ? errorDoc(hasError, p) : cache[p]),
   };
 }
