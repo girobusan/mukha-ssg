@@ -28,7 +28,7 @@
     ]
   },
   "author": "",
-  "license": "ISC",
+  "license": "LGPL",
   "devDependencies": {
     "babel-loader": "^9.1.3",
     "babel-plugin-htm": "^3.0.0",
