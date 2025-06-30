@@ -6,7 +6,7 @@ export function startWatcher(what, fn) {
     "all",
     throttle(
       (event, path) => {
-        console.log(`Изменение: ${event} в ${path}`, fn);
+        console.log(`Изменение: ${event} в ${path}`);
         fn();
       },
       1000,

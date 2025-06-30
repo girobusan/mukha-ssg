@@ -27,13 +27,13 @@ function makeCallbacks(callback) {
 
 /**
  *
- * @param {Object} Config
- * @property {function} Config.listSourceFiles - functon, takes path rel.
+ * @param {Object} opts
+ * @property {function} opts.listSourceFiles - functon, takes path rel.
  * to site source dir, return recursive list of all files below it
- * @property {function} Config.writeOutputFile - takes site path and content of the file as args, writes output file
- * @property {functon} Config.copyFile  - takes source path rel to site source dir and site path, copies file
- * @property {function} Config.callback - callback fn
- * @property {object} Config.env - environment data
+ * @property {function} opts.writeOutputFile - takes site path and content of the file as args, writes output file
+ * @property {functon} opts.copyFile  - takes source path rel to site source dir and site path, copies file
+ * @property {function} opts.callback - callback fn
+ * @property {object} opts.env - environment data
  */
 export function createCore(opts) {
   var options = opts;

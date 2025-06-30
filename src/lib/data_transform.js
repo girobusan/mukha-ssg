@@ -1,5 +1,6 @@
 import { translit } from "./util";
 import { makePageLikeObj } from "./util";
+import { numSort, strSort } from "./list";
 
 function median(numbers) {
   const sorted = Array.from(numbers).sort((a, b) => a - b);
@@ -56,7 +57,15 @@ function slugifyArray(arr) {
     return a;
   }, {});
 }
-
+//
+// EXPORTS
+//
+export function sort(tbl, col, as_number, desc) {
+  if (as_number) {
+    return numSort(tbl, (r) => r[col], desc);
+  }
+  return strSort(tbl, (r) => r[col], desc);
+}
 export function slugify(tbl, input_col, slug_col_name) {
   const col_values = Array.from(new Set(tbl.map((r) => r[input_col])));
   // console.log("Get values", col_values.length);

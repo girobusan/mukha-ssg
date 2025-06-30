@@ -1,6 +1,6 @@
 {
   "name": "mukha-ssg",
-  "version": "0.0.5b",
+  "version": "0.0.6b",
   "description": "Minimalist static site generator",
   "keywords": [
     "ssg",
@@ -8,7 +8,7 @@
     "static-site-generator"
   ],
   "bin": {
-    "mukha-ssg": "dist/mukha.js",
+    "mukha": "dist/mukha.js",
     "latid2mukha": "dist/latid2mukha.js"
   },
   "files": [

@@ -1,6 +1,62 @@
 const nodepath = require("path");
 const path = nodepath.posix;
 export const indexPageRx = /index(_\d*)?\.html$/i;
+/**
+ * @typedef Page
+ * @type {object}
+ * @property {File} file - linked file object
+ * @property {array} list - attached list
+ * @property {string} html - html
+ * @property {string} content - markdown
+ * @property {boolean} virtual - is page virtual
+ * @property {boolean} index - is page an index
+ * @property {object} meta - metadata
+ *
+ * */
+
+/**
+ * @typedef Lister
+ * @type {object}
+ * @property {function(array):Lister} append - appends list to lister
+ * @property {function(function):void} forEach - regular for each
+ * @property {number} length - Lister length
+ * @property {function(function):Lister} map - regular map
+ * @property {function(function):Lister} slice - regular slice
+ * @property {function(function):Lister} sort - returns sorted copy of Lister
+ *
+ * @property {function():Lister} tags - retrurns tag list
+ *
+ * @property {function(string, boolean , boolean): Lister} sortByMeta - retrurns
+ * sorted by given meta copy.
+ *
+ * @property {function(string): Page} getByPath - retrurns page by site path
+ *
+ * @property {function(string,any):Page} getByMeta - retrurns page by metadata
+ * name/value pair
+ *
+ * @property {function(string,any):Lister} getAllByMeta - retrurns all pages
+ * with given meta value
+ *
+ * @property {function(string|Page):Lister} getAllFiles - retrurns all pages
+ * under the given path
+ *
+ * @property {function(string|Page):Lister} getAllDirs - retrurns all pages
+ * under the given path
+ *
+ * @property {function(string|Page):Lister} getNearFiles - retrurns all pages
+ * near the given path
+ *
+ * @property {function(string|Page):Lister} getNearDirs - retrurns all dirs (index
+ * files) near the given path
+ *
+ * @property {function(string|Page):Page} getParent - retrurns nearest index
+ * up the directory tree
+ *
+ * @property {function(string|Page, number):array} getBreadcrumbs - retrurns
+ * breadcrumbs, directries without index files are skipped. Second parameters
+ * defines, how many dirs to skip
+ *
+ */
 
 export const numSort = (arr, accessor, desc) => {
   return arr.sort((a, b) => {
@@ -33,6 +89,9 @@ const dateSort = (arr, _, desc) => {
   });
 };
 
+/** @function ensurePath
+ * @returns {string} - path
+ * */
 const ensurePath = (something) => {
   if (typeof something === "string") return something;
   try {
@@ -41,6 +100,11 @@ const ensurePath = (something) => {
     return null;
   }
 };
+
+/**
+ * @param {Lister} lister - Lister to search
+ * @returns {Page}
+ * */
 
 const ensurePage = (something, lister) => {
   if (typeof something === "string") {
@@ -51,6 +115,11 @@ const ensurePage = (something, lister) => {
 // list operations
 //
 //
+/**
+ *
+ * @param {array} LIST - list of pages
+ * @returns {Lister}
+ * */
 export function makeLister(LIST) {
   let tags; // = lst.filter((f) => f.tag);
   const byMeta = {};
@@ -60,6 +129,9 @@ export function makeLister(LIST) {
     a[p.file.path] = p;
     return a;
   }, {});
+  /**
+   * @type Lister
+   * */
   const L = {
     [Symbol.iterator]: () => LIST[Symbol.iterator](),
     replace: (l) => makeLister(l),
@@ -95,6 +167,12 @@ export function makeLister(LIST) {
       byPath[p] = r1;
       return r1;
     },
+    /**
+     * @param {string} name — meta name
+     * @param {boolean} asNumber - sort as numbers
+     * @param {boolean} desc - sort descending
+     *
+     * */
     sortByMeta: (name, asNumber, desc) => {
       let r = LIST.slice();
       let sortfn;

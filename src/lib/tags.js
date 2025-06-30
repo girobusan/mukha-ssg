@@ -2,6 +2,12 @@ import path from "path";
 import { translit, makePageLikeObj } from "./util";
 import { makeLister } from "./list";
 
+/**
+ *
+ *@param {Lister} lister
+ *@param {object} config
+ * */
+
 export function makeTags(lister, config) {
   //list pages by tag
   const tags = {};
@@ -63,6 +69,14 @@ export function makeTags(lister, config) {
       return tagLister.getByMeta("tag", tg.slug);
     });
   });
+  if (config.tags_page) {
+    let tags_index = lister.getByPath(config.tags_page);
+
+    if (tags_index) {
+      // :TEST:
+      tags_index.list = tagLister.sortByMeta("title", false, false);
+    }
+  }
 
   //append all tag pages exept physical ones
   //because phycical are already there
