@@ -12,6 +12,22 @@ import { startWatcher } from "./watcher";
 const basePath = "";
 const watchPaths = ["config", "assets", "src", "data"];
 
+function getFreePort(startPort = 3000) {
+  return new Promise((resolve) => {
+    function checkPort(port) {
+      const server = net
+        .createServer()
+        .once("error", () => checkPort(port + 1))
+        .once("listening", () => {
+          server.close();
+          resolve(port);
+        })
+        .listen(port);
+    }
+    checkPort(startPort);
+  });
+}
+
 function injectWS(html, port) {
   const code = `<script>
  const ws = new WebSocket("ws://localhost:${port}");
@@ -38,7 +54,7 @@ function createServer(port, in_dir, timed, config) {
   });
   memoryRenderer.onError((err) => {
     console.log(err);
-    broadcast(err.toString());
+    broadcast("reload");
   });
   //
   const server = http.createServer((req, res) => {
