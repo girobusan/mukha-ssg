@@ -1,6 +1,6 @@
 ---
 title: Пример конфигурационного файла данных
-doc: data_config_file_ru
+doc: data_config_example_ru
 ---
 
 ```yaml

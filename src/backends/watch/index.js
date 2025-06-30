@@ -10,6 +10,7 @@ import { createMemoryRenderer } from "./memory_render";
 import { startWatcher } from "./watcher";
 
 const basePath = "";
+const watchPaths = ["config", "assets", "src", "data"];
 
 function injectWS(html, port) {
   const code = `<script>
@@ -26,7 +27,10 @@ function injectWS(html, port) {
 
 function createServer(port, in_dir, timed, config) {
   const memoryRenderer = createMemoryRenderer(in_dir, config);
-  const watcher = startWatcher(in_dir, memoryRenderer.run);
+  const watcher = startWatcher(
+    watchPaths.map((p) => path.join(in_dir, p)),
+    memoryRenderer.run,
+  );
   memoryRenderer.onEnd(() => {
     console.log("time to reload!");
     broadcast("reload");

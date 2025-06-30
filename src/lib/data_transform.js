@@ -82,41 +82,53 @@ export function slugify(tbl, input_col, slug_col_name) {
   tbl.forEach((r) => (r[slug_col_name] = slugdict[r[input_col]]));
   return tbl;
 }
-export function aggregate(tbl, aggregateType, col, out_col) {
-  let val;
-  switch (aggregateType) {
-    case "count_u":
-      val = new Set(tbl.map((r) => r[col])).size;
-      break;
-    case "sum":
-      val = tbl
-        .map((r) => r[col])
-        .map((v) => +v)
-        .filter((v) => !Number.isNaN(v))
-        .reduce((a, e) => a + e, 0);
-      break;
-    case "avg":
-      let nums = tbl
-        .map((r) => r[col])
-        .map((v) => +v)
-        .filter((v) => !Number.isNaN(v));
-      let summ = nums.reduce((a, e) => a + e, 0);
-      val = nums.legth > 0 ? summ / nums.length : null;
+export function aggregate(in_tbl, aggregateType, group_by, col, out_col) {
+  function aggregateArray(aggType, tbl) {
+    let val;
+    switch (aggType) {
+      case "count_u":
+        val = new Set(tbl.map((r) => r[col])).size;
+        break;
+      case "sum":
+        val = tbl
+          .map((r) => r[col])
+          .map((v) => +v)
+          .filter((v) => !Number.isNaN(v))
+          .reduce((a, e) => a + e, 0);
+        break;
+      case "avg":
+        let nums = tbl
+          .map((r) => r[col])
+          .map((v) => +v)
+          .filter((v) => !Number.isNaN(v));
+        let summ = nums.reduce((a, e) => a + e, 0);
+        val = nums.legth > 0 ? summ / nums.length : null;
 
-      break;
-    case "median":
-      let vals = tbl
-        .map((r) => r[col])
-        .map((v) => +v)
-        .filter((v) => !Number.isNaN(v));
-      val = vals.length > 0 ? median(vals) : 0;
-      break;
+        break;
+      case "median":
+        let vals = tbl
+          .map((r) => r[col])
+          .map((v) => +v)
+          .filter((v) => !Number.isNaN(v));
+        val = vals.length > 0 ? median(vals) : 0;
+        break;
 
-    default:
-      return tbl.length; // count *
+      default:
+        val = tbl.length; // count *
+    }
+    return val;
   }
-  tbl.forEach((r) => (r[out_col] = value));
-  return tbl;
+  if (!group_by) {
+    let val = aggregateArray(aggregateType, in_tbl);
+    in_tbl.forEach((r) => (r[out_col] = val));
+    return in_tbl;
+  }
+  let val_dict = groupBy(in_tbl, group_by);
+  for (const key in val_dict) {
+    val_dict[key] = aggregateArray(aggregateType, val_dict[key]);
+  }
+  in_tbl.forEach((r) => (r[out_col] = val_dict[r[col]]));
+  return in_tbl;
 }
 
 export function generateFromRows(tbl, { meta, content, path, html }) {

@@ -2,13 +2,15 @@ const nodepath = require("path");
 const path = nodepath.posix;
 export const indexPageRx = /index(_\d*)?\.html$/i;
 
-const numSort = (arr, accessor, desc) => {
-  return arr.sort((a, b) =>
-    !desc ? +accessor(a) - accessor(b) : +accessor(b) - accessor(a),
-  );
+export const numSort = (arr, accessor, desc) => {
+  return arr.sort((a, b) => {
+    const aval = Number.isNaN(+accessor(a)) ? 0 : +accessor(a);
+    const bval = Number.isNaN(+accessor(b)) ? 0 : +accessor(b);
+    return !desc ? aval - bval : bval - aval;
+  });
 };
 
-const strSort = (arr, accessor, desc) => {
+export const strSort = (arr, accessor, desc) => {
   return arr.sort((a, b) => {
     let av = accessor(a).toString();
     let bv = accessor(b).toString();
@@ -210,8 +212,10 @@ export function makeLister(LIST) {
       let pg = ensurePage(p, L);
       if (!pg) return null;
       let pth = pg.file.path; //ensurePath(p);
-      const isindex = pg.index;
-      let maybe = isindex ? path.dirname(path.dirname(pth)) : path.dirname(pth);
+      if (pg.index && path.dirname(pth) == "/") return null;
+      let maybe = pg.index
+        ? path.dirname(path.dirname(pth))
+        : path.dirname(pth);
       maybe = path.join(maybe, "index.html");
       while (!L.getByPath(maybe) && maybe != "/index.html") {
         maybe = path.join(path.dirname(path.dirname(maybe)), "index.html");
@@ -221,6 +225,7 @@ export function makeLister(LIST) {
     getBreadcrumbs: (arg, skip_first) => {
       let pg = ensurePage(arg, L);
       if (!pg) return null;
+      if (pg.index && path.dirname(pg.file.path) == "/") return [];
       let skip = skip_first || 0;
       let startPath = pg.index ? path.dirname(pg.file.path) : pg.file.path;
 

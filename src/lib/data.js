@@ -6,6 +6,7 @@ import {
   generateFromRows,
   slugify,
   aggregate,
+  sort,
 } from "./data_transform";
 //
 // Data inclusion
@@ -20,19 +21,25 @@ var render_tasks = [];
 
 function parseDataConfig(conf, lang) {
   console.log("Data config file found...");
+  let confcontent;
   if (lang === "json") {
     try {
-      transform_tasks = JSON.parse(conf);
+      confcontent = JSON.parse(conf);
     } catch (e) {
       console.log("Can not render data conf (json):", e);
     }
   }
   if (lang === "yaml") {
     try {
-      transform_tasks = yaml.load(conf);
+      confcontent = yaml.load(conf);
     } catch (e) {
       console.log("Can not render data conf (yaml):", e);
     }
+  }
+  if (Array.isArray(confcontent)) {
+    transform_tasks = confcontent;
+  } else {
+    console.log("Data config is not an array, left empty.");
   }
   render_tasks = transform_tasks.filter((t) => t.task === "render");
 }
@@ -41,6 +48,9 @@ function runTransformTasks() {
   transform_tasks.forEach((t) => {
     let ds = retrieveByStr(t.dataset, datasets);
     switch (t.task) {
+      case "sort":
+        ds = sort(ds, t.col, t.desc);
+        break;
       case "slugify":
         ds = slugify(ds, t.input_col, t.output_col);
         // console.log("slugify", ds.slice(0, 5));

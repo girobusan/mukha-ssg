@@ -50,7 +50,6 @@ export function createCore(opts) {
     },
     changeConfigFile: (c) => {
       options.config = c;
-      console.log(options);
       return createCore(opts);
     },
   };
