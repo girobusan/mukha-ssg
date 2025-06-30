@@ -74,7 +74,7 @@ export function makeTags(lister, config) {
 
     if (tags_index) {
       // :TEST:
-      tags_index.list = tagLister.sortByMeta("title", false, false);
+      tags_index.list = tagLister.tags(); //sortByMeta("title", false, false);
     }
   }
 
