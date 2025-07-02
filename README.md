@@ -2,6 +2,8 @@
 
 Small and versatile static site generator.
 
+🌏→ [Example site, built with **Mukha**](https://girobusan.github.io/mukha-basic-site/) (sources available)
+
 - No external tools required (except Node.js).
 - Links are relative; the site is extremely portable.
 - Paginated lists (ANY lists).
@@ -54,6 +56,6 @@ Small and versatile static site generator.
 - [x] HTML postprocessing
 - [x] Inserts syntax
 - [x] Basic, but nice theme
-- [ ] Test site
+- [x] Test site
 
 मुख
