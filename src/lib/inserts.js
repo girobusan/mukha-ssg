@@ -53,10 +53,9 @@ ${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
   },
 
   quote: (_, params) => {
-    return `<figure class="quote" >
-  <blockquote>${params.text}</blockquote>
-${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
-</figure > `;
+    let citetext = params.cite || params.caption;
+    return `<blockquote>${params.text}
+${params.caption ? `<footer><cite>${citetext}</cite></footer>` : ""}</blockquote>`;
   },
   video: (_, params) => {
     // console.log(params);
