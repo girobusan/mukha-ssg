@@ -1,6 +1,6 @@
 const http = require("node:http");
 const url = require("node:url");
-const WebSocket = require("ws");
+const WebSocketWS = require("ws");
 const fs = require("node:fs");
 const path = require("node:path");
 const yaml = require("js-yaml");
@@ -33,8 +33,8 @@ function injectWS(html, port) {
  const ws = new WebSocket("ws://localhost:${port}");
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
-    if(event.data==='reload') location.reload();
-    if(event.data!=='reload') document.body.innerHTML=event.data;
+    if(event.data==='reload') { location.reload(); }
+       else{ document.body.innerHTML=event.data;}
    };
  </script></body>`;
 
@@ -42,7 +42,7 @@ function injectWS(html, port) {
   return r;
 }
 
-function createServer(port, in_dir, timed, config) {
+function createServer(port, in_dir, config) {
   const memoryRenderer = createMemoryRenderer(in_dir, config);
   const watcher = startWatcher(
     watchPaths.map((p) => path.join(in_dir, p)),
@@ -53,7 +53,7 @@ function createServer(port, in_dir, timed, config) {
     broadcast("reload");
   });
   memoryRenderer.onError((err) => {
-    console.log(err);
+    console.log("Error rebuilding, see browser...");
     broadcast("reload");
   });
   //
@@ -103,7 +103,7 @@ function createServer(port, in_dir, timed, config) {
     }
   });
 
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocketWS.Server({ server });
   const clients = new Set();
   wss.on("connection", (ws) => {
     console.log("New WS client!");
@@ -121,7 +121,7 @@ function createServer(port, in_dir, timed, config) {
   });
   function broadcast(message) {
     for (const client of clients) {
-      if (client.readyState === WebSocket.OPEN) {
+      if (client.readyState === WebSocketWS.OPEN) {
         client.send(message);
       }
     }
@@ -179,6 +179,6 @@ export function backend({ in_dir, out_dir, timed, port }) {
   if (timed) {
     Config.timed = timed;
   }
-  let server = createServer(port || 3000, in_dir, false, Config);
+  let server = createServer(port, in_dir, Config);
   return server;
 }

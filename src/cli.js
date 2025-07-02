@@ -18,8 +18,9 @@ const options = {
   version: { type: "boolean", short: "v" },
   cleanup: { type: "boolean", short: "c" },
   watch: { type: "boolean", short: "w" },
+  port: { type: "string", short: "p" },
 };
-// w watch
+// cow pi tv
 
 const params = parseArgs({ options });
 if (params.values.version) {
@@ -32,17 +33,16 @@ const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 
 if (params.values.watch) {
+  let port = +params.values.port;
+  port = !Number.isNaN(port) && port > 1024 ? port : 4242;
   let watch_b = watch_backend({
     in_dir: input_dir,
     out_dir: output_dir,
     timed: params.values.timed,
-    port: 4000,
+    port: port,
   });
-  console.log("watch mode on...", options.values);
-  watch_b.run({
-    in_dir: input_dir,
-    out_dir: params.values.output ? output_dir : null,
-  });
+  console.log("watch mode on...");
+  watch_b.run();
 } else {
   let node_b = node_backend({
     in_dir: input_dir,

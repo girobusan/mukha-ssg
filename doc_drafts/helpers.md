@@ -1,16 +1,16 @@
 # Inserts
 
-````
+```
 <!--@name-->
 
 Any markdown to represent content in regular md viewer
-
-
 ```
+
 yaml: "formatted params"
+
 ```
 <!--//-->
-````
+```
 
 or
 
@@ -29,12 +29,12 @@ yaml: "formatted params"
 
 shorten form:
 
-````
+```
 ```@name
 parameters?
 ```
-````
 
+```
 <!--test comments-->
 
 ## Latid blocks to Latid2 helpers:
@@ -50,11 +50,11 @@ parameters?
 ### Require new helper
 
 1. Blockquote _with footer_
-1. Image _with custom class and caption_
-1. Video
-1. Audio
-1. Raw HTML code — ?
-1. Attachment
+2. Image _with custom class and caption_
+3. Video
+4. Audio
+5. Raw HTML code — ?
+6. Attachment
 
 #### Params in Latid (block.data)
 
@@ -75,3 +75,4 @@ parameters?
 | image             |          | caption, file.url, data.link (if image linked), withBackground , stretched, left, right, noresize, href |
 
 <script src="../view.js"></script>
+```

@@ -30,7 +30,7 @@ function loadConfig(in_dir, timed) {
   return Config;
 }
 
-export function createMemoryRenderer(in_dir, _) {
+export function createMemoryRenderer(in_dir, out_dir) {
   var config = loadConfig(in_dir);
   var inProcess = false;
   var hasToRerun = false;
@@ -82,6 +82,32 @@ export function createMemoryRenderer(in_dir, _) {
       } catch (e) {
         onErrorFn(e);
         hasError = e;
+      }
+    },
+    write: () => {
+      if (!out_dir) return;
+      console.log("Preparing to write...");
+      const writeFn = () => {
+        for (const pth in cache) {
+          let dest = path.join(out_path, pth.replace(/\//g, path.sep));
+          if (cache[pth].type === "written") {
+            fs.writeFileSync(dest, cache[pth].content, { encoding: "utf8" });
+            return;
+          }
+          if (cache[pth].type === "copy") {
+            const where = path.dirname(dest);
+            if (!fs.existsSync(where)) {
+              fs.mkdirSync(where, { recursive: true });
+            }
+            fs.copyFileSync(cache[pth].src, dest);
+            return;
+          }
+        }
+      }; //end writeFn
+      if (!inProcess) {
+        writeFn();
+      } else {
+        onEndFn = writeFn;
       }
     },
     get: (p) => (hasError ? errorDoc(hasError, p) : cache[p]),

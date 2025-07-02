@@ -7,30 +7,51 @@ lang: ru
 Файл находится в папке `site_dir/config/site.yaml`
 
 ```yaml
-# site properties
+# О сайте
 title: "Example site"
+
+# Короткий «девиз»
 motto: "Proud to be default"
+
+# Картинка, будет отображаться
+# при ссылке на сайт и в лентах.
 image: /path/to/image/ext
+
+# Описание сайта, отображается
+# в лентах.
 description: |-
   Long description
   of the site
+
+# Автор
 author: "Incognito"
-image: ""
+
+# Адрес сайта. Не должен заканчиваться на «/»
+# Если сайт находится в поддиректории,
+# она должна быть включена в адрес.
 url: "https://example.site"
+
+# Название темы. Без темы не запустится.
 theme: theme_name
 
-# default maximum length of the list;
-# max number of entries on single page
-# of multipage lists
+# Сколько единиц списка должно
+# быть на одной странице при разбиении 
+# списка на странцы по-умолчанию.
 list_length: 20
 
-#tags...
+# Путь к директории, где будут файла тегов.
 tags_dir: "/tags"
+
+# Если определена эта опция, и указанный файл
+# присутствует на сайте, в свойство `list` этого файла
+# будет записан список тегов, отсортированный по алфавиту.
 tags_page: "/tags/index.html"
 
-#RSS props
+# RSS и Atom
 rss_uri: "/rss.xml"
 atom_uri: "/atom.xml"
-#count of rss feed items
+
+# Максимальное количество статей 
+# в лентах.
 feed_length: 30
 ```

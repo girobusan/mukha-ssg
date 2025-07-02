@@ -41,7 +41,7 @@ const inserts = {
     if (typeof params.classes === "string") {
       classes_str = params.classes;
     } else {
-      classes_str = params.classes.join(" ");
+      classes_str = params.classes ? params.classes.join(" ") : "";
     }
     //
     return `<figure class="image ${classes_str}">

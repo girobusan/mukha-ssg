@@ -168,7 +168,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       let adultContext = Object.assign(safeContext, {
         list: fullLister,
         makePagination: () => adultContext.splitToPages(), // deprecated
-        splitToPages: pass === 1 ? makeMP(page) : () => true,
+        splitToPages: pass === 1 ? makeMP(page) : () => { },
         html: page.html,
       });
       // if (pass == 2) console.log("prepared", page.file.path);
