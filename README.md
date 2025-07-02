@@ -9,6 +9,7 @@ Small and versatile static site generator.
 - Paginated lists (ANY lists).
 - Data attachment, basic data transforms.
 - Pages from data generation.
+- Site preview in browser with automatic reloading.
 - Themes, using Nunjucks template language.
 - Custom and automatically generated pages for tags.
 - Standard Markdown + ability to insert rich content.
