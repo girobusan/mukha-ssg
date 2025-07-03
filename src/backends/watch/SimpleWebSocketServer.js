@@ -39,7 +39,7 @@ class SimpleWebSocketServer {
         buffer: Buffer.alloc(0),
       });
 
-      console.log(`Client added. Clients total: ${this.clients.size}`);
+      // console.log(`Client added. Clients total: ${this.clients.size}`);
 
       socket.on("data", (data) => {
         this.handleMessage(clientId, data);
@@ -47,7 +47,7 @@ class SimpleWebSocketServer {
 
       socket.on("close", () => {
         this.clients.delete(clientId);
-        console.log(`Client removed. Clients total: ${this.clients.size}`);
+        // console.log(`Client removed. Clients total: ${this.clients.size}`);
       });
     });
   }
@@ -152,12 +152,13 @@ class SimpleWebSocketServer {
   }
 
   broadcast(message, excludeSocket = null) {
+    if (this.clients.size === 0) return;
     for (const client of this.clients.values()) {
       if (client.socket !== excludeSocket) {
         this.send(client.socket, message);
       }
     }
-    console.log(`Message broadcasted to ${this.clients.size} clients`);
+    // console.log(`Message broadcasted to ${this.clients.size} clients`);
   }
 
   close() {

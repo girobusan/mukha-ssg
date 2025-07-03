@@ -1,3 +1,4 @@
+const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
@@ -31,13 +32,12 @@ function loadConfig(in_dir, timed) {
 }
 
 export function createMemoryRenderer(in_dir, out_dir) {
+  const eventBus = new EventEmitter();
   var config = loadConfig(in_dir);
   var inProcess = false;
   var hasToRerun = false;
   var hasError = null;
   var cache = {};
-  var onEndFn = () => console.log("ready");
-  var onErrorFn = () => console.log("error");
   var options = {
     listSourceFiles: makeReadSrcListFn(in_dir),
     writeOutputFile: (p, c) =>
@@ -45,13 +45,13 @@ export function createMemoryRenderer(in_dir, out_dir) {
     copyFile: (src, dest) =>
       (cache[dest] = { path: dest, type: "copy", src: src }),
     config: config,
-    env: { buildtype: "memory" }, //make it better
+    env: { app: { version: VERSION, backend: "memory" } }, //make it better
     callback: (obj) => {
       // if (obj.type === "file") {
       //   console.log(obj.operation, obj.to);
       // }
       if (obj.type === "status" && obj.status === "done") {
-        onEndFn();
+        eventBus.emit("end", "ready");
         hasError = null;
         inProcess === false;
         if (hasToRerun) {
@@ -68,19 +68,18 @@ export function createMemoryRenderer(in_dir, out_dir) {
     core.run();
   } catch (e) {
     hasError = e;
-    console.log("Error", e);
+    // console.log("Error", e);
   }
 
   return {
-    onEnd: (fn) => (onEndFn = fn),
-    onError: (fn) => (onErrorFn = fn),
+    on: (evt, fn) => eventBus.on(evt, fn),
     ready: () => !inProcess,
     run: () => {
       (core = core.changeConfigFile(loadConfig(in_dir))), (inProcess = true);
       try {
         core.run();
       } catch (e) {
-        onErrorFn(e);
+        eventBus.emit("error", e);
         hasError = e;
       }
     },
@@ -107,7 +106,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
       if (!inProcess) {
         writeFn();
       } else {
-        onEndFn = writeFn;
+        eventBus.on("end", writeFn);
       }
     },
     get: (p) => (hasError ? errorDoc(hasError, p) : cache[p]),

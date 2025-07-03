@@ -48,14 +48,15 @@ function createServer(port, in_dir, config) {
     watchPaths.map((p) => path.join(in_dir, p)),
     memoryRenderer.run,
   );
-  memoryRenderer.onEnd(() => {
+  memoryRenderer.on("end", () => {
     console.log("Reloading...");
     broadcast("reload");
   });
-  memoryRenderer.onError((err) => {
+  memoryRenderer.on("error", () => {
     console.log("Error rebuilding, see browser...");
     broadcast("reload");
   });
+
   //
   const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
