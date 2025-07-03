@@ -1,6 +1,6 @@
 const http = require("node:http");
 const url = require("node:url");
-const WSS = require("./SimpleWebSocketServer");
+const WebSocket = require("./SimpleWebSocketServer");
 const fs = require("node:fs");
 const path = require("node:path");
 const yaml = require("js-yaml");
@@ -50,11 +50,11 @@ function createServer(port, in_dir, config) {
   );
   memoryRenderer.on("end", () => {
     console.log("Reloading...");
-    broadcast("reload");
+    wss.broadcast("reload");
   });
   memoryRenderer.on("error", () => {
     console.log("Error rebuilding, see browser...");
-    broadcast("reload");
+    wss.broadcast("reload");
   });
 
   //
@@ -104,30 +104,7 @@ function createServer(port, in_dir, config) {
     }
   });
 
-  const wss = new WSS(server); //WebSocketWS.Server({ server });
-  // const clients = new Set();
-  // wss.on("connection", (ws) => {
-  //   console.log("New WS client!");
-  //
-  //   clients.add(ws);
-  //
-  //   ws.on("close", () => {
-  //     clients.delete(ws);
-  //     console.log("WS client disconnected.");
-  //   });
-  //
-  //   ws.on("error", (err) => {
-  //     console.error("WebSocket error:", err);
-  //   });
-  // });
-  function broadcast(message) {
-    wss.broadcast(message);
-    // for (const client of clients) {
-    //   if (client.readyState === WebSocketWS.OPEN) {
-    //     client.send(message);
-    //   }
-    // }
-  }
+  const wss = new WebSocket(server);
 
   const runServer = () => {
     console.log("run server");
