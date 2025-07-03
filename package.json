@@ -67,7 +67,6 @@
     "papaparse": "^5.5.3",
     "path-browserify": "^1.0.1",
     "preact": "^10.7.1",
-    "unidecode": "^1.1.0",
-    "ws": "^8.18.3"
+    "unidecode": "^1.1.0"
   }
 }

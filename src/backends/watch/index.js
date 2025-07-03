@@ -1,6 +1,6 @@
 const http = require("node:http");
 const url = require("node:url");
-const WebSocketWS = require("ws");
+const WSS = require("./SimpleWebSocketServer");
 const fs = require("node:fs");
 const path = require("node:path");
 const yaml = require("js-yaml");
@@ -34,7 +34,7 @@ function injectWS(html, port) {
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
     if(event.data==='reload') { location.reload(); }
-       else{ document.body.innerHTML=event.data;}
+       else{ alert( event.data );}
    };
  </script></body>`;
 
@@ -103,28 +103,29 @@ function createServer(port, in_dir, config) {
     }
   });
 
-  const wss = new WebSocketWS.Server({ server });
-  const clients = new Set();
-  wss.on("connection", (ws) => {
-    console.log("New WS client!");
-
-    clients.add(ws);
-
-    ws.on("close", () => {
-      clients.delete(ws);
-      console.log("WS client disconnected.");
-    });
-
-    ws.on("error", (err) => {
-      console.error("WebSocket error:", err);
-    });
-  });
+  const wss = new WSS(server); //WebSocketWS.Server({ server });
+  // const clients = new Set();
+  // wss.on("connection", (ws) => {
+  //   console.log("New WS client!");
+  //
+  //   clients.add(ws);
+  //
+  //   ws.on("close", () => {
+  //     clients.delete(ws);
+  //     console.log("WS client disconnected.");
+  //   });
+  //
+  //   ws.on("error", (err) => {
+  //     console.error("WebSocket error:", err);
+  //   });
+  // });
   function broadcast(message) {
-    for (const client of clients) {
-      if (client.readyState === WebSocketWS.OPEN) {
-        client.send(message);
-      }
-    }
+    wss.broadcast(message);
+    // for (const client of clients) {
+    //   if (client.readyState === WebSocketWS.OPEN) {
+    //     client.send(message);
+    //   }
+    // }
   }
 
   const runServer = () => {
@@ -139,7 +140,7 @@ function createServer(port, in_dir, config) {
   const closeServer = () => {
     console.log("\nStopping server...");
     watcher.close().then(() => console.log("Watch stopped."));
-    clients.forEach((ws) => ws.close());
+    // clients.forEach((ws) => ws.close());
     wss.close();
     server.close(() => {
       console.log("Server stopped.");
