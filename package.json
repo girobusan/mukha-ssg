@@ -48,6 +48,7 @@
     "webpack-shell-plugin-next": "^2.3.2"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "feed": "^5.1.0",
     "highlight.js": "^11.11.1",
     "install": "^0.13.0",

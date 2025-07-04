@@ -1,4 +1,5 @@
 const nunjucks = require("nunjucks");
+import { format as dateFormat } from "date-fns";
 import { tableFilter } from "./template_additions";
 import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
@@ -107,6 +108,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         page: page, // — must be page
         util: {
           niceDate: niceDate,
+          dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
           makeTable: tableFilter,
           debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
           debug: function() {
@@ -135,7 +137,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
             });
           },
         },
-      };
+      }; // /safeContext
 
       // md2html
       if (pass == 1) {
