@@ -1,40 +1,27 @@
-# Inserts
+---
+title: Вставки
+---
 
-```
-<!--@name-->
-
-Any markdown to represent content in regular md viewer
-```
-
-yaml: "formatted params"
-
-```
-<!--//-->
-```
-
-or
-
-```
+````
 <!--@name-->
 
 Any markdown to represent content in regular md viewer
 
-
-<!--
-yaml: "formatted params"
--->
-
-<!--//-->
 ```
+yaml: "formatted params"
+
+```
+<!--//-->
+````
 
 shorten form:
 
-```
+````
 ```@name
-parameters?
+parameters or text
 ```
+````
 
-```
 <!--test comments-->
 
 ## Latid blocks to Latid2 helpers:
@@ -75,4 +62,7 @@ parameters?
 | image             |          | caption, file.url, data.link (if image linked), withBackground , stretched, left, right, noresize, href |
 
 <script src="../view.js"></script>
+
+```
+
 ```
