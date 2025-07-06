@@ -126,6 +126,7 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
     }
     // path on site will be html
     preparsed.file.path = preparsed.file.path.replace(/\.[^.]+$/, ".html");
+    preparsed.permalink = preparsed.file.path;
     if (preparsed.file.path.match(indexRx)) preparsed.index = true;
     let skipIt =
       preparsed.meta.date && preparsed.meta.date.getTime() > timeFrame;
