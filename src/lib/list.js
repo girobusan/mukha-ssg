@@ -124,6 +124,7 @@ export function makeLister(LIST) {
   let tags; // = lst.filter((f) => f.tag);
   const byMeta = {};
   const allByMeta = {};
+  const allWithMeta = {};
   const allFiles = {};
   const byPath = LIST.reduce((a, p) => {
     a[p.file.path] = p;
@@ -214,6 +215,12 @@ export function makeLister(LIST) {
       let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
       allByMeta[name][val] = r.length === 0 ? null : makeLister(r);
       return allByMeta[name][val];
+    },
+    getAllWithMeta: (name) => {
+      if (allWithMeta[name]) return allWithMeta[name];
+      let r = LIST.filter((f) => f.meta[name] !== undefined);
+      allWithMeta[name] = r;
+      return r;
     },
     getNearFiles: (p) => {
       let pth = ensurePath(p);
