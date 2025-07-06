@@ -93,7 +93,7 @@ ${params.caption ? `<footer><cite>${citetext}</cite></footer>` : ""}</blockquote
 
 export function runInsert(name, md, params) {
   if (!(name in inserts)) {
-    return "Unknown insert: " + name;
+    return null; //"Unknown insert: " + name;
   }
   // console.log(name, md, params);
   return inserts[name](md, params);

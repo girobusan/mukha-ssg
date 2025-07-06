@@ -6,7 +6,7 @@ const yaml = require("js-yaml");
 // render nd with add goodies (exept nunjucks syntax)
 //
 const helperRx =
-  /<!--\s*(h:|!|@)([a-zA-Z_0-9-]+)\s*-->(.+?)<!--\s*\/\/\s*-->/gms;
+  /^<!--\s*(h:|!|@)([a-zA-Z_0-9-]+)\s*-->(.+?)<!--\s*\/\/\s*-->/gms;
 const fencedRx = /`{3,5}\n(.*?)`{3,5}\n/ms;
 //
 const shortenSyntaxRx = /^```@([a-zA-Z0-9-_]+)\n(.*?)\n```$/gms;
@@ -22,7 +22,7 @@ export function md2html(md_src) {
   let newMd = md_src.replace(helperRx, (m, g1, g2, g3) => {
     let prms_found = g3.match(fencedRx);
     let parameters = prms_found ? yaml.load(prms_found[1]) : {};
-    inserts_full.push(runInsert(g2, g3.replace(fencedRx, ""), parameters));
+    inserts_full.push(runInsert(g2, g3.replace(fencedRx, ""), parameters) || m);
     return `<!--#${inserts_full.length - 1}#-->`;
   });
   // extract all inserts — shorten syntax
@@ -35,7 +35,7 @@ export function md2html(md_src) {
     } catch (e) {
       // console.error(e);
     }
-    inserts_short.push(runInsert(g1, g2, guessParams));
+    inserts_short.push(runInsert(g1, g2, guessParams) || m);
     return `<!--##${inserts_short.length - 1}##-->`;
   });
   let newHTML;

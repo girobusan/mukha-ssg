@@ -21,7 +21,7 @@ export const md = require("markdown-it")({
   .use(require("markdown-it-multimd-table"), {
     headerless: true,
     multiline: true,
-  })
-  .use(markdownItAttrs, {
-    allowedAttributes: [], // empty array = all attributes are allowed
   });
+// .use(markdownItAttrs, {
+//   allowedAttributes: [], // empty array = all attributes are allowed
+// });

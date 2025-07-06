@@ -1,5 +1,6 @@
 const nunjucks = require("nunjucks");
 import { format as dateFormat } from "date-fns";
+import { makeLister } from "./list";
 import { tableFilter } from "./template_additions";
 import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
@@ -90,9 +91,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   }
 
   function renderList(list, writeFn, pass) {
-    // console.log("Render list");
-    list.forEach((page) => {
-      // if (pass == 2) console.log("pass2 start", page.file.path);
+    function makeSafeContext(page) {
       let safeContext = {
         config: config,
         data: data,
@@ -138,36 +137,51 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           },
         },
       }; // /safeContext
+      return safeContext;
+    }
+    //render exerpts and content
+    if (pass == 1) {
+      list.forEach((page) => {
+        let SC = makeSafeContext(page);
 
-      // md2html
-      if (pass == 1) {
-        page.meta.excerpt && (page.meta.excerpt = md2html(page.meta.excerpt));
-      }
-      // render nunjucks in content
-      if (page.html) {
-        try {
-          page.html = tpl.renderString(page.html, safeContext);
-        } catch (e) {
-          console.log("Malformed template tags in html at", page.file.path);
-        }
-      } else {
-        if (page.content) {
+        if (page.meta.excerpt) {
+          page.meta.excerpt = md2html(page.meta.excerpt);
           try {
-            let renderedInMd = tpl.renderString(page.content, safeContext);
-            page.html = md2html(renderedInMd);
+            page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
           } catch (e) {
             console.log(
-              "Malformed template tags in markdown at",
+              "Can not render template tags in excerpt",
               page.file.path,
             );
-            page.html = md2html(page.content);
           }
         }
-      }
-      //
-      //
 
-      let adultContext = Object.assign(safeContext, {
+        if (page.html) {
+          try {
+            page.html = tpl.renderString(page.html, SC);
+          } catch (e) {
+            console.log("Malformed template tags in html at", page.file.path);
+          }
+        } else {
+          if (page.content) {
+            try {
+              let renderedInMd = tpl.renderString(page.content, SC);
+              page.html = md2html(renderedInMd);
+            } catch (e) {
+              console.log(
+                "Malformed template tags in markdown at",
+                page.file.path,
+              );
+              page.html = md2html(page.content);
+            }
+          }
+        }
+      });
+    }
+
+    //render full pages
+    list.forEach((page) => {
+      let adultContext = Object.assign(makeSafeContext(page), {
         list: fullLister,
         makePagination: () => adultContext.splitToPages(), // deprecated
         splitToPages: pass === 1 ? makeMP(page) : () => { },
@@ -182,5 +196,5 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   }
   //passes
   renderList(fullLister, writeFn, 1);
-  renderList(virtuals, writeFn, 2);
+  renderList(makeLister(virtuals), writeFn, 2);
 }
