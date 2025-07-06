@@ -218,7 +218,7 @@ export function makeLister(LIST) {
     },
     getAllWithMeta: (name) => {
       if (allWithMeta[name]) return allWithMeta[name];
-      let r = LIST.filter((f) => f.meta[name] !== undefined);
+      let r = makeLister(LIST.filter((f) => f.meta[name] !== undefined));
       allWithMeta[name] = r;
       return r;
     },
