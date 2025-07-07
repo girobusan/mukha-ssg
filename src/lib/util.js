@@ -32,7 +32,7 @@ export function makePageLikeObj(meta, markdown, path, html) {
     content: markdown,
     html: html || "",
     file: {
-      getContent: () => content,
+      getContent: () => markdown,
       path: path,
     },
   };
