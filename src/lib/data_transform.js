@@ -136,14 +136,19 @@ export function aggregate(in_tbl, aggregateType, group_by, col, out_col) {
   for (const key in val_dict) {
     val_dict[key] = aggregateArray(aggregateType, val_dict[key]);
   }
-  in_tbl.forEach((r) => (r[out_col] = val_dict[r[col]]));
+  // console.log("valdict", val_dict);
+  in_tbl.forEach((r) => {
+    // console.log(r, r[group_by], val_dict[r[col]]);
+    r[out_col] = val_dict[r[group_by]];
+  });
   return in_tbl;
 }
 
 export function generateFromRows(tbl, { meta, content, path, html }) {
   let pages = [];
   tbl.forEach((r) => {
-    let p_meta = substValues(meta, r);
+    // console.log("row:", r);
+    let p_meta = substValues(Object.assign({}, meta), r);
 
     // Object.keys(p_meta).forEach((k) => (p_meta[k] = makeSubst(p_meta[k], r)));
 
@@ -164,9 +169,9 @@ export function generateFromCol(tbl, col_name, { meta, content, path, html }) {
   let values = Array.from(new Set(tbl.map((r) => r[col_name])));
   values.forEach((v) => {
     let data = tbl.filter((r) => r[col_name] === v);
-    let repDict = data.length > 0 ? data[0] : { value: v };
+    let repDict = data[0]; //.length > 0 ? data[0] : { value: v };
 
-    let page_meta = substValues(meta, repDict);
+    let page_meta = substValues(Object.assign({}, meta), repDict);
 
     const page = makePageLikeObj(
       page_meta,

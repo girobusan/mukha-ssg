@@ -12,6 +12,28 @@ const paragraphRx = /(\n\n|^)([^-![\](\){\}<#].+?)\n\n/gs;
 const imageRx = /!\[.*?\]\s*\((.*?)\)/m;
 const indexRx = /index\.html?$/i;
 
+function parseDate(dt) {
+  // console.log(dt);
+  if (typeof dt !== "string") {
+    return dt;
+  }
+  let dateParts = dt.split(/\D+/).map((e) => +e);
+  let r;
+  try {
+    r = new Date(
+      dateParts[0],
+      dateParts[1] - 1,
+      dateParts[2],
+      dateParts[3] || 0,
+      dateParts[4] || 0,
+    );
+  } catch (e) {
+    console.log("wrong data", dt);
+    r = new Date(0);
+  }
+  return r;
+}
+
 /**
  * @param { Object[] } lst - list of file info objects
  * @param {function} writeFn — function, which writes content by site path
@@ -31,14 +53,7 @@ function preparseMdFile(f) {
     return { file: f, meta: null, content: content };
   }
   if (metadata.date && typeof metadata.date === "string") {
-    let dateParts = metadata.date.split(/\D+/).map((e) => +e);
-    metadata.date = new Date(
-      dateParts[0],
-      dateParts[1] - 1,
-      dateParts[2],
-      dateParts[3] || 0,
-      dateParts[4] || 0,
-    );
+    metadata.date = parseDate(metadata.date);
   }
   if (!metadata.date) metadata.date = new Date(0);
   return { file: f, meta: metadata, content: parts.markdown };
@@ -106,9 +121,17 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
   let timeFrame = config.timed ? new Date().getTime() : Infinity;
   let copyList = [];
   let processList = [];
+
   const data_pages = data.render();
   if (data_pages.length > 0) {
     console.log("Rendered from data:", data_pages.length);
+    data_pages.forEach((dp) => {
+      if (!dp.meta.date) {
+        dp.meta.date = new Date(0);
+        return;
+      }
+      dp.meta.date = parseDate(dp.meta.date);
+    });
   }
 
   // GENERATE LIST OF OUTPUT FILES, INCLUDING

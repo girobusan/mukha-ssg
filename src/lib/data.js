@@ -56,7 +56,7 @@ function runTransformTasks() {
         // console.log("slugify", ds.slice(0, 5));
         break;
       case "aggregate":
-        ds = aggregate(ds, t.type, t.input_col, t.output_col);
+        ds = aggregate(ds, t.type, t.group_by, t.input_col, t.output_col);
         break;
     }
   });
@@ -88,6 +88,7 @@ function runRenderTasks() {
         pages = pages.concat(lst);
         break;
       case "col":
+      case "column":
         let lstc = generateFromCol(ds, t.col, {
           meta: t.meta,
           content: t.content || t.markdown || "",
@@ -142,9 +143,12 @@ export function initData(fileList, initialData) {
         break;
       default: // all dsv
         // Key data by field name instead of index/position
-        value = Papa.parse(f.getContent(), {
+        let parsed = Papa.parse(f.getContent(), {
           header: true,
-        }).data;
+          skipEmptyLines: true, //important!
+        });
+        value = parsed.data;
+      // console.log(parsed.meta);
     }
     writeObjByKeys(datasets, dataset_ns, dataset_name, value);
     if (dataset_ns.length > 0) {

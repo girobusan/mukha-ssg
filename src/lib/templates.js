@@ -108,7 +108,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         util: {
           niceDate: niceDate,
           dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
-          makeTable: tableFilter,
+          makeTable: (d) => tableFilter(d),
           debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
           debug: function() {
             console.log.apply(this, arguments);
