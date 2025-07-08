@@ -6,7 +6,8 @@ import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
-import log from "loglevel";
+import { getLogger } from "./logging";
+var log = getLogger("templates");
 
 function makeObjectLoader(obj) {
   //

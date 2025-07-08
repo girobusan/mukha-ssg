@@ -4,6 +4,7 @@ import { backend as node_backend } from "./backends/node_fs";
 import { backend as watch_backend } from "./backends/watch";
 import { getLogger, setLevel } from "./lib/logging";
 var log = getLogger("cli");
+import colors from "yoctocolors";
 //
 process.on("uncaughtException", (error) => {
   console.error(error.message, error.code); // Message and code
@@ -29,9 +30,9 @@ if (params.values.version) {
   console.log(VERSION);
   process.exit(0);
 }
-setLevel(params.values.loglevel || "trace", true);
+setLevel(params.values.loglevel || "info", true);
 
-console.log("\x1b[1mMukha SSG", VERSION, "\x1b[0m");
+console.log(colors.cyanBright("\x1b[1mMukha SSG " + VERSION + " \x1b[0m"));
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 

@@ -10,7 +10,7 @@ function tb(txt, l = 5) {
 const colormap = {
   TRACE: colors.magenta,
   DEBUG: colors.cyan,
-  INFO: colors.blue,
+  INFO: colors.blueBright,
   WARN: colors.yellow,
   ERROR: colors.red,
 };
