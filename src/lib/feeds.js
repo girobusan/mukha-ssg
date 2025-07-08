@@ -1,6 +1,8 @@
 import { Feed } from "feed";
 import { md } from "./markdown";
 import postprocess from "./postprocess";
+import { getLogger } from "./logging";
+var log = getLogger("feeds");
 
 export function makeFeed(lst, config, feeds) {
   let cleanURL = config.url.replace(/\/$/, "");
@@ -31,10 +33,10 @@ export function makeFeed(lst, config, feeds) {
     });
   });
   if (feeds) {
-    console.log("return feeds");
+    log.debug("Return feeds");
     return feeds.map((e) => TheFeed[e]());
   }
-  console.log("return one feed");
+  log.debug("Feeds: Return one feed");
 
   return TheFeed.rss2();
 }

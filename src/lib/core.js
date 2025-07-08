@@ -2,6 +2,8 @@ const posixpath = require("path/posix");
 // const yaml = require("js-yaml");
 import { preprocessFileList } from "./preprocess";
 import { initData } from "./data";
+import { getLogger } from "./logging";
+var log = getLogger("core");
 
 function makeSitePath(sitedir, filename) {
   let p = posixpath.join(sitedir, filename);
@@ -70,6 +72,7 @@ function runSSG({
   const Config = config; //yaml.load(configFile.getContent());
   //
   const Callback = makeCallbacks(callback);
+  log.info("Start generation...");
   Callback.status("start", 0);
   const loggedWriteFn = (p, c) => {
     Callback.file("write", null, p, "processing");
@@ -79,6 +82,7 @@ function runSSG({
   //
   //  load templates
   //
+  log.debug("Loading templates...");
   const templateSrcPath = posixpath.join(
     "config/themes",
     Config.theme,
@@ -94,6 +98,7 @@ function runSSG({
   }
   const Templates = templateFiles.reduce((a, f) => {
     let tname = posixpath.join(f.parentPath, f.name);
+    log.debug("Template file:", tname.substring(templateSrcPath.length + 1));
     a[tname.substring(templateSrcPath.length + 1)] = f.getContent();
     return a;
   }, {});
@@ -137,6 +142,7 @@ function runSSG({
   //
   //  copy files for copy
   //
+  log.debug("Copying files...");
   filesToCopyFromSrc.forEach((f) => {
     Callback.file("copy", f.src, f.path, "site_static");
     copyFile(f.src, f.path);
@@ -146,7 +152,7 @@ function runSSG({
   //  copy assets
   //
   const assetsPath = "assets";
-  console.log("Copy site assets");
+  log.debug("Copying site assets...");
   listSourceFiles(assetsPath).forEach((f) => {
     // console.log("ASSET", f.name);
     let sp = f.parentPath.substring(assetsPath.length);
@@ -167,6 +173,7 @@ function runSSG({
   // const themeFilesOutPath
   const themeAssets = listSourceFiles(themeFilesPath);
 
+  log.debug("Copying theme assets...");
   themeAssets.forEach((f) => {
     // console.log("STYLE", f.name);
     const subdir = f.parentPath.substring(themeFilesPath.length + 1);

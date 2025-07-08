@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 import { createCore } from "../lib/core";
+import { getLogger } from "../lib/logging";
+var log = getLogger("node-fs");
 
 // backend takes its args
 // takes core (?)
@@ -79,7 +81,7 @@ function cleanupAfter(written) {
     .forEach((f) => {
       let rezpath = f.substring(outDir.length).replace(/[\\]/g, "/");
       if (writtenFiles.indexOf(rezpath) == -1) {
-        console.log(" - Removing unknown file:", f);
+        log.debug(" - Removing unknown file:", f);
         fs.rmSync(f);
       }
     });
@@ -96,10 +98,10 @@ function cleanupAfter(written) {
     .map((e) => path.join(e.parentPath, e.name))
     .sort((a, b) => b.length - a.length)
     .forEach((p) => {
-      console.log(" - Removing empty dir:", p);
+      log.debug(" - Removing empty dir:", p);
       fs.rmdirSync(p);
     });
-  console.log("All clean.");
+  log.info("All clean.");
   // console.log(writtenFiles);
 }
 
@@ -110,7 +112,7 @@ function makeMemoGetContent(p) {
       try {
         content = fs.readFileSync(p, { encoding: "utf8" });
       } catch (e) {
-        console.error("Can not read file", p, e.code);
+        log.error("Can not read file", p, e.code);
         content = "File was not loaded!";
       }
     }
@@ -128,7 +130,7 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
       }),
     );
   } catch (e) {
-    console.log("Can not load or parse config.", e.message);
+    log.error("Can not load or parse config. Exiting.", e.message);
     process.exit(1);
   }
   if (timed) {
@@ -144,9 +146,7 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
         written.push({ path: c.to, op: c.stage });
       }
       if (c.type === "status" && c.status === "done") {
-        console.log("--------------------");
-        console.log("Generation finished.");
-        console.log("Written", written.length, "files total.");
+        log.info("Site ready. Written", written.length, "files total.");
         //debug :DELETE:
         // fs.writeFileSync("written.csv", Papa.unparse(written));
         if (cleanup) cleanupAfter(written);

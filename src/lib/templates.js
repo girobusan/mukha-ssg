@@ -6,6 +6,7 @@ import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
+import log from "loglevel";
 
 function makeObjectLoader(obj) {
   //
@@ -97,7 +98,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         data: data,
         makePagination: () => safeContext.splitToPages(), // deprecated
         splitToPages: () =>
-          console.log(
+          log.warn(
             "Attempt to call unsafe function in safe context",
             page.file.path,
           ),
@@ -149,8 +150,8 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           try {
             page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
           } catch (e) {
-            console.log(
-              "Can not render template tags in excerpt",
+            log.warn(
+              "Can not render template tags in excerpt ",
               page.file.path,
             );
           }
@@ -160,7 +161,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           try {
             page.html = tpl.renderString(page.html, SC);
           } catch (e) {
-            console.log("Malformed template tags in html at", page.file.path);
+            log.warn("Malformed template tags in html at", page.file.path);
           }
         } else {
           if (page.content) {
@@ -168,7 +169,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
               let renderedInMd = tpl.renderString(page.content, SC);
               page.html = md2html(renderedInMd);
             } catch (e) {
-              console.log(
+              log.warn(
                 "Malformed template tags in markdown at",
                 page.file.path,
               );

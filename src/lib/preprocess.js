@@ -5,6 +5,8 @@ import { makeFeed } from "./feeds";
 import { makeTags } from "./tags";
 import { renderAndSave } from "./templates";
 // import postprocess from "./postprocess";
+import { getLogger } from "./logging";
+var log = getLogger("preprocess");
 
 const mdfileRx = /\.(md|markdown)$/i;
 // const paragraphRx = /^([^-![{<#])(.+?)\n\n/gm;
@@ -28,7 +30,7 @@ function parseDate(dt) {
       dateParts[4] || 0,
     );
   } catch (e) {
-    console.log("wrong data", dt);
+    log.warn("wrong data", dt);
     r = new Date(0);
   }
   return r;
@@ -96,7 +98,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
   let lister = makeLister(lst);
   //must be ok to build rss
   if (config.rss_length) {
-    console.info("Writting RSS...");
+    log.debug("Writting RSS...");
     let feeds = [];
     let uris = [];
     if (config.rss_uri) {
@@ -124,7 +126,7 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
 
   const data_pages = data.render();
   if (data_pages.length > 0) {
-    console.log("Rendered from data:", data_pages.length);
+    log.debug("Pages rendered from data:", data_pages.length);
     data_pages.forEach((dp) => {
       if (!dp.meta.date) {
         dp.meta.date = new Date(0);
@@ -157,11 +159,11 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
     if (!skipIt) {
       processList.push(preparsed);
     } else {
-      console.log("Skipping:", preparsed.file.path);
+      log.debug("Skipping, draft or timed:", preparsed.file.path);
     }
   });
   processList = processList.concat(data_pages);
-  console.info("Source files to process:", processList.length);
+  log.debug("Source files to process:", processList.length);
   sortAndRun(processList, writeFn, config, templates, data);
   return copyList;
 }

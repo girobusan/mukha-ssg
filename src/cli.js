@@ -2,7 +2,8 @@ const { parseArgs } = require("node:util");
 const path = require("path");
 import { backend as node_backend } from "./backends/node_fs";
 import { backend as watch_backend } from "./backends/watch";
-
+import { getLogger, setLevel } from "./lib/logging";
+var log = getLogger("cli");
 //
 process.on("uncaughtException", (error) => {
   console.error(error.message, error.code); // Message and code
@@ -19,6 +20,7 @@ const options = {
   cleanup: { type: "boolean", short: "c" },
   watch: { type: "boolean", short: "w" },
   port: { type: "string", short: "p" },
+  loglevel: { type: "string", short: "l" },
 };
 // cow pi tv
 
@@ -27,6 +29,7 @@ if (params.values.version) {
   console.log(VERSION);
   process.exit(0);
 }
+setLevel(params.values.loglevel || "trace", true);
 
 console.log("\x1b[1mMukha SSG", VERSION, "\x1b[0m");
 const input_dir = path.normalize(params.values.input || "./site");
@@ -41,7 +44,7 @@ if (params.values.watch) {
     timed: params.values.timed,
     port: port,
   });
-  console.log("watch mode on...");
+  log.info("Watch mode on.");
   watch_b.run();
 } else {
   let node_b = node_backend({

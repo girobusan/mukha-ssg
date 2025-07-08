@@ -8,6 +8,8 @@ import {
   aggregate,
   sort,
 } from "./data_transform";
+import { getLogger } from "./logging";
+var log = getLogger("data");
 //
 // Data inclusion
 //
@@ -20,26 +22,26 @@ var rendered = false;
 var render_tasks = [];
 
 function parseDataConfig(conf, lang) {
-  console.log("Data config file found...");
+  log.debug("Data config file found...");
   let confcontent;
   if (lang === "json") {
     try {
       confcontent = JSON.parse(conf);
     } catch (e) {
-      console.log("Can not render data conf (json):", e);
+      log.warn("Can not render data conf (json):", e);
     }
   }
   if (lang === "yaml") {
     try {
       confcontent = yaml.load(conf);
     } catch (e) {
-      console.log("Can not render data conf (yaml):", e);
+      log.warn("Can not render data conf (yaml):", e);
     }
   }
   if (Array.isArray(confcontent)) {
     transform_tasks = confcontent;
   } else {
-    console.log("Data config is not an array, left empty.");
+    log.warn("Data config is not an array, left empty.");
   }
   render_tasks = transform_tasks.filter((t) => t.task === "render");
 }
@@ -65,15 +67,16 @@ function runTransformTasks() {
 function runRenderTasks() {
   let pages = [];
   if (render_tasks.length === 0) {
-    console.log("No render tasks.");
+    log.debug("No data render tasks.");
     return [];
   }
+  log.debug("Render tasks number:", render_tasks.length);
   render_tasks.forEach((t) => {
     // console.log(t);
     let ds = retrieveByStr(t.dataset, datasets);
     //
     if (!ds || ds.length === 0) {
-      console.log("No data in", t.dataset);
+      log.warn("Data: No data for render in", t.dataset);
       // console.log(datasets);
       return;
     }
@@ -131,18 +134,17 @@ export function initData(fileList, initialData) {
         try {
           value = JSON.parse(f.getContent());
         } catch (e) {
-          console.log(e);
+          log.trace("Data:", e);
         }
         break;
       case "yaml":
         try {
           value = yaml.load(f.getContent());
         } catch (e) {
-          console.log(e);
+          log.trace("Data:", e);
         }
         break;
       default: // all dsv
-        // Key data by field name instead of index/position
         let parsed = Papa.parse(f.getContent(), {
           header: true,
           skipEmptyLines: true, //important!
@@ -163,7 +165,7 @@ export function initData(fileList, initialData) {
     find: (dataset, column, value) => dataset.filter((r) => r[column] == value),
     render: () =>
       rendered
-        ? console.log("Data pages rendering must be done once!")
+        ? log.error("Data pages rendering must be done once!")
         : runRenderTasks(),
   };
 }

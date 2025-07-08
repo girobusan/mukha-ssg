@@ -2,6 +2,8 @@ import path from "path";
 import { translit, makePageLikeObj } from "./util";
 import { makeLister } from "./list";
 
+import { getLogger } from "./logging";
+var log = getLogger("tags");
 /**
  *
  *@param {Lister} lister
@@ -45,6 +47,7 @@ export function makeTags(lister, config) {
       //is there such file?
       let physical_tag = lister.getByPath(tagpath);
       if (physical_tag) {
+        log.debug("Physical tag:", tagpath);
         physical_tag.list = files;
         physical_tag.tag = slug;
         physical_tag.meta.tag = slug;
@@ -80,7 +83,7 @@ export function makeTags(lister, config) {
 
   //append all tag pages exept physical ones
   //because phycical are already there
-  console.log("Tags found:", tag_pages.length);
+  log.debug("Tags found:", tag_pages.length);
 
   return lister.append(tag_pages.filter((t) => t.virtual));
 }
