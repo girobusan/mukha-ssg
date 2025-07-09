@@ -2,6 +2,7 @@ const path = require("path");
 // const WebpackShellPlugin = require("webpack-shell-plugin-next");
 // const HtmlWebpackPlugin = require("html-webpack-plugin");
 // const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const LicensePlugin = require("webpack-license-plugin");
 const webpack = require("webpack");
 const pkg = require("./package.json");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -52,7 +53,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -87,6 +88,12 @@ module.exports = function(_, argv) {
     },
 
     plugins: [
+      new LicensePlugin({
+        excludedPackageTest: (n, v) => {
+          const nms = ["unidecode"];
+          return nms.indexOf(n) != -1;
+        },
+      }),
       new webpack.DefinePlugin({
         // Definitions...
         VERSION: JSON.stringify(pkg.version),

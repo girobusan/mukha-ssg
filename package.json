@@ -12,7 +12,8 @@
     "latid2mukha": "dist/latid2mukha.js"
   },
   "files": [
-    "dist/mukha.js"
+    "dist/mukha.js",
+    "dist/oss-licenses.json"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -45,6 +46,7 @@
     "terser-webpack-plugin": "^5.3.14",
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2",
+    "webpack-license-plugin": "^4.5.1",
     "webpack-shell-plugin-next": "^2.3.2"
   },
   "dependencies": {

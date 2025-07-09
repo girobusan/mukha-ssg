@@ -1,6 +1,6 @@
 const http = require("node:http");
 const url = require("node:url");
-const WebSocket = require("./SimpleWebSocketServer");
+import { SimpleWebSocketServer as SWSS } from "./SimpleWebSocketServer";
 const fs = require("node:fs");
 const path = require("node:path");
 const yaml = require("js-yaml");
@@ -8,6 +8,8 @@ import open from "open";
 import { mimeTypes } from "./mimes";
 import { createMemoryRenderer } from "./memory_render";
 import { startWatcher } from "./watcher";
+import { getLogger } from "../../lib/logging";
+var log = getLogger("server");
 
 const basePath = "";
 const watchPaths = ["config", "assets", "src", "data"];
@@ -49,11 +51,11 @@ function createServer(port, in_dir, config) {
     memoryRenderer.run,
   );
   memoryRenderer.on("end", () => {
-    console.log("Reloading...");
+    log.info("Reloading...");
     wss.broadcast("reload");
   });
   memoryRenderer.on("error", () => {
-    console.log("Error rebuilding, see browser...");
+    log.error("Error rebuilding, see browser.");
     wss.broadcast("reload");
   });
 
@@ -104,29 +106,29 @@ function createServer(port, in_dir, config) {
     }
   });
 
-  const wss = new WebSocket(server);
+  const wss = new SWSS(server);
 
   const runServer = () => {
-    console.log("run server");
+    log.debug("Starting server...");
     server.listen(port, () => {
-      console.log(`Server running at http://localhost:${port}`);
+      log.info(`Server running at http://localhost:${port}`);
       open("http://localhost:" + port).catch((err) =>
-        console.log("Can not open browser", err),
+        log.warn("Can not open browser:", err),
       );
     });
   };
   const closeServer = () => {
-    console.log("\nStopping server...");
+    log.info("Stopping server...");
     watcher.close().then(() => console.log("Watch stopped."));
     // clients.forEach((ws) => ws.close());
     wss.close();
     server.close(() => {
-      console.log("Server stopped.");
+      log.info("Server stopped.");
       process.exit(0);
     });
     //
     setTimeout(() => {
-      console.log("Forcing server to quit...");
+      log.warn("Forcing server to quit...");
       process.exit(1);
     }, 3000);
   };
@@ -134,7 +136,7 @@ function createServer(port, in_dir, config) {
   process.on("SIGINT", closeServer); // Ctrl+C
   process.on("SIGTERM", closeServer); // kill
   process.on("exit", () => {
-    console.log("Server stopped, exiting...");
+    log.info("Exiting...");
   });
   //
   return {
@@ -152,7 +154,7 @@ export function backend({ in_dir, out_dir, timed, port }) {
       }),
     );
   } catch (e) {
-    console.log("Can not load or parse config.", e.message);
+    log.error("Can not load or parse config.", e.message);
     process.exit(1);
   }
   if (timed) {

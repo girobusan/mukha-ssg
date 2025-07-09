@@ -1,8 +1,10 @@
 // lib/SimpleWebSocketServer.js
 const { Buffer } = require("buffer");
 const crypto = require("crypto");
+import { getLogger } from "../../lib/logging";
+var log = getLogger("websocket");
 
-class SimpleWebSocketServer {
+export class SimpleWebSocketServer {
   constructor(httpServer) {
     this.clients = new Map();
 
@@ -102,7 +104,7 @@ class SimpleWebSocketServer {
         if (opcode === 0x1) {
           // Text frame
           const message = payload.toString("utf8");
-          console.log(
+          log.info(
             `Message recieved: ${Buffer.from(message, "utf8").toString()}`,
           );
           // this.broadcast(message, socket);
@@ -111,7 +113,7 @@ class SimpleWebSocketServer {
           socket.end();
         }
       } else {
-        console.warn("Unmasked message.");
+        log.warn("Unmasked message.");
         socket.end();
       }
 
@@ -166,8 +168,8 @@ class SimpleWebSocketServer {
       client.socket.destroy();
     });
     this.clients.clear();
-    console.log("All ws connections are closed");
+    log.info("All connections are closed");
   }
 }
 
-module.exports = SimpleWebSocketServer;
+// module.exports = SimpleWebSocketServer;

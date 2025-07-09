@@ -22,7 +22,7 @@ var rendered = false;
 var render_tasks = [];
 
 function parseDataConfig(conf, lang) {
-  log.debug("Data config file found...");
+  log.debug("Data config file found:", lang);
   let confcontent;
   if (lang === "json") {
     try {

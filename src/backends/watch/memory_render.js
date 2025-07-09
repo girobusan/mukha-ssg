@@ -4,6 +4,8 @@ const path = require("path");
 const yaml = require("js-yaml");
 import { makeReadSrcListFn } from "../node_fs";
 import { createCore } from "../../lib/core";
+import { getLogger } from "../../lib/logging";
+var log = getLogger("memrender");
 
 const errorDoc = (e, p) => {
   return {
@@ -22,7 +24,7 @@ function loadConfig(in_dir, timed) {
       }),
     );
   } catch (e) {
-    console.log("Can not load or parse config.", e.message);
+    log.error("Can not load or parse config.", e.message);
     process.exit(1);
   }
   if (timed) {
@@ -63,7 +65,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
   };
 
   var core = createCore(options);
-  console.log("Initial render....");
+  log.info("Initial render....");
   try {
     core.run();
   } catch (e) {
@@ -85,7 +87,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
     },
     write: () => {
       if (!out_dir) return;
-      console.log("Preparing to write...");
+      log.debug("Preparing to write...");
       const writeFn = () => {
         for (const pth in cache) {
           let dest = path.join(out_path, pth.replace(/\//g, path.sep));
