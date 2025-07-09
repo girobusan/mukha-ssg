@@ -44,10 +44,12 @@ export class SimpleWebSocketServer {
       // console.log(`Client added. Clients total: ${this.clients.size}`);
 
       socket.on("data", (data) => {
+        log.debug("Message recieved by", clientId, ":", data);
         this.handleMessage(clientId, data);
       });
 
       socket.on("close", () => {
+        log.debug("Client disconnected:", clientId);
         this.clients.delete(clientId);
         // console.log(`Client removed. Clients total: ${this.clients.size}`);
       });
@@ -160,6 +162,7 @@ export class SimpleWebSocketServer {
         this.send(client.socket, message);
       }
     }
+    log.debug("Message broadcasted:", message);
     // console.log(`Message broadcasted to ${this.clients.size} clients`);
   }
 

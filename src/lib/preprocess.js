@@ -10,8 +10,9 @@ var log = getLogger("preprocess");
 
 const mdfileRx = /\.(md|markdown)$/i;
 // const paragraphRx = /^([^-![{<#])(.+?)\n\n/gm;
-const paragraphRx = /(\n\n|^)([^-![\](\){\}<#].+?)\n\n/gs;
+const paragraphRx = /(\n\n|^)([^-~`![\](\){\}<#].+?)\n\n/gs;
 const imageRx = /!\[.*?\]\s*\((.*?)\)/m;
+const realImageRx = /[("](\/[^[\](\)"']+\.(jpg|jpeg|png|gif|webm|svg))/i;
 const indexRx = /index\.html?$/i;
 
 function parseDate(dt) {
@@ -70,7 +71,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
   });
   // search for excerpts
   lst.forEach((page) => {
-    if (!page.meta.excerpt && page.content) {
+    if (page.meta.excerpt === undefined && page.content) {
       // console.log(f);
       let firstP = page.content.match(paragraphRx);
       if (!firstP) {
@@ -85,7 +86,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
     if (page.meta.image) {
       return;
     }
-    let img = imageRx.exec(page.content);
+    let img = realImageRx.exec(page.content);
     if (!img) {
       return;
     }
