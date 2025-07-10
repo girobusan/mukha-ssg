@@ -42,8 +42,8 @@ export function createMemoryRenderer(in_dir, out_dir) {
   var cache = {};
   var options = {
     listSourceFiles: makeReadSrcListFn(in_dir),
-    writeOutputFile: (p, c) =>
-      (cache[p] = { path: p, type: "written", content: c }),
+    writeOutputFile: (p, c, pinfo) =>
+      (cache[p] = { path: p, type: "written", content: c, page: pinfo }),
     copyFile: (src, dest) =>
       (cache[dest] = { path: dest, type: "copy", src: src }),
     config: config,

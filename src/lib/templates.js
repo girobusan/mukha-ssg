@@ -191,7 +191,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       });
       let html = tpl.render("index.njk", adultContext);
       html = postprocess(html, page.file.path, fullLister);
-      writeFn(page.file.path, html);
+      writeFn(page.file.path, html, page);
     });
   }
   //passes

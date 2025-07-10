@@ -13,7 +13,7 @@ export function startWatcher(what, fn) {
           log.debug(`Change: ${event} at ${path}`);
           fn();
         },
-        1000,
+        500,
         { trailing: true },
       ),
     );

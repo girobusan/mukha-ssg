@@ -74,9 +74,9 @@ function runSSG({
   const Callback = makeCallbacks(callback);
   log.info("Start generation...");
   Callback.status("start", 0);
-  const loggedWriteFn = (p, c) => {
+  const loggedWriteFn = (p, c, pinfo) => {
     Callback.file("write", null, p, "processing");
-    writeOutputFile(p, c);
+    writeOutputFile(p, c, pinfo);
   };
 
   //
