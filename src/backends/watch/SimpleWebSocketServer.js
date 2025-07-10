@@ -1,12 +1,15 @@
 // lib/SimpleWebSocketServer.js
+const EventEmitter = require("events");
 const { Buffer } = require("buffer");
 const crypto = require("crypto");
 import { getLogger } from "../../lib/logging";
 var log = getLogger("websocket");
 
-export class SimpleWebSocketServer {
+export class SimpleWebSocketServer extends EventEmitter {
   constructor(httpServer) {
+    super();
     this.clients = new Map();
+    // this.events = new EventEmitter();
 
     // upgrade
     httpServer.on("upgrade", (request, socket, _) => {
@@ -44,7 +47,6 @@ export class SimpleWebSocketServer {
       // console.log(`Client added. Clients total: ${this.clients.size}`);
 
       socket.on("data", (data) => {
-        log.debug("Message recieved by", clientId, ":", data);
         this.handleMessage(clientId, data);
       });
 
@@ -106,10 +108,10 @@ export class SimpleWebSocketServer {
         if (opcode === 0x1) {
           // Text frame
           const message = payload.toString("utf8");
-          log.info(
-            `Message recieved: ${Buffer.from(message, "utf8").toString()}`,
-          );
-          // this.broadcast(message, socket);
+          this.emit("message", message);
+          // log.info(
+          //   `Message recieved: ${Buffer.from(message, "utf8").toString()}`,
+          // );
         } else if (opcode === 0x8) {
           // Close
           socket.end();

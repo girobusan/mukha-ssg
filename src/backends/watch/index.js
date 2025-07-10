@@ -1,5 +1,6 @@
 const http = require("node:http");
 const url = require("node:url");
+var exec = require("child_process").exec;
 import { SimpleWebSocketServer as SWSS } from "./SimpleWebSocketServer";
 const fs = require("node:fs");
 const path = require("node:path");
@@ -31,14 +32,26 @@ function getFreePort(startPort = 3000) {
 }
 
 function injectWS(html, port, file_src) {
+  const helperCode = `
+  const cont = document.createElement("div");
+ const btn = document.createElement("button");
+btn.innerHTML="edit"
+cont.setAttribute("style" , "position: absolute; bottom: 4px ; right: 4px;" + 
+"z-index:10000;background-color: white; color: black")
+
+cont.appendChild(btn);
+document.body.appendChild(cont);
+btn.addEventListener("click" , ()=>ws.send("edit:"+src))
+`;
   const code = `<script>
- const src="${file_src || ""}"
+  const src="${file_src || ""}"
  const ws = new WebSocket("ws://localhost:${port}");
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
     if(event.data==='reload') { location.reload(); }
        else{ alert( event.data );}
    };
+ ${file_src ? helperCode : ""}
  </script></body>`;
 
   let r = html.replace("</body>", code);
@@ -103,13 +116,25 @@ function createServer(port, in_dir, config) {
     } else {
       res.end(
         extname === ".html"
-          ? injectWS(fileObj.content, port, fileObj.page.file.src)
+          ? injectWS(
+              fileObj.content,
+              port,
+              config.edit_cmd ? fileObj.page.file.src : false,
+            )
           : fileObj.content,
       );
     }
   });
 
   const wss = new SWSS(server);
+  wss.on("message", (m) => {
+    if (!m.startsWith("edit:")) return;
+    let filename = m.substring(5);
+    exec(config.edit_cmd + " " + filename, {}, () =>
+      log.info("Editing done for:", filename),
+    );
+    log.info("Editing", filename);
+  });
 
   const runServer = () => {
     log.debug("Starting server...");
