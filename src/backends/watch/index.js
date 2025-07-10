@@ -30,8 +30,9 @@ function getFreePort(startPort = 3000) {
   });
 }
 
-function injectWS(html, port) {
+function injectWS(html, port, file_src) {
   const code = `<script>
+ const src="${file_src || ""}"
  const ws = new WebSocket("ws://localhost:${port}");
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
@@ -45,7 +46,6 @@ function injectWS(html, port) {
 }
 
 function createServer(port, in_dir, config) {
-  var currentPage;
   const memoryRenderer = createMemoryRenderer(in_dir, config);
   const watcher = startWatcher(
     watchPaths.map((p) => path.join(in_dir, p)),
@@ -71,7 +71,6 @@ function createServer(port, in_dir, config) {
     let fileObj = memoryRenderer.get(filePath);
     // first — if it is an urgent message
     if (fileObj && fileObj.message) {
-      currentPage = null;
       res.writeHead(200, { "Content-Type": "text/html;charset=utf-8" });
       res.end(injectWS(fileObj.content, port));
       return;
@@ -85,7 +84,6 @@ function createServer(port, in_dir, config) {
     }
 
     if (!fileObj) {
-      currentPage = null;
       res.writeHead(404, { "Content-Type": "text/plain;charset=utf-8" });
       res.end("404 Not Found");
       return;
@@ -103,9 +101,10 @@ function createServer(port, in_dir, config) {
       const readStream = fs.createReadStream(fileObj.src);
       readStream.pipe(res);
     } else {
-      if (extname === ".html") currentPage = fileObj;
       res.end(
-        extname === ".html" ? injectWS(fileObj.content, port) : fileObj.content,
+        extname === ".html"
+          ? injectWS(fileObj.content, port, fileObj.page.file.src)
+          : fileObj.content,
       );
     }
   });

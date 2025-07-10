@@ -34,6 +34,9 @@ export const indexPageRx = /index(_\d*)?\.html$/i;
  * @property {function(string,any):Page} getByMeta - retrurns page by metadata
  * name/value pair
  *
+ * @property {function(string,any):Page} excludeByMeta - excludes page by metadata
+ * name/value pair, returns new lister
+ *
  * @property {function(string,any):Lister} getAllByMeta - retrurns all pages
  * with given meta value
  *
@@ -202,6 +205,10 @@ export function makeLister(LIST) {
       let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
       byMeta[name][val] = r.length === 0 ? null : r[0];
       return byMeta[name][val];
+    },
+    excludeByMeta: (name, val) => {
+      let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() != val);
+      return makeLister(r);
     },
 
     getAllByMeta: (name, val) => {
