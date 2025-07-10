@@ -74,6 +74,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
   }
 
   return {
+    clear: (p) => delete cache[p],
     on: (evt, fn) => eventBus.on(evt, fn),
     ready: () => !inProcess,
     run: () => {

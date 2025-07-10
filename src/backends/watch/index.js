@@ -9,8 +9,9 @@ import open from "open";
 import { mimeTypes } from "./mimes";
 import { createMemoryRenderer } from "./memory_render";
 import { startWatcher } from "./watcher";
+import { delFile, newPage } from "./fileops";
 import { getLogger } from "../../lib/logging";
-var log = getLogger("server");
+var log = getLogger("devserver");
 
 const basePath = "";
 const watchPaths = ["config", "assets", "src", "data"];
@@ -30,21 +31,55 @@ function getFreePort(startPort = 3000) {
     checkPort(startPort);
   });
 }
+const btnStyle = `all:unset;
+font-family: system-ui, sans-serif;
+border: 1px solid gray;
+background: white;
+color: black;
+border-radius: 4px;
+padding:2px 6px;
+font-size: 14px;
+user-select:none;
+cursor:pointer;
+margin-right: 8px;
+`.replace(/\n/g, "");
 
-function injectWS(html, port, file_src) {
+function injectWS(html, port, file_src, page_path) {
   const helperCode = `
-  const cont = document.createElement("div");
- const btn = document.createElement("button");
-btn.innerHTML="edit"
-cont.setAttribute("style" , "position: absolute; bottom: 4px ; right: 4px;" + 
-"z-index:10000;background-color: white; color: black")
+const ppath="${page_path}"
+const cont = document.createElement("div");
+const btnE = document.createElement("button");
+const btnD = document.createElement("button");
+const btnN = document.createElement("button");
+btnE.innerHTML="edit"
+btnD.innerHTML="del"
+btnN.innerHTML="new"
+//
+btnE.setAttribute("style" , "${btnStyle}");
+btnD.setAttribute("style" , "${btnStyle}");
+btnN.setAttribute("style" , "${btnStyle}");
+cont.setAttribute("style" , "position:absolute;position: fixed; bottom: 8px ; right: 0px;" + 
+"z-index:10000;background-color: transparent;")
 
-cont.appendChild(btn);
+cont.appendChild(btnE);
+cont.appendChild(btnD);
+cont.appendChild(btnN);
 document.body.appendChild(cont);
-btn.addEventListener("click" , ()=>ws.send("edit:"+src))
+btnE.addEventListener("click" , ()=>ws.send(JSON.stringify({action:'edit', page: src}))  )
+btnD.addEventListener("click" , 
+  ()=>{ if(confirm('Are you sure?')){
+      ws.send(JSON.stringify({action:'del', page: src , path: ppath})); 
+      history.go(-1);
+}})
+btnN.addEventListener("click" ,
+  ()=>{console.log("new")
+      let fnm = prompt("Enter filename without extension:");
+      if(!fnm) return;
+      ws.send(JSON.stringify({action:'new', near: src , fname: fnm})); 
+})
 `;
   const code = `<script>
-  const src="${file_src || ""}"
+ const src="${file_src || ""}"
  const ws = new WebSocket("ws://localhost:${port}");
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
@@ -120,6 +155,7 @@ function createServer(port, in_dir, config) {
               fileObj.content,
               port,
               config.edit_cmd ? fileObj.page.file.src : false,
+              config.edit_cmd ? fileObj.page.file.path : false,
             )
           : fileObj.content,
       );
@@ -128,12 +164,30 @@ function createServer(port, in_dir, config) {
 
   const wss = new SWSS(server);
   wss.on("message", (m) => {
-    if (!m.startsWith("edit:")) return;
-    let filename = m.substring(5);
-    exec(config.edit_cmd + " " + filename, {}, () =>
-      log.info("Editing done for:", filename),
-    );
-    log.info("Editing", filename);
+    let mj = JSON.parse(m);
+    let action = mj.action;
+    if (action === "edit") {
+      exec(config.edit_cmd + " " + mj.page, {}, () =>
+        log.info("Editing done for:", mj.page),
+      );
+      return;
+    }
+    if (action === "del") {
+      delFile(mj.page);
+      memoryRenderer.clear(mj.path);
+      wss.broadcast("reload");
+      return;
+    }
+    if (action === "new") {
+      let nf = newPage(mj.near, mj.fname);
+
+      log.info("Creating new page", nf);
+      exec(config.edit_cmd + " " + nf, {}, () =>
+        log.info("Editing done for new page:", nf),
+      );
+      return;
+    }
+    log.warn("Unknown request from page:", m);
   });
 
   const runServer = () => {

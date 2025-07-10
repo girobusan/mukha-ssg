@@ -63,7 +63,7 @@ export function niceDate(date) {
     " " +
     date.getHours() +
     ":" +
-    date.getMinutes()
+    (100 + date.getMinutes()).toString().substring(1)
   );
 }
 
