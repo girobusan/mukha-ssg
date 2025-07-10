@@ -31,7 +31,7 @@ function parseDate(dt) {
       dateParts[4] || 0,
     );
   } catch (e) {
-    log.warn("wrong data", dt);
+    log.warn("Wrong data:", dt);
     r = new Date(0);
   }
   return r;

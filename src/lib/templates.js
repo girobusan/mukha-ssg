@@ -105,6 +105,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           ),
         meta: page.meta,
         path: page.file.path,
+        list: fullLister,
         file: page, // deprecated
         page: page, // — must be page
         util: {
@@ -184,7 +185,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     //render full pages
     list.forEach((page) => {
       let adultContext = Object.assign(makeSafeContext(page), {
-        list: fullLister,
+        // list: fullLister,
         splitToPages: pass === 1 ? makeMP(page) : () => { },
         html: page.html,
       });
