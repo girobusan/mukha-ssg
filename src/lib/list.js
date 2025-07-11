@@ -84,10 +84,10 @@ const dateSort = (arr, _, desc) => {
     let bv = 0;
     try {
       av = a.meta.date.getTime();
-    } catch (e) { }
+    } catch (e) {}
     try {
       bv = b.meta.date.getTime();
-    } catch (e) { }
+    } catch (e) {}
     return !desc ? av - bv : bv - av;
   });
 };
@@ -150,18 +150,18 @@ export function makeLister(LIST) {
       tags !== undefined
         ? tags
         : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-          let aval = a.meta.title.toLowerCase();
-          let bval = b.meta.title.toLowerCase();
-          if (aval === bval) {
-            return 0;
-          }
-          if (aval > bval) {
-            return 1;
-          }
-          if (aval < bval) {
-            return -1;
-          }
-        })),
+            let aval = a.meta.title.toLowerCase();
+            let bval = b.meta.title.toLowerCase();
+            if (aval === bval) {
+              return 0;
+            }
+            if (aval > bval) {
+              return 1;
+            }
+            if (aval < bval) {
+              return -1;
+            }
+          })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
@@ -268,7 +268,7 @@ export function makeLister(LIST) {
         }
       if (cacheKey == "_all") {
         const resAll = LIST.filter((e) => !e.tag && !e.virtual && !e.index);
-        console.log("total", resAll.length);
+        log.debug("Add all files to _all cache:", resAll.length);
         allFiles[cacheKey] = makeLister(resAll);
         return allFiles[cacheKey];
       }
@@ -291,7 +291,7 @@ export function makeLister(LIST) {
         (e) =>
           (isindex
             ? path.dirname(e.file.path).startsWith(base) &&
-            path.dirname(e.file.path).length > baselen
+              path.dirname(e.file.path).length > baselen
             : e.file.path.startsWith(base)) &&
           !e.tag &&
           !e.virtual &&
