@@ -173,7 +173,7 @@ function createServer(port, in_dir, config) {
       return;
     }
     if (action === "del") {
-      delFile(mj.page);
+      delFile(mj.page, in_dir);
       memoryRenderer.clear(mj.path);
       wss.broadcast("reload");
       return;
