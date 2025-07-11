@@ -60,6 +60,24 @@ function slugifyArray(arr) {
 //
 // EXPORTS
 //
+export function delCols(tbl, cols) {
+  tbl.forEach((row) => {
+    cols.forEach((col) => {
+      if (row[col] !== undefined) {
+        delete row[col];
+      }
+    });
+  });
+}
+export function number(tbl, cols) {
+  tbl.forEach((row) => {
+    cols.forEach((col) => {
+      if (row[col] !== undefined) {
+        row[col] = Number(row[col]);
+      }
+    });
+  });
+}
 export function sort(tbl, col, as_number, desc) {
   if (as_number) {
     return numSort(tbl, (r) => r[col], desc);

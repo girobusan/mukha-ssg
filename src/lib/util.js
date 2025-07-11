@@ -156,3 +156,47 @@ export function formatLastModified(date) {
 
   return `${day}, ${dateNum} ${month} ${year} ${hours}:${minutes}:${seconds} GMT`;
 }
+
+export function isTable(dset) {
+  if (!Array.isArray(dset)) return false;
+  let ref = dset[0];
+  let keylen = Object.keys(ref).length;
+  let result = true;
+  testing: {
+    for (let i = 1; i < dset.length; i++) {
+      let tkeys = Object.keys(dset[i]);
+      if (tkeys.length !== keylen) {
+        result = false;
+        break testing;
+      }
+      tkeys.forEach((tk) => {
+        if (!(tk in ref)) {
+          result = false;
+        }
+      });
+      if (!result) break testing;
+    }
+  }
+  return result;
+}
+
+export function compactTable(tbl) {
+  if (!isTable(tbl)) return tbl;
+  const cols = Object.keys(tbl[0]);
+  const rows = [];
+  tbl.forEach((row) => rows.push(cols.map((c) => row[c])));
+  return { cols, rows };
+}
+
+export function uncompactTable(tobj) {
+  const tout = [];
+  tobj.rows.forEach((rw) => {
+    tout.push(
+      tobj.keys.reduce((a, e, i) => {
+        a[e] = rw[i];
+        return a;
+      }, {}),
+    );
+  });
+  return tout;
+}

@@ -6,6 +6,8 @@ import {
   generateFromRows,
   slugify,
   aggregate,
+  number,
+  delCols,
   sort,
 } from "./data_transform";
 import { getLogger } from "./logging";
@@ -59,6 +61,12 @@ function runTransformTasks() {
         break;
       case "aggregate":
         ds = aggregate(ds, t.type, t.group_by, t.input_col, t.output_col);
+        break;
+      case "del_cols":
+        ds = delCols(ds, t.cols);
+        break;
+      case "number":
+        ds = number(ds, t.cols);
         break;
     }
   });
