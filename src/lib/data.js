@@ -68,6 +68,8 @@ function runTransformTasks() {
       case "number":
         ds = number(ds, t.cols);
         break;
+      default:
+        log.warn("Unknown task:", t.task);
     }
   });
 }
