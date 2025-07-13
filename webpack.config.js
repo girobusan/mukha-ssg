@@ -15,6 +15,11 @@ const commonSettings = {
         resourceQuery: /raw/,
         type: "asset/source",
       },
+      {
+        test: /\.js$/,
+        resourceQuery: /raw/,
+        type: "asset/source",
+      },
 
       {
         test: /\.svg$/,
@@ -53,7 +58,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function (_, argv) {
+module.exports = function(_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -111,5 +116,53 @@ module.exports = function (_, argv) {
     ],
   };
 
-  return [Object.assign(commonSettings, nodePart)];
+  const browserPart = {
+    watch: argv.mode != "production",
+    optimization: {
+      minimize: argv.mode === "production" ? true : false,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            format: {
+              comments: false,
+              max_line_len: 120,
+              // preamble: "#!/usr/bin/env node",
+            },
+          },
+          extractComments: false,
+        }),
+      ],
+    },
+    target: "web",
+
+    mode: argv.mode,
+    entry: {
+      js_api_client: "./src/lib/js_api/client.js",
+    },
+    devtool: argv.mode != "production" ? "inline-source-map" : false,
+
+    output: {
+      filename: "[name].js",
+      path: path.resolve(__dirname, builddir, ""),
+    },
+
+    plugins: [
+      // new LicensePlugin({
+      //   excludedPackageTest: (n, v) => {
+      //     const nms = ["unidecode"];
+      //     return nms.indexOf(n) != -1;
+      //   },
+      // }),
+      new webpack.DefinePlugin({
+        // Definitions...
+        VERSION: JSON.stringify(pkg.version),
+        BUILDDATE: new Date().toISOString(),
+      }),
+    ],
+  };
+
+  return [
+    Object.assign({}, commonSettings, browserPart),
+    Object.assign({}, commonSettings, nodePart),
+  ];
 };

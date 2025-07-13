@@ -4,6 +4,7 @@ import { makeLister } from "./list";
 import { makeFeed } from "./feeds";
 import { makeTags } from "./tags";
 import { renderAndSave } from "./templates";
+import { JSAPI } from "./js_api";
 // import postprocess from "./postprocess";
 import { getLogger } from "./logging";
 var log = getLogger("preprocess");
