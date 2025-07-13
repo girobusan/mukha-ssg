@@ -1,6 +1,8 @@
 import { translit } from "./util";
 import { makePageLikeObj } from "./util";
 import { numSort, strSort } from "./list";
+import { getLogger } from "./logging";
+var log = getLogger("data-transform");
 
 function median(numbers) {
   const sorted = Array.from(numbers).sort((a, b) => a - b);
@@ -88,7 +90,7 @@ export function slugify(tbl, input_col, slug_col_name) {
   const col_values = Array.from(new Set(tbl.map((r) => r[input_col])));
   // console.log("Get values", col_values.length);
   if (col_values.length == 0) {
-    console.error("No values to slugify in", input_col);
+    log.warn("No values to slugify in", input_col);
     return tbl;
   }
   const slugs = [];

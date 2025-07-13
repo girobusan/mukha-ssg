@@ -1,6 +1,7 @@
 const http = require("node:http");
 const url = require("node:url");
 var exec = require("child_process").exec;
+var spawn = require("child_process").spawn;
 import { SimpleWebSocketServer as SWSS } from "./SimpleWebSocketServer";
 const fs = require("node:fs");
 const path = require("node:path");
@@ -152,11 +153,11 @@ function createServer(port, in_dir, config) {
       res.end(
         extname === ".html"
           ? injectWS(
-              fileObj.content,
-              port,
-              config.edit_cmd ? fileObj.page.file.src : false,
-              config.edit_cmd ? fileObj.page.file.path : false,
-            )
+            fileObj.content,
+            port,
+            config.edit_cmd ? fileObj.page.file.src : false,
+            config.edit_cmd ? fileObj.page.file.path : false,
+          )
           : fileObj.content,
       );
     }
@@ -167,9 +168,7 @@ function createServer(port, in_dir, config) {
     let mj = JSON.parse(m);
     let action = mj.action;
     if (action === "edit") {
-      exec(config.edit_cmd + " " + mj.page, {}, () =>
-        log.info("Editing done for:", mj.page),
-      );
+      spawn(config.edit_cmd, [mj.page]).unref();
       return;
     }
     if (action === "del") {
@@ -182,9 +181,7 @@ function createServer(port, in_dir, config) {
       let nf = newPage(mj.near, mj.fname);
 
       log.info("Creating new page", nf);
-      exec(config.edit_cmd + " " + nf, {}, () =>
-        log.info("Editing done for new page:", nf),
-      );
+      spawn(config.edit_cmd, [nf]).unref();
       return;
     }
     log.warn("Unknown request from page:", m);
