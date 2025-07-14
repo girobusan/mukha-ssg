@@ -1,6 +1,6 @@
 {
   "name": "mukha-ssg",
-  "version": "0.0.12b",
+  "version": "0.0.14b",
   "description": "Minimalist static site generator",
   "keywords": [
     "ssg",
@@ -13,7 +13,8 @@
   },
   "files": [
     "dist/mukha.js",
-    "dist/oss-licenses.json"
+    "dist/oss-licenses.json",
+    "dist/search_client.js"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
