@@ -6,6 +6,7 @@ import { md2html } from "./md_parser";
 import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
+import { indexAll } from "./search";
 import { getLogger } from "./logging";
 var log = getLogger("templates");
 
@@ -203,4 +204,6 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   //passes
   renderList(fullLister, writeFn, 1);
   renderList(makeLister(virtuals), writeFn, 2);
+  if (config.search && config.js_api)
+    indexAll(fullLister, config.keep_excerpts);
 }

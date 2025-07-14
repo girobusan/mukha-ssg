@@ -1,14 +1,28 @@
+import { isTable, compactTable } from "../util";
+import { getLogger } from "../logging";
+var log = getLogger("js API");
+
 const clientCode = require("../../../dist/js_api_client.js?raw");
+
 let data = {};
 
 function data2js(nsname, data) {
-  const json = JSON.stringify(data);
-  return `window.Mukha.registerData("${nsname}" , ${json} )`;
+  const json = JSON.stringify(data.data);
+  return `window.Mukha.registerData("${nsname}" , ${json} , ${data.compacted} )`;
 }
 
 export function saveData4JS(nsname, dt) {
-  data[nsname] = dt;
-  console.log("saved", data);
+  let data_out = dt;
+  let compacted = false;
+  //maybe, compact it?
+  if (isTable(dt)) {
+    log.debug("Will compact the data:", nsname);
+    compacted = true;
+    data_out = compactTable(dt);
+  } else {
+    log.debug("The data is not a table:", nsname);
+  }
+  data[nsname] = { data: data_out, compacted: compacted };
 }
 
 export function saveJSAPIfiles(saveFn) {

@@ -162,21 +162,18 @@ export function isTable(dset) {
   let ref = dset[0];
   let keylen = Object.keys(ref).length;
   let result = true;
-  testing: {
-    for (let i = 1; i < dset.length; i++) {
-      let tkeys = Object.keys(dset[i]);
-      if (tkeys.length !== keylen) {
-        result = false;
-        break testing;
-      }
-      tkeys.forEach((tk) => {
-        if (!(tk in ref)) {
-          result = false;
-        }
-      });
-      if (!result) break testing;
+  for (let i = 1; i < dset.length; i++) {
+    let tkeys = Object.keys(dset[i]);
+    if (tkeys.length !== keylen) {
+      result = false;
+      break;
     }
-  }
+    tkeys.forEach((tk) => {
+      if (!ref.hasOwnProperty(tk)) {
+        result = false;
+      }
+    });
+  } //enfor
   return result;
 }
 
@@ -192,7 +189,7 @@ export function uncompactTable(tobj) {
   const tout = [];
   tobj.rows.forEach((rw) => {
     tout.push(
-      tobj.keys.reduce((a, e, i) => {
+      tobj.cols.reduce((a, e, i) => {
         a[e] = rw[i];
         return a;
       }, {}),

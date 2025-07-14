@@ -20,8 +20,8 @@ is on the way.**
 
 ## Plan
 
+- [x] Attach data for JS
 - [ ] Site with docs
-- [ ] Attach data for JS (future)
 - [ ] WebUI
 
 मुख

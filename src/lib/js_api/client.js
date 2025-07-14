@@ -15,6 +15,18 @@ import { posix } from "path-browserify";
   function relative(from, to) {
     return posix.relative(posix.dirname(from), to);
   }
+  function uncompact(tobj) {
+    const tout = [];
+    tobj.rows.forEach((rw) => {
+      tout.push(
+        tobj.cols.reduce((a, e, i) => {
+          a[e] = rw[i];
+          return a;
+        }, {}),
+      );
+    });
+    return tout;
+  }
 
   function retrieveByStr(str, obj, sep) {
     const separator = sep || ".";
@@ -35,9 +47,11 @@ import { posix } from "path-browserify";
   var Data = {};
   var requests = {};
   window.Mukha = {
-    registerData: (key, dt) => {
+    registerData: (key, dt, compact) => {
+      let dts = dt;
+      if (compact) dts = uncompact(dt);
       if (requests[key]) {
-        requests[key](dt);
+        requests[key](dts);
         delete requests[key];
         return;
       }

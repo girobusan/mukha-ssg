@@ -138,6 +138,7 @@ module.exports = function(_, argv) {
     mode: argv.mode,
     entry: {
       js_api_client: "./src/lib/js_api/client.js",
+      search_client: "./src/lib/search/client.js",
     },
     devtool: argv.mode != "production" ? "inline-source-map" : false,
 
