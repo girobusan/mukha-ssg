@@ -35,7 +35,7 @@ import { posix } from "path-browserify";
   }
   function addByStr(str, obj, value) {
     const steps = str.split(".");
-    let where = steps.reduce((a, e, i) => {
+    steps.reduce((a, e, i) => {
       if (!a[e]) {
         i + 1 === steps.length ? (a[e] = value) : (a[e] = {});
       }
