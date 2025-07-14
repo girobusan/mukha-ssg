@@ -67,9 +67,9 @@ function makeCopyFn(_, outDir) {
   };
 }
 
-function cleanupAfter(written) {
+function cleanupAfter(written, out_dir) {
   console.log("Cleaning up...");
-  let allThere = fs.readdirSync(outDir, {
+  let allThere = fs.readdirSync(out_dir, {
     recursive: true,
     withFileTypes: true,
   });
@@ -79,10 +79,14 @@ function cleanupAfter(written) {
     .filter((f) => f.isFile())
     .map((f) => path.join(f.parentPath, f.name))
     .forEach((f) => {
-      let rezpath = f.substring(outDir.length).replace(/[\\]/g, "/");
+      let rezpath = f.substring(out_dir.length).replace(/[\\]/g, "/");
       if (writtenFiles.indexOf(rezpath) == -1) {
         log.debug(" - Removing unknown file:", f);
-        fs.rmSync(f);
+        try {
+          fs.rmSync(f);
+        } catch (e) {
+          log.warn("Not deleted", f, e);
+        }
       }
     });
 
@@ -99,7 +103,11 @@ function cleanupAfter(written) {
     .sort((a, b) => b.length - a.length)
     .forEach((p) => {
       log.debug(" - Removing empty dir:", p);
-      fs.rmdirSync(p);
+      try {
+        fs.rmdirSync(p);
+      } catch (e) {
+        log.info("Not deleted:", p, e.code);
+      }
     });
   log.info("All clean.");
   // console.log(writtenFiles);
@@ -149,7 +157,7 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
         log.info("Site ready. Written", written.length, "files total.");
         //debug :DELETE:
         // fs.writeFileSync("written.csv", Papa.unparse(written));
-        if (cleanup) cleanupAfter(written);
+        if (cleanup) cleanupAfter(written, out_dir);
       }
     },
     config: Config,

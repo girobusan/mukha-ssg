@@ -23,14 +23,13 @@ import { posix } from "path-browserify";
   }
   function addByStr(str, obj, value) {
     const steps = str.split(".");
-    const where = steps.reduce((a, e) => {
+    let where = steps.reduce((a, e, i) => {
       if (!a[e]) {
-        a[e] = {};
+        i + 1 === steps.length ? (a[e] = value) : (a[e] = {});
       }
       a = a[e];
       return a;
     }, obj);
-    where = value;
     return obj;
   }
   var Data = {};
@@ -48,18 +47,20 @@ import { posix } from "path-browserify";
     relpath: (f, t) => relative(f, t),
     permalink: myLocation,
     getData: function(nsname, type) {
-      let tp = type || "datasets";
+      let tp = type;
+      if (!tp) tp = "datasets";
       let data_key = tp + "." + nsname;
       let saved = retrieveByStr(data_key, Data);
       if (saved) {
+        // console.info("Already loaded.", Data);
         return Promise.resolve(saved);
       }
       let data_path =
-        "/_js/data/global/" + type + "/" + nsname.split(".").join("/") + ".js";
+        "/_js/data/global/" + tp + "/" + nsname.split(".").join("/") + ".js";
       return new Promise((res, rej) => {
         let sc = document.createElement("script");
         sc.addEventListener("error", () => rej("no data"));
-        document.appendChild(sc);
+        document.body.appendChild(sc);
         sc.src = relative(myLocation, data_path);
         requests[data_key] = (d) => {
           addByStr(data_key, Data, d);

@@ -92,56 +92,58 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     };
   }
 
-  function renderList(list, writeFn, pass) {
-    function makeSafeContext(page) {
-      let safeContext = {
-        config: config,
-        data: data,
-        makePagination: () => safeContext.splitToPages(), // deprecated
-        splitToPages: () =>
-          log.warn(
-            "Attempt to call unsafe function in safe context",
-            page.file.path,
-          ),
-        meta: page.meta,
-        path: page.file.path,
-        list: fullLister,
-        file: page, // deprecated
-        page: page, // — must be page
-        util: {
-          niceDate: niceDate,
-          dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
-          makeTable: (d) => tableFilter(d),
-          debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
-          debug: function() {
-            console.log.apply(this, arguments);
-          },
-          paginate: (edges, center) => {
-            if (!page.page_count || page.page_count < 2) return [];
-            let sequence = makePaginationSeq(
-              page.page_number,
-              page.page_count,
-              edges || 1,
-              center || 1,
-              0,
-            );
-            return sequence.map((n) => {
-              return {
-                label: n === 0 ? "&hellip;" : n,
-                type:
-                  n === 0
-                    ? "ellipsis"
-                    : n === page.page_number
-                      ? "current"
-                      : "link",
-                link: n === 0 ? null : page.page_links[n - 1],
-              };
-            });
-          },
+  function makeSafeContext(page) {
+    let safeContext = {
+      config: config,
+      datasets: data.datasets,
+      data: data,
+      makePagination: () => safeContext.splitToPages(), // deprecated
+      splitToPages: () =>
+        log.warn(
+          "Attempt to call unsafe function in safe context",
+          page.file.path,
+        ),
+      meta: page.meta,
+      path: page.file.path,
+      list: fullLister,
+      file: page, // deprecated
+      page: page, // — must be page
+      util: {
+        niceDate: niceDate,
+        dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
+        makeTable: (d) => tableFilter(d),
+        debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
+        debug: function() {
+          console.log.apply(this, arguments);
         },
-      }; // /safeContext
-      return safeContext;
-    }
+        paginate: (edges, center) => {
+          if (!page.page_count || page.page_count < 2) return [];
+          let sequence = makePaginationSeq(
+            page.page_number,
+            page.page_count,
+            edges || 1,
+            center || 1,
+            0,
+          );
+          return sequence.map((n) => {
+            return {
+              label: n === 0 ? "&hellip;" : n,
+              type:
+                n === 0
+                  ? "ellipsis"
+                  : n === page.page_number
+                    ? "current"
+                    : "link",
+              link: n === 0 ? null : page.page_links[n - 1],
+            };
+          });
+        },
+      },
+    }; // /safeContext
+    return safeContext;
+  }
+
+  function renderList(list, writeFn, pass) {
     //render exerpts and content
     if (pass == 1) {
       list.forEach((page) => {
@@ -188,6 +190,10 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         // list: fullLister,
         splitToPages: pass === 1 ? makeMP(page) : () => { },
         html: page.html,
+        jsapi: config.js_api
+          ? `<script data-location="${page.file.path}" src="/_js/client.js">
+</script>`
+          : "<!--js api off--->",
       });
       let html = tpl.render("index.njk", adultContext);
       html = postprocess(html, page.file.path, fullLister);

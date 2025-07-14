@@ -10,6 +10,7 @@ import {
   delCols,
   sort,
 } from "./data_transform";
+import { saveData4JS } from "./js_api";
 import { getLogger } from "./logging";
 var log = getLogger("data");
 //
@@ -68,6 +69,8 @@ function runTransformTasks() {
       case "number":
         ds = number(ds, t.cols);
         break;
+      case "pass2js":
+        saveData4JS("datasets." + t.dataset, ds);
       case "render":
         break;
       default:
