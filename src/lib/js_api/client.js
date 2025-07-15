@@ -45,18 +45,31 @@ import { posix } from "path-browserify";
     return obj;
   }
   var Data = {};
+  var localData = {};
   var requests = {};
+  var localDataRqsts = {};
   window.Mukha = {
+    // :TODO: redo
     registerData: (key, dt, compact) => {
-      let dts = dt;
-      if (compact) dts = uncompact(dt);
+      let dts = compact ? uncompact(dt) : dt;
       if (requests[key]) {
         requests[key](dts);
         delete requests[key];
         return;
       }
       console.warn("Unrequested dataset:", key);
-      addByStr(key, Data, dt);
+      addByStr(key, Data, dts);
+    },
+    registerLocalData: (path, name, dt, compact) => {
+      let key = path + "/" + name;
+      let dts = compact ? uncompact(dt) : dt;
+      if (localDataRqsts[key]) {
+        localDataRqsts[key](dts);
+        delete localDataRqsts[key];
+        return;
+      }
+      console.warn("Unrequested local dataset:", key);
+      localData[key] = dts;
     },
     relpath: (f, t) => relative(f, t),
     permalink: myLocation,
