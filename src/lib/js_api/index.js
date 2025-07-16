@@ -1,4 +1,4 @@
-import { isTable, compactTable } from "../util";
+import { isTable, compactTable, stringify2JSON } from "../util";
 import { getLogger } from "../logging";
 var log = getLogger("js API");
 
@@ -8,12 +8,12 @@ let data = [];
 let localData = [];
 
 function data2js(dataObj) {
-  const json = JSON.stringify(dataObj.data);
+  const json = stringify2JSON(dataObj.data);
   return `window.Mukha.registerData("${dataObj.nsname}" , ${json} , ${dataObj.compacted} )`;
 }
 
 function localData2js(dataObj) {
-  const json = JSON.stringify(data.data);
+  const json = stringify2JSON(data.data);
   return `window.Mukha.registerLocalData ("${dataObj.path}" , ${dataObj.name} ,
 ${json} , ${dataObj.compacted} )`;
 }
@@ -53,7 +53,7 @@ export function saveJSAPIfiles(saveFn) {
   );
   // local datasets
   localData.forEach((d) => {
-    let dp = "/_js/data/local/" + d.path + "/" + (d.name || "data") + ".js"; //?
+    let dp = "/_js/data/local/" + d.path + "/" + d.name + ".js"; //?
     saveFn(dp, localData2js(d));
   });
   // client

@@ -197,3 +197,14 @@ export function uncompactTable(tobj) {
   });
   return tout;
 }
+
+export function stringify2JSON(obj) {
+  const seen = new WeakSet();
+  return JSON.stringify(obj, (_, value) => {
+    if (value !== null && typeof value === "object") {
+      if (seen.has(value)) return;
+      seen.add(value);
+    }
+    return value;
+  });
+}

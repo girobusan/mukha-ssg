@@ -1,6 +1,6 @@
 const Papa = require("papaparse");
 const yaml = require("js-yaml");
-import { retrieveByStr, writeObjByKeys } from "./util";
+import { retrieveByStr, writeObjByKeys, isTable } from "./util";
 import {
   generateFromCol,
   generateFromRows,
@@ -52,6 +52,13 @@ function parseDataConfig(conf, lang) {
 function runTransformTasks() {
   transform_tasks.forEach((t) => {
     let ds = retrieveByStr(t.dataset, datasets);
+    if (!isTable(ds)) {
+      log.warn(
+        "Dataset is not a table, task" + t.task + "is skipped:",
+        t.dataset,
+      );
+      return;
+    }
     switch (t.task) {
       case "sort":
         ds = sort(ds, t.col, t.as_number, t.desc);
