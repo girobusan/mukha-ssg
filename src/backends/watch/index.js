@@ -1,6 +1,5 @@
 const http = require("node:http");
 const url = require("node:url");
-var exec = require("child_process").exec;
 var spawn = require("child_process").spawn;
 import { SimpleWebSocketServer as SWSS } from "./SimpleWebSocketServer";
 const fs = require("node:fs");
@@ -141,10 +140,7 @@ function createServer(port, in_dir, config) {
     const extname = path.extname(fileObj.path).toLowerCase();
     const contentType = mimeTypes[extname] || "application/octet-stream";
 
-    // Отправляем заголовки
     res.writeHead(200, { "Content-Type": contentType });
-
-    // Читаем файл и отправляем его клиенту
 
     if (fileObj.type === "copy") {
       const readStream = fs.createReadStream(fileObj.src);
@@ -168,7 +164,7 @@ function createServer(port, in_dir, config) {
     let mj = JSON.parse(m);
     let action = mj.action;
     if (action === "edit") {
-      spawn(config.edit_cmd, [mj.page]).unref();
+      spawn(config.edit_cmd, [mj.page], { detached: true }).unref();
       return;
     }
     if (action === "del") {
@@ -181,7 +177,7 @@ function createServer(port, in_dir, config) {
       let nf = newPage(mj.near, mj.fname);
 
       log.info("Creating new page", nf);
-      spawn(config.edit_cmd, [nf]).unref();
+      spawn(config.edit_cmd, [nf], { detached: true }).unref();
       return;
     }
     log.warn("Unknown request from page:", m);

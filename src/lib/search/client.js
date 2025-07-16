@@ -40,21 +40,20 @@ import { Index } from "lunr";
     results_window.classList.add("search_results");
     results_window.style.display = "none";
     results_window.style.position = "absolute";
-    results_window.style.top = inpBB.top + inpBB.height + "px";
-    if (inpBB.right < 100) {
-      results_window.style.right = inpBB.right + "px";
-      results_window.style.marginLeft = "4rem";
-    } else {
-      results_window.style.left = inpBB.left + "px";
-      results_window.style.marginRight = "4rem";
-    }
+    results_window.style.top = inpBB.top + inpBB.height + 8 + "px";
+    results_window.style.marginLeft = "2rem";
+    results_window.style.marginRight = "2rem";
     results_window.style.backgroundColor = "inherit";
     results_window.style.border = "1px solid currentColor";
     results_window.style.padding = "1rem";
     document.body.appendChild(results_window);
 
     inp.classList.add("enabled-search-form");
+    var lastCall = 0;
     inp.addEventListener("input", () => {
+      let callTime = new Date().getTime();
+      if (callTime - lastCall < 200) return;
+      lastCall = callTime;
       if (inp.value.length < 1) {
         results_window.style.display = "none";
         return;
@@ -67,14 +66,15 @@ import { Index } from "lunr";
           excerpt: titles[e.ref].excerpt || null,
         };
       });
-      // console.log(rawR);
       res_content.innerHTML = "";
       if (R.length > 0) {
         results_window.style.display = "block";
+        let newHTML = "";
         R.slice(0, 10).forEach(
           (e) =>
-            (res_content.innerHTML += `<a href="${e.link}">${e.title}</a><div class="search-excerpt">${e.excerpt || ""}</div>`),
+            (newHTML += `<a href="${e.link}">${e.title}</a><div class="search_excerpt">${e.excerpt || ""}</div>`),
         );
+        res_content.innerHTML = newHTML;
       } else {
         results_window.style.display = "none";
         res_content.innerHTML = "";
