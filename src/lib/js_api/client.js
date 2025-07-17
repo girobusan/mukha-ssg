@@ -4,7 +4,7 @@
 // async load of local datasets
 import { posix } from "path-browserify";
 
-(function() {
+(function () {
   if (window.Mukha) {
     return;
   } // dont
@@ -72,8 +72,17 @@ import { posix } from "path-browserify";
       localData[key] = dts;
     },
     relpath: (f, t) => relative(f, t),
+    attachScript: (url) => {
+      return new Promise((res, rej) => {
+        let st = document.createElement("script");
+        st.addEventListener("load", res);
+        st.addEventListener("error", rej);
+        document.body.appendChild(st);
+        st.setAttribute("src", url);
+      });
+    },
     permalink: myLocation,
-    getData: function(nsname, type) {
+    getData: function (nsname, type) {
       let tp = type;
       if (!tp) tp = "datasets";
       let data_key = tp + "." + nsname;

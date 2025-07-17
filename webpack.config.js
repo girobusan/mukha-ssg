@@ -58,7 +58,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -84,6 +84,7 @@ module.exports = function(_, argv) {
     entry: {
       latid2mukha: "./src/latid2mukha.js",
       mukha: "./src/cli.js",
+      // "mukha-lunr": "./src/lib/search/indexer_module.js",
     },
     devtool: argv.mode != "production" ? "inline-source-map" : false,
 

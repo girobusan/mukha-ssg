@@ -1,33 +1,62 @@
-import { Builder } from "lunr";
+const stemmer = require("lunr-languages/lunr.stemmer.support");
+const multi = require("lunr-languages/lunr.multi");
+import { langs as langDict } from "./multilang";
 import { saveData4JS } from "../js_api";
 
-var Idx = null;
-var path2title = [];
-
-export function indexAll(lst, keepExcerpts) {
-  let Bldr = new Builder();
-  Bldr.field("title", { boost: 6 });
-  Bldr.field("excerpt", { boost: 3 });
-  Bldr.field("content");
-  Bldr.field("id");
-  Bldr.ref("id");
-  //
-  lst.forEach((page) => {
-    if (page.virtual) return;
-    let refobj = { path: page.file.path, title: page.meta.title };
-    if (keepExcerpts) {
-      refobj.excerpt = page.meta.excerpt;
-    }
-    path2title.push(refobj);
-
-    Bldr.add({
-      title: page.meta.title,
-      id: page.file.path,
-      content: page.html || page.content || "",
-      excerpt: page.meta.excerpt || "",
+export function indexAll(lst, keepExcerpts, langs) {
+  const lunr = require("lunr");
+  // if no languages or it's only en, do nothing
+  // if one language , and not en = stemmer and language
+  // if more than one lamguage — stemmer, languages, multi
+  let nolangs = false;
+  if (
+    langs === undefined ||
+    !langs ||
+    langs.length === 0 ||
+    (langs.length === 1 && langs[0] === "en")
+  ) {
+    nolangs = true;
+  } else if (langs && langs.length === 1) {
+    stemmer(lunr);
+    langDict[langs[0]](lunr);
+  } else if (langs && langs.length > 1) {
+    stemmer(lunr);
+    multi(lunr);
+    langs.forEach((l) => {
+      if (l === "en") return;
+      langDict[l] ? langDict[l](lunr) : console.warn("Unknown language", l);
     });
+  }
+  var path2title = [];
+  var Idx = lunr(function () {
+    if (langs && langs.length > 1) this.use(lunr.multiLanguage(...langs));
+    if (!nolangs && langs && langs.length === 1) this.use(lunr[langs[0]]);
+    this.field("title", { boost: 6 });
+    this.field("excerpt", { boost: 3 });
+    this.field("content");
+    this.field("id");
+    this.ref("id");
+    //
+    const L = this;
+    lst.forEach(function (page) {
+      if (page.virtual) return;
+      let refobj = { path: page.file.path, title: page.meta.title };
+      if (keepExcerpts) {
+        refobj.excerpt = page.meta.excerpt;
+      }
+      path2title.push(refobj);
+
+      L.add({
+        title: page.meta.title,
+        id: page.file.path,
+        content: page.html || page.content || "",
+        excerpt: page.meta.excerpt || "",
+      });
+    }); // adding this here doesn't work (why?)
   });
-  Idx = Bldr.build();
+
+  //
+  // Idx;
   saveData4JS("search.index", Idx);
   saveData4JS("search.titles", path2title);
 }
