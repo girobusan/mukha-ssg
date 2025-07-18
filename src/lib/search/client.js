@@ -1,13 +1,14 @@
 const lunr = require("lunr");
 const stemmer = require("lunr-languages/lunr.stemmer.support");
 const multi = require("lunr-languages/lunr.multi");
+const MAPI = window.Mukha;
 //
-(function () {
+(function() {
   function retrieveSearchData() {
     Promise.all([
-      window.Mukha.getData("index", "search"),
-      window.Mukha.getData("titles", "search"),
-      window.Mukha.getData("setup", "search"),
+      MAPI.getData("index", "search"),
+      MAPI.getData("titles", "search"),
+      MAPI.getData("setup", "search"),
     ])
       .then((vals) => makeSearcher(vals[0], vals[1], vals[2]))
       .catch((e) => console.error(e));
@@ -24,17 +25,17 @@ const multi = require("lunr-languages/lunr.multi");
     if (setup.stemmer) stemmer(lunr);
 
     if (setup.langs) {
-      for (let i = 0; i < setup.langs.length; i++) {
-        if (setup.langs[i] === "en") continue;
-        let lpath = "/_js/lib/lunr/lang/lunr." + setup.langs[i] + ".js";
-        await window.Mukha.attachScript(
-          window.Mukha.relpath(window.Mukha.permalink, lpath),
-        );
-      }
+      await Promise.all(
+        setup.langs.map((l) =>
+          l !== "en"
+            ? MAPI.attachScript(MAPI.relTo(`/_js/lib/lunr/lang/lunr.${l}.js`))
+            : Promise.resolve(true),
+        ),
+      );
     }
     if (setup.multi) {
       multi(lunr);
-      lunr.multiLanguage(...setup.langs);
+      lunr.multiLanguage.apply(this, setup.langs);
     }
     Idx = lunr.Index.load(index);
 
@@ -55,7 +56,7 @@ const multi = require("lunr-languages/lunr.multi");
     closeBTN.setAttribute(
       "style",
       "border:none;background:none;float:right;clear: both;font-size:1.5em;cursor:pointer;" +
-        "padding:0;margin:0;line-height:50%",
+      "padding:0;margin:0;line-height:50%",
     );
     closeBTN.setAttribute("title", "close");
     closeBTN.addEventListener(
@@ -68,8 +69,8 @@ const multi = require("lunr-languages/lunr.multi");
     results_window.setAttribute(
       "style",
       "display:none;position:absolute;margin:0 2rem 0 2rem;" +
-        "background-color:inherit;border: 1px solid currentColor;" +
-        "padding:1rem;",
+      "background-color:inherit;border: 1px solid currentColor;" +
+      "padding:1rem;",
     );
     results_window.style.top = inpBB.top + inpBB.height + 8 + "px";
     document.body.appendChild(results_window);
@@ -89,7 +90,7 @@ const multi = require("lunr-languages/lunr.multi");
       let R = rawR.map((e) => {
         return {
           title: titles[e.ref].title,
-          link: window.Mukha.relpath(window.Mukha.permalink, e.ref),
+          link: MAPI.relpath(window.Mukha.permalink, e.ref),
           excerpt: titles[e.ref].excerpt || null,
         };
       });
