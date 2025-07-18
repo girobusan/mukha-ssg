@@ -3,7 +3,9 @@ const multi = require("lunr-languages/lunr.multi");
 import { langs as langDict } from "./multilang";
 import { saveData4JS } from "../js_api";
 
-export function indexAll(lst, keepExcerpts, langs) {
+export function indexAll(lst, keepExcerpts, langs_in) {
+  let langs = langs_in.map((e) => e.trim().toLowerCase());
+
   const lunr = require("lunr");
   // if no languages or it's only en, do nothing
   // if one language , and not en = stemmer and language
@@ -16,10 +18,10 @@ export function indexAll(lst, keepExcerpts, langs) {
     (langs.length === 1 && langs[0] === "en")
   ) {
     nolangs = true;
-  } else if (langs && langs.length === 1) {
+  } else if (!nolangs && langs.length === 1) {
     stemmer(lunr);
     langDict[langs[0]](lunr);
-  } else if (langs && langs.length > 1) {
+  } else if (!nolangs && langs.length > 1) {
     stemmer(lunr);
     multi(lunr);
     langs.forEach((l) => {
@@ -59,4 +61,14 @@ export function indexAll(lst, keepExcerpts, langs) {
   // Idx;
   saveData4JS("search.index", Idx);
   saveData4JS("search.titles", path2title);
+  // setup
+  let setup = {};
+  if (!nolangs) {
+    setup.langs = langs; //.filter((l) => l !== "en");
+    setup.stemmer = true;
+    if (langs.length > 1) {
+      setup.multi = true;
+    }
+  }
+  saveData4JS("search.setup", setup);
 }

@@ -1,26 +1,53 @@
-import { Index } from "lunr";
-(function() {
+const lunr = require("lunr");
+const stemmer = require("lunr-languages/lunr.stemmer.support");
+const multi = require("lunr-languages/lunr.multi");
+//
+(function () {
   function retrieveSearchData() {
     Promise.all([
       window.Mukha.getData("index", "search"),
       window.Mukha.getData("titles", "search"),
+      window.Mukha.getData("setup", "search"),
     ])
-      .then((vals) => makeSearcher(vals[0], vals[1]))
+      .then((vals) => makeSearcher(vals[0], vals[1], vals[2]))
       .catch((e) => console.error(e));
   }
   //
-  function makeSearcher(index, titles_table) {
+  async function makeSearcher(index, titles_table, setup) {
     let titles = titles_table.reduce((a, e) => {
       a[e.path] = e;
       return a;
     }, {});
+    //
+    var Idx = null;
+    window.lunr = lunr;
+    if (setup.stemmer) stemmer(lunr);
+
+    if (setup.langs) {
+      for (let i = 0; i < setup.langs.length; i++) {
+        if (setup.langs[i] === "en") continue;
+        let lpath = "/_js/lib/lunr/lang/lunr." + setup.langs[i] + ".js";
+        await window.Mukha.attachScript(
+          window.Mukha.relpath(window.Mukha.permalink, lpath),
+        );
+      }
+    }
+    if (setup.multi) {
+      multi(lunr);
+      lunr.multiLanguage(...setup.langs);
+    }
+    Idx = lunr.Index.load(index);
+
     let inp = document.querySelector("[data-role='lunr-search']");
     if (!inp) {
-      console.warn("No search form with data-role='lunr-search'");
+      console.info(
+        "No search form with data-role='lunr-search', default Lunr UI won't load",
+      );
       return;
     }
+
     const inpBB = inp.getBoundingClientRect();
-    const Idx = Index.load(index);
+
     const results_window = document.createElement("div");
     const res_content = document.createElement("div");
     const closeBTN = document.createElement("button");
@@ -28,7 +55,7 @@ import { Index } from "lunr";
     closeBTN.setAttribute(
       "style",
       "border:none;background:none;float:right;clear: both;font-size:1.5em;cursor:pointer;" +
-      "padding:0;margin:0;line-height:50%",
+        "padding:0;margin:0;line-height:50%",
     );
     closeBTN.setAttribute("title", "close");
     closeBTN.addEventListener(
@@ -38,18 +65,18 @@ import { Index } from "lunr";
     results_window.appendChild(closeBTN);
     results_window.appendChild(res_content);
     results_window.classList.add("search_results");
-    results_window.style.display = "none";
-    results_window.style.position = "absolute";
+    results_window.setAttribute(
+      "style",
+      "display:none;position:absolute;margin:0 2rem 0 2rem;" +
+        "background-color:inherit;border: 1px solid currentColor;" +
+        "padding:1rem;",
+    );
     results_window.style.top = inpBB.top + inpBB.height + 8 + "px";
-    results_window.style.marginLeft = "2rem";
-    results_window.style.marginRight = "2rem";
-    results_window.style.backgroundColor = "inherit";
-    results_window.style.border = "1px solid currentColor";
-    results_window.style.padding = "1rem";
     document.body.appendChild(results_window);
 
     inp.classList.add("enabled-search-form");
     var lastCall = 0;
+    //
     inp.addEventListener("input", () => {
       let callTime = new Date().getTime();
       if (callTime - lastCall < 200) return;
@@ -58,7 +85,7 @@ import { Index } from "lunr";
         results_window.style.display = "none";
         return;
       }
-      let rawR = Idx.search(inp.value);
+      let rawR = Idx ? Idx.search(inp.value) : [];
       let R = rawR.map((e) => {
         return {
           title: titles[e.ref].title,

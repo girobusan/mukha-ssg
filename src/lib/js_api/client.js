@@ -73,6 +73,7 @@ import { posix } from "path-browserify";
     },
     relpath: (f, t) => relative(f, t),
     attachScript: (url) => {
+      console.info("jsapi: Attaching:", url);
       return new Promise((res, rej) => {
         let st = document.createElement("script");
         st.addEventListener("load", res);
