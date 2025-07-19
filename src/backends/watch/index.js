@@ -87,9 +87,9 @@ btnN.addEventListener("click" ,
        else{ alert( event.data );}
    };
  ${file_src ? helperCode : ""}
- </script></body>`;
+ </script></body></html>`;
 
-  let r = html.replace("</body>", code);
+  let r = html.replace(/<\/body\>[\s\n]*<\/html\>[\s\n]*$/i, code);
   return r;
 }
 
