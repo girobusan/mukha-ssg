@@ -1,7 +1,13 @@
 const stemmer = require("lunr-languages/lunr.stemmer.support");
 const multi = require("lunr-languages/lunr.multi");
 import { langs as langDict } from "./multilang";
-import { saveData4JS } from "../js_api";
+import { saveData4JS, saveLib } from "../js_api";
+import { getLogger } from "../logging";
+var log = getLogger("search");
+const incl = {
+  ru: require("./incl/lunr.ru.min.js?raw"),
+  zh: require("./incl/lunr.zh.min.js?raw"),
+};
 
 export function indexAll(lst, keepExcerpts, langs_in) {
   let langs = langs_in ? langs_in.map((e) => e.trim().toLowerCase()) : [];
@@ -26,6 +32,15 @@ export function indexAll(lst, keepExcerpts, langs_in) {
     multi(lunr);
     langs.forEach((l) => {
       if (l === "en") return;
+      if (incl[l]) {
+        log.debug("Adding known language file:", l);
+        saveLib("lunr/lang/lunr." + l + ".js", incl[l]);
+      } else {
+        log.info(
+          "Language file must be installed manually to /_js/lib/lunr/lang/:",
+          l,
+        );
+      }
       langDict[l] ? langDict[l](lunr) : console.warn("Unknown language", l);
     });
   }

@@ -1,11 +1,13 @@
 import { isTable, compactTable, stringify2JSON } from "../util";
 import { getLogger } from "../logging";
 var log = getLogger("js API");
+var path = require("path").posix;
 
 const clientCode = require("../../../dist/js_api_client.js?raw");
 
 let data = [];
 let localData = [];
+let lib = [];
 
 function data2js(dataObj) {
   const json = stringify2JSON(dataObj.data);
@@ -43,6 +45,10 @@ export function saveLocalData4JS(name, dset, dpath) {
   localData.push(r);
 }
 
+export function saveLib(pth, cnt) {
+  lib.push({ path: pth, content: cnt });
+}
+
 export function saveJSAPIfiles(saveFn) {
   // global datasets
   data.forEach((d) =>
@@ -55,6 +61,11 @@ export function saveJSAPIfiles(saveFn) {
   localData.forEach((d) => {
     let dp = "/_js/data/local/" + d.path + "/" + d.name + ".js"; //?
     saveFn(dp, localData2js(d));
+  });
+  //lib
+  lib.forEach((l) => {
+    let lp = path.join("/_js/lib", l.path);
+    saveFn(lp, l.content);
   });
   // client
   saveFn("/_js/client.js", clientCode);
