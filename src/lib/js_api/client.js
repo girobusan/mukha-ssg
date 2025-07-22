@@ -4,7 +4,7 @@
 // async load of local datasets
 import { posix } from "path-browserify";
 
-(function() {
+(function () {
   if (window.Mukha) {
     return;
   } // dont
@@ -69,7 +69,8 @@ import { posix } from "path-browserify";
         return;
       }
       console.warn("Unrequested local dataset:", key);
-      localData[key] = dts;
+      if (!localData[path]) localData[path] = {};
+      localData[path][name] = dts;
     },
     relpath: (f, t) => relative(f, t),
     relTo: (t) => relative(myLocation, t),
@@ -84,7 +85,25 @@ import { posix } from "path-browserify";
       });
     },
     permalink: myLocation,
-    getData: function(nsname, type) {
+    getLocalData: function (name, pth) {
+      let pt = pth || myLocation;
+      if (localData[pt] && localData[pt][name]) {
+        return Promise.resolve(localData[pt][name]);
+      }
+      let dpath = "/_js/data/local" + pt + "/" + name + ".js";
+
+      let data_key = pt + "/" + name;
+      return new Promise((res, rej) => {
+        let sc = document.createElement("script");
+        sc.addEventListener("error", () => rej("no data"));
+        document.body.appendChild(sc);
+        sc.src = relative(myLocation, dpath);
+        localDataRqsts[data_key] = (d) => {
+          res(d);
+        };
+      });
+    },
+    getData: function (nsname, type) {
       let tp = type;
       if (!tp) tp = "datasets";
       let data_key = tp + "." + nsname;
@@ -101,7 +120,7 @@ import { posix } from "path-browserify";
         document.body.appendChild(sc);
         sc.src = relative(myLocation, data_path);
         requests[data_key] = (d) => {
-          addByStr(data_key, Data, d);
+          // addByStr(data_key, Data, d);
           res(d);
         };
       });

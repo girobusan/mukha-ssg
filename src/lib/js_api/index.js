@@ -15,8 +15,8 @@ function data2js(dataObj) {
 }
 
 function localData2js(dataObj) {
-  const json = stringify2JSON(data.data);
-  return `window.Mukha.registerLocalData ("${dataObj.path}" , ${dataObj.name} ,
+  const json = stringify2JSON(dataObj.data);
+  return `window.Mukha.registerLocalData ("${dataObj.path}" , "${dataObj.name}" ,
 ${json} , ${dataObj.compacted} )`;
 }
 
@@ -63,7 +63,7 @@ export function saveJSAPIfiles(saveFn) {
   );
   // local datasets
   localData.forEach((d) => {
-    let dp = "/_js/data/local/" + d.path + "/" + d.name + ".js"; //?
+    let dp = "/_js/data/local" + d.path + "/" + d.name + ".js"; //?
     saveFn(dp, localData2js(d));
   });
   //lib
