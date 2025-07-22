@@ -7,6 +7,7 @@ import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
 import { indexAll } from "./search";
+import { saveLocalData4JS } from "./js_api";
 import { getLogger } from "./logging";
 var log = getLogger("templates");
 
@@ -93,22 +94,23 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     };
   }
 
-  function makeSafeContext(page) {
+  function makeSafeContext(page, pass) {
     let safeContext = {
       config: config,
       datasets: data.datasets,
       data: data,
-      makePagination: () => safeContext.splitToPages(), // deprecated
-      splitToPages: () =>
-        log.warn(
-          "Attempt to call unsafe function in safe context",
-          page.file.path,
-        ),
+      splitToPages: pass && pass === 1 ? makeMP(page) : () => {},
+      // splitToPages: () =>
+      //   log.warn(
+      //     "Attempt to call unsafe function in safe context",
+      //     page.file.path,
+      //   ),
       meta: page.meta,
       path: page.file.path,
       list: fullLister,
       file: page, // deprecated
       page: page, // — must be page
+      saveData: (name, dt) => saveLocalData4JS(name, dt, page.file.path),
       util: {
         niceDate: niceDate,
         dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
@@ -148,7 +150,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     //render exerpts and content
     if (pass == 1) {
       list.forEach((page) => {
-        let SC = makeSafeContext(page);
+        let SC = makeSafeContext(page, pass);
 
         if (page.meta.excerpt) {
           page.meta.excerpt = md2html(page.meta.excerpt);
@@ -187,9 +189,9 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
 
     //render full pages
     list.forEach((page) => {
-      let adultContext = Object.assign(makeSafeContext(page), {
+      let adultContext = Object.assign(makeSafeContext(page, pass), {
         // list: fullLister,
-        splitToPages: pass === 1 ? makeMP(page) : () => {},
+        // splitToPages: pass === 1 ? makeMP(page) : () => {},
         html: page.html,
         jsapi: config.js_api
           ? `<script data-location="${page.file.path}" src="/_js/client.js">

@@ -39,6 +39,10 @@ export function saveData4JS(nsname, dt) {
 }
 
 export function saveLocalData4JS(name, dset, dpath) {
+  if (!dset) {
+    log.warn("Attempt to save empty dataset:", name, dpath);
+    return;
+  }
   let r = testTable(dset, dpath + "/" + name);
   r.path = dpath;
   r.name = name;
