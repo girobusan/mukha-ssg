@@ -9,15 +9,28 @@ let data = [];
 let localData = [];
 let lib = [];
 
-function data2js(dataObj) {
-  const json = stringify2JSON(dataObj.data);
-  return `window.Mukha.registerData("${dataObj.nsname}" , ${json} , ${dataObj.compacted} )`;
+// function data2js(dataObj) {
+//   const json = stringify2JSON(dataObj.data);
+//   return `window.Mukha.registerData("${dataObj.nsname}" , ${json} , ${dataObj.compacted} )`;
+// }
+//
+// function localData2js(dataObj) {
+//   const json = stringify2JSON(dataObj.data);
+//   return `window.Mukha.registerLocalData ("${dataObj.path}" , "${dataObj.name}" ,
+// ${json} , ${dataObj.compacted} )`;
+// }
+
+function anyData2js(ns, dname, dt, compacted) {
+  const json = stringify2JSON(dt);
+  return `window.Mukha.registerData( "${ns}" , "${dname}" , ${json} , ${compacted})`;
 }
 
-function localData2js(dataObj) {
-  const json = stringify2JSON(dataObj.data);
-  return `window.Mukha.registerLocalData ("${dataObj.path}" , "${dataObj.name}" ,
-${json} , ${dataObj.compacted} )`;
+function prepAnyData(ns, dname, dt) {
+  let r = testTable(dt, ns);
+  r.ns = ns;
+  r.name = dname;
+  // console.log(r);
+  return r;
 }
 
 function testTable(d, dataid) {
@@ -32,21 +45,20 @@ function testTable(d, dataid) {
   return r;
 }
 
-export function saveData4JS(nsname, dt) {
-  let r = testTable(dt, nsname);
-  r.nsname = nsname;
-  data.push(r);
+export function saveData4JS(ns_and_name, dt) {
+  let parts = ns_and_name.split(".");
+  let ns, dname;
+  ns = parts.length === 1 ? "datasets" : parts[0];
+  dname = parts.length === 1 ? parts[0] : parts.slice(1).join(".");
+  data.push(prepAnyData(ns, dname, dt));
 }
 
-export function saveLocalData4JS(name, dset, dpath) {
+export function saveLocalData4JS(dname, dset, dpath) {
   if (!dset) {
-    log.warn("Attempt to save empty dataset:", name, dpath);
+    log.warn("Attempt to save empty dataset:", dname, dpath);
     return;
   }
-  let r = testTable(dset, dpath + "/" + name);
-  r.path = dpath;
-  r.name = name;
-  localData.push(r);
+  localData.push(prepAnyData(dpath, dname, dset));
 }
 
 export function saveLib(pth, cnt) {
@@ -57,14 +69,14 @@ export function saveJSAPIfiles(saveFn) {
   // global datasets
   data.forEach((d) =>
     saveFn(
-      "/_js/data/global/" + d.nsname.replace(/\./g, "/") + ".js",
-      data2js(d),
+      "/_js/data/global/" + d.ns + "/" + d.name.replace(/\./g, "/") + ".js",
+      anyData2js(d.ns, d.name, d.data, d.compacted),
     ),
   );
   // local datasets
   localData.forEach((d) => {
-    let dp = "/_js/data/local" + d.path + "/" + d.name + ".js"; //?
-    saveFn(dp, localData2js(d));
+    let dp = "/_js/data/local" + d.ns + "/" + d.name + ".js"; //?
+    saveFn(dp, anyData2js(d.ns, d.name, d.data, d.compacted));
   });
   //lib
   lib.forEach((l) => {
