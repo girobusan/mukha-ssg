@@ -76,7 +76,7 @@ const MAPI = window.Mukha;
     results_window.style.top = inpBB.top + inpBB.height + 8 + "px";
     document.body.appendChild(results_window);
 
-    inp.classList.add("enabled-search-form");
+    inp.removeAttribute("disabled");
     var lastCall = 0;
     //
     inp.addEventListener("input", () => {
