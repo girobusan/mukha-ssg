@@ -1,7 +1,7 @@
 const stemmer = require("lunr-languages/lunr.stemmer.support");
 const multi = require("lunr-languages/lunr.multi");
 import { langs as langDict } from "./multilang";
-import { saveData4JS, saveLib } from "../js_api";
+import { saveGlobalData4JS, saveLib } from "../js_api";
 import { getLogger } from "../logging";
 var log = getLogger("search");
 const incl = {
@@ -73,9 +73,6 @@ export function indexAll(lst, keepExcerpts, langs_in) {
   });
 
   //
-  // Idx;
-  saveData4JS("search.index", Idx);
-  saveData4JS("search.titles", path2title);
   // setup
   let setup = {};
   if (!nolangs) {
@@ -85,5 +82,7 @@ export function indexAll(lst, keepExcerpts, langs_in) {
       setup.multi = true;
     }
   }
-  saveData4JS("search.setup", setup);
+  saveGlobalData4JS("search", "index", Idx);
+  saveGlobalData4JS("search", "titles", path2title);
+  saveGlobalData4JS("search", "setup", setup);
 }
