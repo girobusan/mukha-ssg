@@ -3,7 +3,7 @@ const stemmer = require("lunr-languages/lunr.stemmer.support");
 const multi = require("lunr-languages/lunr.multi");
 const MAPI = window.Mukha;
 //
-(function() {
+(function () {
   function retrieveSearchData() {
     Promise.all([
       MAPI.getData("index", "search"),
@@ -56,7 +56,7 @@ const MAPI = window.Mukha;
     closeBTN.setAttribute(
       "style",
       "border:none;background:none;float:right;clear: both;font-size:1.5em;cursor:pointer;" +
-      "padding:0;margin:0;line-height:50%",
+        "padding:0;margin:0;line-height:50%",
     );
     closeBTN.setAttribute("title", "close");
     closeBTN.addEventListener(
@@ -69,8 +69,8 @@ const MAPI = window.Mukha;
     results_window.setAttribute(
       "style",
       "display:none;position:absolute;margin:0 2rem 0 2rem;" +
-      "background-color:inherit;border: 1px solid currentColor;" +
-      "padding:1rem;",
+        "background-color:inherit;border: 1px solid currentColor;" +
+        "padding:1rem;",
     );
     results_window.style.top = inpBB.top + inpBB.height + 8 + "px";
     document.body.appendChild(results_window);
@@ -100,7 +100,8 @@ const MAPI = window.Mukha;
         let newHTML = "";
         R.slice(0, 10).forEach(
           (e) =>
-            (newHTML += `<a href="${e.link}">${e.title}</a><div class="search_excerpt">${e.excerpt || ""}</div>`),
+            (newHTML += `<div class="search_result"><a href="${e.link}">${e.title}</a>
+<div class="search_excerpt">${e.excerpt || ""}</div></div>`),
         );
         res_content.innerHTML = newHTML;
       } else {
