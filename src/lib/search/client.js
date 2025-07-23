@@ -59,6 +59,7 @@ const MAPI = window.Mukha;
         "padding:0;margin:0;line-height:50%",
     );
     closeBTN.setAttribute("title", "close");
+    closeBTN.setAttribute("class", "close_button");
     closeBTN.addEventListener(
       "click",
       () => (results_window.style.display = "none"),

@@ -46,7 +46,7 @@ const inserts = {
     //
     return `<figure class="image ${classes_str}">
     ${params.link ? `<a href="${params.link}">` : ""}
-  <img src="${params.url}" alt="${alt_txt}" />
+  <img src="${params.src || params.url}" alt="${alt_txt}" />
       ${params.link ? `</a>` : ""} 
 ${params.caption ? `<figcaption>${params.caption}</figcaption>` : ""}
 </figure > `;
