@@ -45,12 +45,24 @@ function testTable(d, dataid) {
   return r;
 }
 
-export function saveData4JS(ns_and_name, dt) {
+// deprecated!
+export function saveData4JS(ns_and_name, dset) {
+  if (!dset) {
+    log.warn("Attempt to save empty dataset:", ns_and_name);
+    return;
+  }
   let parts = ns_and_name.split(".");
   let ns, dname;
   ns = parts.length === 1 ? "datasets" : parts[0];
   dname = parts.length === 1 ? parts[0] : parts.slice(1).join(".");
-  data.push(prepAnyData(ns, dname, dt));
+  data.push(prepAnyData(ns, dname, dset));
+}
+export function saveGlobalData4JS(ns, dname, dset) {
+  if (!dset) {
+    log.warn("Attempt to save empty dataset:", ns, dname);
+    return;
+  }
+  data.push(prepAnyData(ns || "datasets", dname, dset));
 }
 
 export function saveLocalData4JS(dname, dset, dpath) {

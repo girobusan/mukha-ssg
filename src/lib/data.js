@@ -10,7 +10,7 @@ import {
   delCols,
   sort,
 } from "./data_transform";
-import { saveData4JS } from "./js_api";
+import { saveData4JS, saveGlobalData4JS } from "./js_api";
 import { getLogger } from "./logging";
 var log = getLogger("data");
 //
@@ -54,7 +54,9 @@ function runTransformTasks() {
     let ds = retrieveByStr(t.dataset, datasets);
     if (!isTable(ds)) {
       log.warn(
-        "Dataset is not a table, task" + t.task + "is skipped:",
+        "Dataset is not a table, task",
+        t.task,
+        "is skipped:",
         t.dataset,
       );
       return;
@@ -77,7 +79,9 @@ function runTransformTasks() {
         ds = number(ds, t.cols);
         break;
       case "pass2js":
-        saveData4JS("datasets." + t.dataset, ds);
+        saveGlobalData4JS(null, t.dataset, ds);
+      case "save2js":
+        saveGlobalData4JS(null, t.dataset, ds);
       case "render":
         break;
       default:
@@ -92,7 +96,7 @@ function runRenderTasks() {
     log.debug("No data render tasks.");
     return [];
   }
-  log.debug("Render tasks number:", render_tasks.length);
+  log.debug("Render tasks count:", render_tasks.length);
   render_tasks.forEach((t) => {
     // console.log(t);
     let ds = retrieveByStr(t.dataset, datasets);
