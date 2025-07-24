@@ -87,29 +87,32 @@ export function createMemoryRenderer(in_dir, out_dir) {
       }
     },
     write: () => {
-      if (!out_dir) return;
-      log.debug("Preparing to write...");
-      const writeFn = () => {
-        for (const pth in cache) {
-          let dest = path.join(out_path, pth.replace(/\//g, path.sep));
+      if (!out_dir) {
+        log.info("Nothing is written to output.");
+        return;
+      }
+      log.info("Writting", Object.keys(cache).length, "objects to", out_dir);
+
+      const writeCached = () => {
+        for (let pth in cache) {
+          log.debug("Writting:", pth);
+          let dest = path.join(out_dir, pth.replace(/\//g, path.sep));
+          const where = path.dirname(dest);
+          if (!fs.existsSync(where)) {
+            fs.mkdirSync(where, { recursive: true });
+          }
           if (cache[pth].type === "written") {
             fs.writeFileSync(dest, cache[pth].content, { encoding: "utf8" });
-            return;
           }
           if (cache[pth].type === "copy") {
-            const where = path.dirname(dest);
-            if (!fs.existsSync(where)) {
-              fs.mkdirSync(where, { recursive: true });
-            }
             fs.copyFileSync(cache[pth].src, dest);
-            return;
           }
         }
       }; //end writeFn
       if (!inProcess) {
-        writeFn();
+        writeCached();
       } else {
-        eventBus.on("end", writeFn);
+        eventBus.on("end", writeCached);
       }
     },
     get: (p) => (hasError ? errorDoc(hasError, p) : cache[p]),

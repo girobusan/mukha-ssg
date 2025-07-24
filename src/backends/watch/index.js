@@ -93,8 +93,8 @@ btnN.addEventListener("click" ,
   return r;
 }
 
-function createServer(port, in_dir, config) {
-  const memoryRenderer = createMemoryRenderer(in_dir, config);
+function createServer(port, in_dir, out_dir, config) {
+  const memoryRenderer = createMemoryRenderer(in_dir, out_dir);
   const watcher = startWatcher(
     watchPaths.map((p) => path.join(in_dir, p)),
     memoryRenderer.run,
@@ -199,13 +199,16 @@ function createServer(port, in_dir, config) {
     wss.close();
     server.close(() => {
       log.info("Server stopped.");
+      memoryRenderer.write();
       process.exit(0);
     });
+    server.closeAllConnections();
     //
-    setTimeout(() => {
-      log.warn("Forcing server to quit...");
-      process.exit(1);
-    }, 3000);
+    //
+    // setTimeout(() => {
+    //   log.warn("Forcing server to quit...");
+    //   process.exit(1);
+    // }, 3000);
   };
   //
   process.on("SIGINT", closeServer); // Ctrl+C
@@ -235,6 +238,6 @@ export function backend({ in_dir, out_dir, timed, port }) {
   if (timed) {
     Config.timed = timed;
   }
-  let server = createServer(port, in_dir, Config);
+  let server = createServer(port, in_dir, out_dir, Config);
   return server;
 }

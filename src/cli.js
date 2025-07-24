@@ -41,7 +41,7 @@ if (params.values.watch) {
   port = !Number.isNaN(port) && port > 1024 ? port : 4242;
   let watch_b = watch_backend({
     in_dir: input_dir,
-    out_dir: output_dir,
+    out_dir: params.values.output ? output_dir : null,
     timed: params.values.timed,
     port: port,
   });
