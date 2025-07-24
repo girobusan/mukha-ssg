@@ -37,8 +37,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
   const eventBus = new EventEmitter();
   var config = loadConfig(in_dir);
   var inProcess = false;
-  var hasToRerun = false;
-  var hasError = null;
+  var currentError = null;
   var cache = {};
   var options = {
     listSourceFiles: makeReadSrcListFn(in_dir),
@@ -54,12 +53,8 @@ export function createMemoryRenderer(in_dir, out_dir) {
       // }
       if (obj.type === "status" && obj.status === "done") {
         eventBus.emit("end", "ready");
-        hasError = null;
+        currentError = null;
         inProcess === false;
-        if (hasToRerun) {
-          hasToRerun = false;
-          core.run();
-        }
       }
     },
   };
@@ -69,7 +64,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
   try {
     core.run();
   } catch (e) {
-    hasError = e;
+    currentError = e;
     // console.log("Error", e);
   }
 
@@ -83,7 +78,7 @@ export function createMemoryRenderer(in_dir, out_dir) {
         core.run();
       } catch (e) {
         eventBus.emit("error", e);
-        hasError = e;
+        currentError = e;
       }
     },
     write: () => {
@@ -115,6 +110,6 @@ export function createMemoryRenderer(in_dir, out_dir) {
         eventBus.on("end", writeCached);
       }
     },
-    get: (p) => (hasError ? errorDoc(hasError, p) : cache[p]),
+    get: (p) => (currentError ? errorDoc(currentError, p) : cache[p]),
   };
 }
