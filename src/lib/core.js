@@ -4,7 +4,7 @@ import { preprocessFileList } from "./preprocess";
 import { initData } from "./data";
 import { getLogger } from "./logging";
 var log = getLogger("core");
-import { saveData4JS, saveJSAPIfiles } from "./js_api";
+import { saveJSAPIfiles } from "./js_api";
 
 function makeSitePath(sitedir, filename) {
   let p = posixpath.join(sitedir, filename);
