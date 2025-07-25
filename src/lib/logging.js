@@ -3,11 +3,6 @@ const prefix = require("loglevel-plugin-prefix");
 import colors from "yoctocolors";
 import { supportEmoji } from "./terminal_emojii_support";
 
-function tb(txt, l = 5) {
-  let add = l - txt.length;
-  return txt + "       ".substring(0, add);
-}
-
 const colormap = {
   TRACE: colors.magenta,
   DEBUG: colors.cyan,

@@ -23,7 +23,7 @@ export function makeTags(lister, config) {
     const pretags = f.meta.tags
       .split(",")
       .map((t) => t.trim())
-      .map((t) => t)
+      .filter((t) => t)
       .map((t) => {
         return { name: t, slug: translit(t) };
       });
@@ -38,29 +38,25 @@ export function makeTags(lister, config) {
     f.meta.tags = pretags;
   });
   // create tag pages
-  let tag_pages = Object.entries(tags)
-    .map(([slug, files]) => {
-      const tagpath = path.posix.join(
-        config.tags_dir || "/tag",
-        slug + ".html",
-      );
-      //is there such file?
-      let physical_tag = lister.getByPath(tagpath);
-      if (physical_tag) {
-        log.debug("Physical tag:", tagpath);
-        physical_tag.list = files;
-        physical_tag.tag = slug;
-        physical_tag.meta.tag = slug;
-        return physical_tag; //filter out later
-      }
-      let tag_page = makePageLikeObj({ title: tags_titles[slug] }, "", tagpath);
-      tag_page.virtual = true;
-      tag_page.list = files;
-      tag_page.tag = slug;
-      tag_page.meta.tag = slug;
-      return tag_page;
-    })
-    .filter((e) => e);
+  let tag_pages = Object.entries(tags).map(([slug, files]) => {
+    const tagpath = path.posix.join(config.tags_dir || "/tag", slug + ".html");
+    //is there such file?
+    let physical_tag = lister.getByPath(tagpath);
+    if (physical_tag) {
+      log.debug("Physical tag:", tagpath);
+      physical_tag.list = files;
+      physical_tag.tag = slug;
+      physical_tag.meta.tag = slug;
+      return physical_tag; //filter out later
+    }
+    let tag_page = makePageLikeObj({ title: tags_titles[slug] }, "", tagpath);
+    tag_page.virtual = true;
+    tag_page.list = files;
+    tag_page.tag = slug;
+    tag_page.meta.tag = slug;
+    return tag_page;
+  });
+  // .filter((e) => e);
   // update tags meta for all files
   let tagLister = makeLister(tag_pages);
 

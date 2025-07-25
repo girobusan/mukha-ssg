@@ -1,4 +1,3 @@
-// lib/SimpleWebSocketServer.js
 const EventEmitter = require("events");
 const { Buffer } = require("buffer");
 const crypto = require("crypto");
@@ -74,6 +73,9 @@ export class SimpleWebSocketServer extends EventEmitter {
       const secondByte = newData[offset++];
 
       const fin = (firstByte & 0x80) !== 0;
+      if (!fin) {
+        log.warn("No support for fragmented messages for now.");
+      }
       const opcode = firstByte & 0x0f;
       const mask = (secondByte & 0x80) !== 0;
       let payloadLength = secondByte & 0x7f;
@@ -91,13 +93,11 @@ export class SimpleWebSocketServer extends EventEmitter {
 
       if (mask) {
         if (newData.length - offset < 4) break;
-        // const maskingKey = newData.slice(offset, offset + 4);
         const maskingKey = newData.subarray(offset, offset + 4);
         offset += 4;
 
         if (newData.length - offset < payloadLength) break;
 
-        // const payload = newData.slice(offset, offset + payloadLength);
         const payload = newData.subarray(offset, offset + payloadLength);
         offset += payloadLength;
 

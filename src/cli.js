@@ -23,6 +23,7 @@ const options = {
   port: { type: "string", short: "p" },
   loglevel: { type: "string", short: "l" },
 };
+//  -n => --new-site
 // cow pi tv
 
 const params = parseArgs({ options });
@@ -44,6 +45,7 @@ if (params.values.watch) {
     out_dir: params.values.output ? output_dir : null,
     timed: params.values.timed,
     port: port,
+    cleanup: params.values.cleanup,
   });
   log.info("Watch mode on.");
   watch_b.run();

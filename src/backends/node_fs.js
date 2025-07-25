@@ -67,13 +67,13 @@ function makeCopyFn(_, outDir) {
   };
 }
 
-function cleanupAfter(written, out_dir) {
-  console.log("Cleaning up...");
+export function cleanupAfter(writtenFiles, out_dir) {
+  log.info("Cleaning up...");
   let allThere = fs.readdirSync(out_dir, {
     recursive: true,
     withFileTypes: true,
   });
-  const writtenFiles = written.map((e) => e.path);
+  //const writtenFiles = written;.map((e) => e.path);
 
   allThere
     .filter((f) => f.isFile())
@@ -106,7 +106,7 @@ function cleanupAfter(written, out_dir) {
       try {
         fs.rmdirSync(p);
       } catch (e) {
-        log.info("Not deleted:", p, e.code);
+        log.debug("Not deleted:", p, e.code);
       }
     });
   log.info("All clean.");
@@ -157,7 +157,11 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
         log.info("Site ready. Written", written.length, "files total.");
         //debug :DELETE:
         // fs.writeFileSync("written.csv", Papa.unparse(written));
-        if (cleanup) cleanupAfter(written, out_dir);
+        if (cleanup)
+          cleanupAfter(
+            written.map((e) => e.path),
+            out_dir,
+          );
       }
     },
     config: Config,

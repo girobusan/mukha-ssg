@@ -4,6 +4,7 @@ const path = require("path");
 const yaml = require("js-yaml");
 import { makeReadSrcListFn } from "../node_fs";
 import { createCore } from "../../lib/core";
+import { cleanupAfter } from "../node_fs";
 import { getLogger } from "../../lib/logging";
 var log = getLogger("memrender");
 
@@ -33,7 +34,7 @@ function loadConfig(in_dir, timed) {
   return Config;
 }
 
-export function createMemoryRenderer(in_dir, out_dir) {
+export function createMemoryRenderer(in_dir, out_dir, cleanup) {
   const eventBus = new EventEmitter();
   var config = loadConfig(in_dir);
   var inProcess = false;
@@ -102,6 +103,9 @@ export function createMemoryRenderer(in_dir, out_dir) {
           if (cache[pth].type === "copy") {
             fs.copyFileSync(cache[pth].src, dest);
           }
+        }
+        if (cleanup) {
+          cleanupAfter(Object.keys(cache), out_dir);
         }
       }; //end writeFn
       if (!inProcess) {

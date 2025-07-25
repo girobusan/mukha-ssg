@@ -93,8 +93,8 @@ btnN.addEventListener("click" ,
   return r;
 }
 
-function createServer(port, in_dir, out_dir, config) {
-  const memoryRenderer = createMemoryRenderer(in_dir, out_dir);
+function createServer(port, in_dir, out_dir, config, cleanup) {
+  const memoryRenderer = createMemoryRenderer(in_dir, out_dir, cleanup);
   const watcher = startWatcher(
     watchPaths.map((p) => path.join(in_dir, p)),
     memoryRenderer.run,
@@ -223,10 +223,10 @@ function createServer(port, in_dir, out_dir, config) {
   };
 }
 
-export function backend({ in_dir, out_dir, timed, port }) {
-  let Config;
+export function backend({ in_dir, out_dir, timed, port, cleanup }) {
+  let CONF;
   try {
-    Config = yaml.load(
+    CONF = yaml.load(
       fs.readFileSync(path.join(in_dir, "config", "site.yaml"), {
         encoding: "utf8",
       }),
@@ -236,8 +236,8 @@ export function backend({ in_dir, out_dir, timed, port }) {
     process.exit(1);
   }
   if (timed) {
-    Config.timed = timed;
+    CONF.timed = timed;
   }
-  let server = createServer(port, in_dir, out_dir, Config);
+  let server = createServer(port, in_dir, out_dir, CONF, cleanup);
   return server;
 }
