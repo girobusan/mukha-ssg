@@ -57,13 +57,14 @@ btnN.innerHTML="new"
 //
 btnE.setAttribute("style" , "${btnStyle}");
 btnD.setAttribute("style" , "${btnStyle}");
+btnD.style.backgroundColor="orangered";
 btnN.setAttribute("style" , "${btnStyle}");
 cont.setAttribute("style" , "position:absolute;position: fixed; bottom: 8px ; right: 0px;" + 
 "z-index:10000;background-color: transparent;")
 
 cont.appendChild(btnE);
-cont.appendChild(btnD);
 cont.appendChild(btnN);
+cont.appendChild(btnD);
 document.body.appendChild(cont);
 btnE.addEventListener("click" , ()=>ws.send(JSON.stringify({action:'edit', page: src}))  )
 btnD.addEventListener("click" , 
@@ -164,7 +165,10 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
     let mj = JSON.parse(m);
     let action = mj.action;
     if (action === "edit") {
-      spawn(config.edit_cmd, [mj.page], { detached: true }).unref();
+      spawn(config.edit_cmd, [mj.page], {
+        detached: true,
+        shell: true,
+      }).unref();
       return;
     }
     if (action === "del") {
@@ -177,7 +181,7 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       let nf = newPage(mj.near, mj.fname);
 
       log.info("Creating new page", nf);
-      spawn(config.edit_cmd, [nf], { detached: true }).unref();
+      spawn(config.edit_cmd, [nf], { detached: true, shell: true }).unref();
       return;
     }
     log.warn("Unknown request from page:", m);
