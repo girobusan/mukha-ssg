@@ -5,6 +5,7 @@ import { backend as watch_backend } from "./backends/watch";
 import { getLogger, setLevel } from "./lib/logging";
 var log = getLogger("cli");
 import colors from "yoctocolors";
+import { execHooks } from "./lib/hooks";
 //
 process.on("uncaughtException", (error) => {
   console.error(error.message, error.code); // Message and code
@@ -36,6 +37,8 @@ setLevel(params.values.loglevel || "info", true);
 console.log(colors.cyanBright("\x1b[1mMukha SSG " + VERSION + " \x1b[0m"));
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
+// `before`
+execHooks("before", input_dir, "Before hooks");
 
 if (params.values.watch) {
   let port = +params.values.port;

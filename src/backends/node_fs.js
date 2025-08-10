@@ -3,6 +3,7 @@ const path = require("path");
 const yaml = require("js-yaml");
 import { createCore } from "../lib/core";
 import { getLogger } from "../lib/logging";
+import { execHooks } from "../lib/hooks";
 var log = getLogger("node-fs");
 
 // backend takes its args
@@ -154,6 +155,7 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
         written.push({ path: c.to, op: c.stage });
       }
       if (c.type === "status" && c.status === "done") {
+        execHooks("after", in_dir, "ready");
         log.info("Site ready. Written", written.length, "files total.");
         //debug :DELETE:
         // fs.writeFileSync("written.csv", Papa.unparse(written));
