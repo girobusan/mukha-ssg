@@ -155,15 +155,16 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
         written.push({ path: c.to, op: c.stage });
       }
       if (c.type === "status" && c.status === "done") {
-        execHooks("after", in_dir, "ready");
-        log.info("Site ready. Written", written.length, "files total.");
         //debug :DELETE:
         // fs.writeFileSync("written.csv", Papa.unparse(written));
-        if (cleanup)
+        if (cleanup) {
           cleanupAfter(
             written.map((e) => e.path),
             out_dir,
           );
+        }
+        execHooks("after", in_dir, "ready");
+        log.info("Site ready. Written", written.length, "files total.");
       }
     },
     config: Config,
