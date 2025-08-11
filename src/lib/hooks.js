@@ -1,4 +1,5 @@
-const fs = require("fs");
+const fs = require("node:fs");
+const vm = require("node:vm");
 const path = require("path");
 var execSync = require("child_process").execSync;
 import { getLogger } from "./logging";
@@ -8,21 +9,29 @@ const jsrx = /.*\.js$/i;
 
 function execHookList(lst, in_dir, param) {
   lst.forEach((hft) => {
+    console.log(path.join(hft.parentPath, hft.name));
     let logname = hft.name;
     let command = logname.match(jsrx) ? "node " : "";
-    let output = "";
+    let output;
+    log.info("Running:", logname);
     try {
-      output = execSync(command + path.join(hft.parentPath, hft.name), {
-        input: param,
-      });
+      output = execSync(
+        command + path.join(getLocation(hft.parentPath), hft.name),
+        {
+          input: param,
+          cwd: in_dir,
+        },
+      );
     } catch (e) {
       log.error("Can not exec", logname, e.message);
     }
-    output
-      .toString()
-      .trim()
-      .split("\n")
-      .forEach((d) => log.info(logname + ":", d.toString().trim()));
+    if (output) {
+      output
+        .toString()
+        .trim()
+        .split("\n")
+        .forEach((d) => log.info(logname + ":", d.toString().trim()));
+    }
   });
 }
 
@@ -32,6 +41,13 @@ function hookSorter(a, b) {
   if (aval > bval) return 1;
   if (aval < bval) return -1;
   return 0;
+}
+function getLocation(pth) {
+  let parts = pth.split(path.sep);
+  if (parts[parts.length - 1].match(/hooks/i)) {
+    return "hooks";
+  }
+  return path.join(parts[parts.length - 2], parts[parts.length - 1]);
 }
 
 // search dir for hooks
@@ -51,6 +67,7 @@ export function execHooks(action, in_dir, param) {
       .filter((f) => f.isFile())
       .filter((f) => f.name.match(frx))
       .sort(hookSorter);
+    // .forEach((e) => (e.location = "hooks"));
   }
 
   log.debug("Hooks in files:", hooksFiles.length);
@@ -62,6 +79,7 @@ export function execHooks(action, in_dir, param) {
       .filter((f) => f.isFile())
       // .filter((f) => f.name.match(jsrx))
       .sort(hookSorter);
+    // .forEach((e) => (e.location = path.join("hooks", action + ".id")));
   }
 
   log.debug("Hooks in " + action + ".d" + " directory:", hooksDir.length);

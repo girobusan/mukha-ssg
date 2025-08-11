@@ -163,7 +163,14 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
             out_dir,
           );
         }
-        execHooks("after", in_dir, "ready");
+        execHooks(
+          "after",
+          in_dir,
+          path.isAbsolute(out_dir)
+            ? out_dir
+            : path.resolve(process.cwd(), out_dir),
+        );
+        // execHooks("after", in_dir, out_dir);
         log.info("Site ready. Written", written.length, "files total.");
       }
     },
