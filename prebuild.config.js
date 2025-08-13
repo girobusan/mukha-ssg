@@ -1,11 +1,9 @@
 const path = require("path");
-// const WebpackShellPlugin = require("webpack-shell-plugin-next");
-// const HtmlWebpackPlugin = require("html-webpack-plugin");
-// const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const LicensePlugin = require("webpack-license-plugin");
+// const LicensePlugin = require("webpack-license-plugin");
 const webpack = require("webpack");
 const pkg = require("./package.json");
 const TerserPlugin = require("terser-webpack-plugin");
+console.log("Build js api client...");
 
 const commonSettings = {
   module: {
@@ -59,63 +57,8 @@ const commonSettings = {
 };
 
 module.exports = function(_, argv) {
-  let builddir = argv.mode == "production" ? "dist" : "test";
-
-  const nodePart = {
-    watch: argv.mode != "production",
-    optimization: {
-      minimize: argv.mode === "production" ? true : false,
-      minimizer: [
-        new TerserPlugin({
-          terserOptions: {
-            format: {
-              comments: false,
-              max_line_len: 120,
-              // preamble: "#!/usr/bin/env node",
-            },
-          },
-          extractComments: false,
-        }),
-      ],
-    },
-    target: "node",
-
-    mode: argv.mode,
-    entry: {
-      latid2mukha: "./src/latid2mukha.js",
-      mukha: "./src/cli.js",
-      // "mukha-lunr": "./src/lib/search/indexer_module.js",
-    },
-    devtool: argv.mode != "production" ? "inline-source-map" : false,
-
-    output: {
-      //   filename: '[name].js',
-      path: path.resolve(__dirname, builddir, ""),
-    },
-
-    plugins: [
-      new LicensePlugin({
-        excludedPackageTest: (n, v) => {
-          const nms = ["unidecode"];
-          return nms.indexOf(n) != -1;
-        },
-      }),
-      new webpack.DefinePlugin({
-        // Definitions...
-        VERSION: JSON.stringify(pkg.version),
-        MODE: argv.mode,
-        BUILDDATE: new Date().toISOString(),
-      }),
-      new webpack.BannerPlugin({
-        entryOnly: true,
-        banner: "#!/usr/bin/env node",
-        raw: true,
-      }),
-      // new WebpackShellPlugin({
-      //   onBuildEnd: ["chmod +x dist/mukha.js", "chmod +x dist/latid2mukha.js"],
-      // }),
-    ],
-  };
+  // let builddir = argv.mode == "production" ? "prebuild" : "";
+  let builddir = "prebuild";
 
   const browserPart = {
     watch: argv.mode != "production",
@@ -138,8 +81,8 @@ module.exports = function(_, argv) {
 
     mode: argv.mode,
     entry: {
-      // js_api_client: "./src/lib/js_api/client.js",
-      search_client: "./src/lib/search/client.js",
+      js_api_client: "./src/lib/js_api/client.js",
+      // search_client: "./src/lib/search/client.js",
     },
     devtool: argv.mode != "production" ? "inline-source-map" : false,
 
@@ -149,6 +92,12 @@ module.exports = function(_, argv) {
     },
 
     plugins: [
+      // new LicensePlugin({
+      //   excludedPackageTest: (n, v) => {
+      //     const nms = ["unidecode"];
+      //     return nms.indexOf(n) != -1;
+      //   },
+      // }),
       new webpack.DefinePlugin({
         // Definitions...
         VERSION: JSON.stringify(pkg.version),
@@ -157,8 +106,5 @@ module.exports = function(_, argv) {
     ],
   };
 
-  return [
-    Object.assign({}, commonSettings, browserPart),
-    Object.assign({}, commonSettings, nodePart),
-  ];
+  return [Object.assign({}, commonSettings, browserPart)];
 };

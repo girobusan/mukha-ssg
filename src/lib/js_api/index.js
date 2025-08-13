@@ -3,7 +3,7 @@ import { getLogger } from "../logging";
 var log = getLogger("js API");
 var path = require("path").posix;
 
-const clientCode = require("../../../dist/js_api_client.js?raw");
+const clientCode = require("../../../prebuild/js_api_client.js?raw");
 
 let data = [];
 let localData = [];

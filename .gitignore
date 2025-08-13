@@ -2,12 +2,16 @@
 .DS_Store
 *.vim
 *.LICENSE.txt
+.env
 node_modules/
 dist/hatcher*
 test/
-dist/**.*
+prebuild/
+prebuild/**.*
+# some from dist
 dist/
-dist/*
+dist/latid2mukha.js
+dist/js_api_client.js
 refs/
 libs/
 *.zip

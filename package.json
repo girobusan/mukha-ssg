@@ -1,6 +1,6 @@
 {
   "name": "mukha-ssg",
-  "version": "0.1.1b",
+  "version": "0.1.2b",
   "description": "Minimalist static site generator",
   "keywords": [
     "ssg",
@@ -20,6 +20,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx webpack --mode production",
     "watch": "npx webpack --mode development",
+    "prebuild": "npx webpack -c prebuild.config.js --mode production",
     "postbuild": "shx chmod +x dist/mukha.js && shx chmod +x dist/latid2mukha.js"
   },
   "babel": {
@@ -48,9 +49,7 @@
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2",
     "webpack-license-plugin": "^4.5.1",
-    "webpack-shell-plugin-next": "^2.3.2"
-  },
-  "dependencies": {
+    "webpack-shell-plugin-next": "^2.3.2",
     "date-fns": "^4.1.0",
     "feed": "^5.1.0",
     "highlight.js": "^11.11.1",
@@ -75,5 +74,6 @@
     "path-browserify": "^1.0.1",
     "unidecode": "^1.1.0",
     "yoctocolors": "^2.1.1"
-  }
+  },
+  "dependencies": {}
 }
