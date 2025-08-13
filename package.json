@@ -21,7 +21,7 @@
     "build": "npx webpack --mode production",
     "watch": "npx webpack --mode development",
     "prebuild": "npx webpack -c prebuild.config.js --mode production",
-    "postbuild": "shx chmod +x dist/mukha.js && shx chmod +x dist/latid2mukha.js"
+    "postbuild": "shx chmod +x dist/mukha.js && shx chmod +x dist/latid2mukha.js ; shx cp LICENSE.txt dist/"
   },
   "babel": {
     "plugins": [
