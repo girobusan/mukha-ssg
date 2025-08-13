@@ -22,7 +22,7 @@ is on the way.**
 ## Install
 
 ```
-npm install mukha-ssg
+npm install -g  mukha-ssg
 ```
 
 ## Build
@@ -36,7 +36,7 @@ npm run build
 
 ## Todo
 
-- Site with docs (on the way)
+- Documentation (on the way)
 - WebUI
 
 मुख
