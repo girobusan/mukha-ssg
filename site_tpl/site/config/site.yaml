@@ -1,0 +1,13 @@
+#site properties
+title: "Mukha example site"
+motto: "Proud to be default"
+url: "https://example.site"
+theme: bland
+description: |-
+  The example site for Mukha SSG
+  also experimental theme
+  with some css
+list_length: 10
+#tags...
+tags_dir: "/tags"
+tags_page: "/tags/index.html"

@@ -33,6 +33,11 @@ const commonSettings = {
       },
 
       {
+        test: /\.\w+$/,
+        resourceQuery: /raw/,
+        type: "asset/source",
+      },
+      {
         test: /\.(less|css|scss)$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },

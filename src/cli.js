@@ -6,6 +6,7 @@ import { getLogger, setLevel } from "./lib/logging";
 var log = getLogger("cli");
 import colors from "yoctocolors";
 import { execHooks } from "./lib/hooks";
+import { makeSiteAt } from "./lib/make_site";
 //
 process.on("uncaughtException", (error) => {
   console.error(error.message, error.code); // Message and code
@@ -23,6 +24,7 @@ const options = {
   watch: { type: "boolean", short: "w" },
   port: { type: "string", short: "p" },
   loglevel: { type: "string", short: "l" },
+  new: { type: "boolean", short: "n" },
 };
 //  -n => --new-site
 // cow pi tv
@@ -32,6 +34,11 @@ if (params.values.version) {
   console.log(VERSION);
   process.exit(0);
 }
+if (params.values.new) {
+  makeSiteAt();
+  process.exit(0);
+}
+
 setLevel(params.values.loglevel || "info", true);
 
 console.log(colors.cyanBright("\x1b[1mMukha SSG " + VERSION + " \x1b[0m"));
