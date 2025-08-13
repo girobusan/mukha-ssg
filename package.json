@@ -19,7 +19,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx webpack --mode production",
-    "watch": "npx webpack --mode development",
+    "watch": "npm run prebuild ; npx webpack --mode development",
     "prebuild": "npx webpack -c prebuild.config.js --mode production",
     "postbuild": "shx chmod +x dist/mukha.js && shx chmod +x dist/latid2mukha.js ; shx cp LICENSE.txt dist/"
   },

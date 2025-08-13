@@ -26,8 +26,6 @@ const options = {
   loglevel: { type: "string", short: "l" },
   new: { type: "boolean", short: "n" },
 };
-//  -n => --new-site
-// cow pi tv
 
 const params = parseArgs({ options });
 if (params.values.version) {
