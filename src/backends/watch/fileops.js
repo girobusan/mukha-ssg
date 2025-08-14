@@ -36,3 +36,10 @@ Write here
   fs.writeFileSync(fp, content, { encoding: "utf8" });
   return fp;
 }
+
+export function newDir(near, dname) {
+  let basen = path.dirname(near);
+  // log.info("Creating directory:", path.join(basen, dname));
+  fs.mkdirSync(path.join(basen, dname), { recursive: true });
+  return newPage(path.join(basen, dname, "index.md"), "index");
+}

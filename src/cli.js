@@ -47,7 +47,7 @@ execHooks("before", input_dir, "Before hooks");
 
 if (params.values.watch) {
   let port = +params.values.port;
-  port = !Number.isNaN(port) && port > 1024 ? port : 4242;
+  port = !Number.isNaN(port) && (port > 1024 || port == 0) ? port : 4242;
   let watch_b = watch_backend({
     in_dir: input_dir,
     out_dir: params.values.output ? output_dir : null,

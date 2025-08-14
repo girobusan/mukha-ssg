@@ -9,34 +9,19 @@ import open from "open";
 import { mimeTypes } from "./mimes";
 import { createMemoryRenderer } from "./memory_render";
 import { startWatcher } from "./watcher";
-import { delFile, newPage } from "./fileops";
+import { delFile, newPage, newDir } from "./fileops";
 import { getLogger } from "../../lib/logging";
 var log = getLogger("devserver");
 
 const basePath = "";
 const watchPaths = ["config", "assets", "src", "data"];
 
-function getFreePort(startPort = 3000) {
-  return new Promise((resolve) => {
-    function checkPort(port) {
-      const server = net
-        .createServer()
-        .once("error", () => checkPort(port + 1))
-        .once("listening", () => {
-          server.close();
-          resolve(port);
-        })
-        .listen(port);
-    }
-    checkPort(startPort);
-  });
-}
 const btnStyle = `all:unset;
 font-family: system-ui, sans-serif;
-border: 1px solid gray;
+border: 2px solid #444;
 background: white;
 color: black;
-border-radius: 4px;
+border-radius: 6px;
 padding:2px 6px;
 font-size: 14px;
 user-select:none;
@@ -51,19 +36,23 @@ const cont = document.createElement("div");
 const btnE = document.createElement("button");
 const btnD = document.createElement("button");
 const btnN = document.createElement("button");
+const btnND = document.createElement("button");
 btnE.innerHTML="edit"
 btnD.innerHTML="del"
-btnN.innerHTML="new"
+btnN.innerHTML="new page"
+btnND.innerHTML="new dir"
 //
 btnE.setAttribute("style" , "${btnStyle}");
 btnD.setAttribute("style" , "${btnStyle}");
 btnD.style.backgroundColor="orangered";
 btnN.setAttribute("style" , "${btnStyle}");
+btnND.setAttribute("style" , "${btnStyle}");
 cont.setAttribute("style" , "position:absolute;position: fixed; bottom: 8px ; right: 0px;" + 
 "z-index:10000;background-color: transparent;")
 
 cont.appendChild(btnE);
 cont.appendChild(btnN);
+cont.appendChild(btnND);
 cont.appendChild(btnD);
 document.body.appendChild(cont);
 btnE.addEventListener("click" , ()=>ws.send(JSON.stringify({action:'edit', page: src}))  )
@@ -77,6 +66,13 @@ btnN.addEventListener("click" ,
       let fnm = prompt("Enter filename without extension:");
       if(!fnm) return;
       ws.send(JSON.stringify({action:'new', near: src , fname: fnm})); 
+})
+
+btnND.addEventListener("click" ,
+  ()=>{console.log("new")
+      let fnm = prompt("Enter directory name:");
+      if(!fnm) return;
+      ws.send(JSON.stringify({action:'dir', near: src , fname: fnm})); 
 })
 `;
   const code = `<script>
@@ -95,6 +91,7 @@ btnN.addEventListener("click" ,
 }
 
 function createServer(port, in_dir, out_dir, config, cleanup) {
+  var myPort = port; //await getFreePort(port);
   const memoryRenderer = createMemoryRenderer(in_dir, out_dir, cleanup);
   const watcher = startWatcher(
     watchPaths.map((p) => path.join(in_dir, p)),
@@ -151,7 +148,7 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
         extname === ".html"
           ? injectWS(
             fileObj.content,
-            port,
+            myPort,
             config.edit_cmd ? fileObj.page.file.src : false,
             config.edit_cmd ? fileObj.page.file.path : false,
           )
@@ -177,6 +174,13 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       wss.broadcast("reload");
       return;
     }
+    if (action === "dir") {
+      let nd = newDir(mj.near, mj.fname);
+
+      log.info("Creating new dir", nd);
+      spawn(config.edit_cmd, [nd], { detached: true, shell: true }).unref();
+      return;
+    }
     if (action === "new") {
       let nf = newPage(mj.near, mj.fname);
 
@@ -189,9 +193,10 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
 
   const runServer = () => {
     log.debug("Starting server...");
-    server.listen(port, () => {
-      log.info(`Server running at http://localhost:${port}`);
-      open("http://localhost:" + port).catch((err) =>
+    server.listen(myPort, () => {
+      myPort = server.address().port;
+      log.info(`Server running at http://localhost:${server.address().port}`);
+      open("http://localhost:" + myPort).catch((err) =>
         log.warn("Can not open browser:", err),
       );
     });
