@@ -4,6 +4,7 @@ import { retrieveByStr, writeObjByKeys, isTable } from "./util";
 import {
   generateFromCol,
   generateFromRows,
+  generateForEachKey,
   slugify,
   aggregate,
   number,
@@ -101,7 +102,7 @@ function runRenderTasks() {
     // console.log(t);
     let ds = retrieveByStr(t.dataset, datasets);
     //
-    if (!ds || ds.length === 0) {
+    if (!ds || Object.keys(ds).length === 0) {
       log.warn("Data: No data for render in", t.dataset);
       // console.log(datasets);
       return;
@@ -125,6 +126,15 @@ function runRenderTasks() {
           html: t.html || "",
         });
         pages = pages.concat(lstc);
+        break;
+      case "key":
+        let lstk = generateForEachKey(ds, {
+          meta: t.meta,
+          content: t.content || t.markdown || "",
+          path: t.path,
+          html: t.html || "",
+        });
+        pages = pages.concat(lstk);
         break;
     }
   });
