@@ -22,7 +22,7 @@ function groupBy(arr, key) {
 }
 
 function makeSubst(str, dict) {
-  if (typeof str !== "string") {
+  if (typeof str !== "string" || !str) {
     return str;
   }
   let rexps = Object.entries(dict).map(([k, v]) => {
@@ -164,22 +164,34 @@ export function aggregate(in_tbl, aggregateType, group_by, col, out_col) {
   return in_tbl;
 }
 
+//
+//    GENERATION
+//
+//
+function prepPage({ meta, content, path, html }, repDict, data) {
+  let page_meta = substValues(Object.assign({}, meta), repDict);
+
+  const page = makePageLikeObj(
+    page_meta,
+    content ? makeSubst(content, repDict) : "",
+    makeSubst(path, repDict),
+    html ? makeSubst(html, repDict) : "",
+  );
+  page.local_data = data;
+  page.debug = JSON.stringify(data, null, 2);
+  return page;
+}
+
 export function generateFromRows(tbl, { meta, content, path, html }) {
   let pages = [];
   tbl.forEach((r) => {
     // console.log("row:", r);
-    let p_meta = substValues(Object.assign({}, meta), r);
-
-    // Object.keys(p_meta).forEach((k) => (p_meta[k] = makeSubst(p_meta[k], r)));
-
-    const page = makePageLikeObj(
-      p_meta,
-      makeSubst(content, r),
-      makeSubst(path, r),
-      html || "",
-    );
-    page.local_data = r;
-    pages.push(page);
+    // let page_meta = substValues(Object.assign({}, meta), r);
+    //
+    // const page = makePageLikeObj(
+    //   page_meta,
+    //   makeSubst(content, r)data = r;
+    pages.push(prepPage({ meta, content, path, html }, r, r));
   });
   return pages;
 }
@@ -189,23 +201,45 @@ export function generateFromCol(tbl, col_name, { meta, content, path, html }) {
   let values = Array.from(new Set(tbl.map((r) => r[col_name])));
   values.forEach((v) => {
     let data = tbl.filter((r) => r[col_name] === v);
-    let repDict = data[0]; //.length > 0 ? data[0] : { value: v };
-
-    let page_meta = substValues(Object.assign({}, meta), repDict);
-
-    const page = makePageLikeObj(
-      page_meta,
-      content ? makeSubst(content, repDict) : "",
-      makeSubst(path, repDict),
-      html ? makeSubst(html, repDict) : "",
-    );
-    // console.log(data);
-    page.local_data = data;
-
-    // page.list = data;
-    page.debug = JSON.stringify(data, null, 2);
+    // let repDict = data[0]; //.length > 0 ? data[0] : { value: v };
+    //
+    // let page_meta = substValues(Object.assign({}, meta), repDict);
+    //
+    // const page = makePageLikeObj(
+    //   page_meta,
+    //   content ? makeSubst(content, repDict) : "",
+    //   makeSubst(path, repDict),
+    //   html ? makeSubst(html, repDict) : "",
+    // );
+    // // console.log(data);
+    // page.local_data = data;
+    //
+    // // page.list = data;
+    // page.debug = JSON.stringify(data, null, 2);
     // console.log(page);
-    pages.push(page);
+    pages.push(prepPage({ meta, content, path, html }, data[0], data));
+  });
+  return pages;
+}
+
+export function generateForEachKey(obj, { meta, content, path, html }) {
+  let keys = Object.keys(obj);
+  if (keys.length === 0) return;
+  let pages = [];
+  keys.forEach((k) => {
+    // let repDict = { key: k };
+    // let page_meta = substValues(Object.assign({}, meta), repDict);
+    //
+    // const page = makePageLikeObj(
+    //   page_meta,
+    //   content ? makeSubst(content, repDict) : "",
+    //   makeSubst(path, repDict),
+    //   html ? makeSubst(html, repDict) : "",
+    // );
+    // // console.log(data);
+    // page.local_data = obj[k];
+    // pages.push(page);
+    pages.push(prepPage({ meta, content, path, html }, { key: k }, obj[k]));
   });
   return pages;
 }

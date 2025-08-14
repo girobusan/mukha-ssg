@@ -9,7 +9,7 @@ const jsrx = /.*\.js$/i;
 
 function execHookList(lst, in_dir, param) {
   lst.forEach((hft) => {
-    console.log(path.join(hft.parentPath, hft.name));
+    // console.log(path.join(hft.parentPath, hft.name));
     let logname = hft.name;
     let command = logname.match(jsrx) ? "node " : "";
     let output;
