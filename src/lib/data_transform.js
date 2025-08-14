@@ -185,12 +185,6 @@ function prepPage({ meta, content, path, html }, repDict, data) {
 export function generateFromRows(tbl, { meta, content, path, html }) {
   let pages = [];
   tbl.forEach((r) => {
-    // console.log("row:", r);
-    // let page_meta = substValues(Object.assign({}, meta), r);
-    //
-    // const page = makePageLikeObj(
-    //   page_meta,
-    //   makeSubst(content, r)data = r;
     pages.push(prepPage({ meta, content, path, html }, r, r));
   });
   return pages;
@@ -201,22 +195,6 @@ export function generateFromCol(tbl, col_name, { meta, content, path, html }) {
   let values = Array.from(new Set(tbl.map((r) => r[col_name])));
   values.forEach((v) => {
     let data = tbl.filter((r) => r[col_name] === v);
-    // let repDict = data[0]; //.length > 0 ? data[0] : { value: v };
-    //
-    // let page_meta = substValues(Object.assign({}, meta), repDict);
-    //
-    // const page = makePageLikeObj(
-    //   page_meta,
-    //   content ? makeSubst(content, repDict) : "",
-    //   makeSubst(path, repDict),
-    //   html ? makeSubst(html, repDict) : "",
-    // );
-    // // console.log(data);
-    // page.local_data = data;
-    //
-    // // page.list = data;
-    // page.debug = JSON.stringify(data, null, 2);
-    // console.log(page);
     pages.push(prepPage({ meta, content, path, html }, data[0], data));
   });
   return pages;
@@ -227,18 +205,6 @@ export function generateForEachKey(obj, { meta, content, path, html }) {
   if (keys.length === 0) return;
   let pages = [];
   keys.forEach((k) => {
-    // let repDict = { key: k };
-    // let page_meta = substValues(Object.assign({}, meta), repDict);
-    //
-    // const page = makePageLikeObj(
-    //   page_meta,
-    //   content ? makeSubst(content, repDict) : "",
-    //   makeSubst(path, repDict),
-    //   html ? makeSubst(html, repDict) : "",
-    // );
-    // // console.log(data);
-    // page.local_data = obj[k];
-    // pages.push(page);
     pages.push(prepPage({ meta, content, path, html }, { key: k }, obj[k]));
   });
   return pages;

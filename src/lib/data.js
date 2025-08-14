@@ -51,38 +51,49 @@ function parseDataConfig(conf, lang) {
 }
 
 function runTransformTasks() {
+  var tested = {};
+  const makeTester = (ds_name, ds_data, tsk) => {
+    const isTbl =
+      tested[ds_name] !== undefined ? tested[ds_name] : isTable(ds_data);
+    if (tested[ds_name] === undefined) tested[ds_name] = isTbl;
+    return () => {
+      if (!isTbl) {
+        log.warn(
+          "Dataset is not a table, task",
+          tsk.task,
+          "is skipped:",
+          ds_name,
+        );
+      }
+      return isTbl;
+    };
+  };
   transform_tasks.forEach((t) => {
     let ds = retrieveByStr(t.dataset, datasets);
-    if (!isTable(ds)) {
-      log.warn(
-        "Dataset is not a table, task",
-        t.task,
-        "is skipped:",
-        t.dataset,
-      );
-      return;
-    }
+    let tester = makeTester(t.dataset, ds, t);
+
     switch (t.task) {
       case "sort":
-        ds = sort(ds, t.col, t.as_number, t.desc);
+        tester() && (ds = sort(ds, t.col, t.as_number, t.desc));
         break;
       case "slugify":
-        ds = slugify(ds, t.input_col, t.output_col);
+        tester() && (ds = slugify(ds, t.input_col, t.output_col));
         // console.log("slugify", ds.slice(0, 5));
         break;
       case "aggregate":
-        ds = aggregate(ds, t.type, t.group_by, t.input_col, t.output_col);
+        tester() &&
+          (ds = aggregate(ds, t.type, t.group_by, t.input_col, t.output_col));
         break;
       case "del_cols":
-        ds = delCols(ds, t.cols);
+        tester() && (ds = delCols(ds, t.cols));
         break;
       case "number":
-        ds = number(ds, t.cols);
+        tester() && (ds = number(ds, t.cols));
         break;
       case "pass2js":
-        saveGlobalData4JS(null, t.dataset, ds);
       case "save2js":
         saveGlobalData4JS(null, t.dataset, ds);
+        break;
       case "render":
         break;
       default:
@@ -136,6 +147,8 @@ function runRenderTasks() {
         });
         pages = pages.concat(lstk);
         break;
+      default:
+        log.warn("Unknown render task type:", t.type);
     }
   });
   return pages;
@@ -148,7 +161,7 @@ export function initData(fileList, initialData) {
   // datafiles is an Array of files
   // fileList is an Array of ↓
   //  { dir , name , getContent() }
-  // return data closure
+  // return data `closure`
   fileList.forEach((f) => {
     let confm;
     if ((confm = f.name.match(configFile))) {
@@ -170,14 +183,14 @@ export function initData(fileList, initialData) {
         try {
           value = JSON.parse(f.getContent());
         } catch (e) {
-          log.trace("Data:", e);
+          log.warn("Error parsing", f.name, ":", e.message);
         }
         break;
       case "yaml":
         try {
           value = yaml.load(f.getContent());
         } catch (e) {
-          log.trace("Data:", e);
+          log.warn("Error parsing", f.name, ":", e.message);
         }
         break;
       default: // all dsv
@@ -185,6 +198,15 @@ export function initData(fileList, initialData) {
           header: true,
           skipEmptyLines: true, //important!
         });
+        if (parsed.errors && parsed.errors.length > 0) {
+          log.warn(
+            "Errors while parsing",
+            f.name,
+            ":",
+            parsed.errors.map((e) => e.message).join(", "),
+          );
+          log.warn("Check rows", parsed.errors.map((e) => e.row).join(", "));
+        }
         value = parsed.data;
       // console.log(parsed.meta);
     }
