@@ -1,4 +1,5 @@
 const unidecode = require("unidecode");
+const path = require("path");
 
 export function translit(t, short) {
   let r = unidecode(t.trim())
@@ -207,4 +208,11 @@ export function stringify2JSON(obj) {
     }
     return value;
   });
+}
+
+/*
+ *  returns absolute path
+ */
+export function absPath(p) {
+  return path.isAbsolute(p) ? p : path.resolve(process.cwd(), p);
 }

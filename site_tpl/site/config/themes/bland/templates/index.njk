@@ -12,11 +12,15 @@
         Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       line-height: 1.4em;
     }
+
+    .page_li p {
+      margin-top: 0;
+    }
   </style>
   {{ jsapi }}
 </head>
 
-{% set MENU=list.getNearDirs("/index.html") %}
+{% set MENU=list.getNearDirs("/index.html").sortByMeta("menuitem") %}
 {% if page.index %}
 {% set LIST=list.getNearFiles(page.permalink) %}
 {% elseif page.tag %}
@@ -27,7 +31,7 @@
   <nav>
     <a href="/index.html"><strong>{{config.title}}</strong></a>&nbsp;
     {% for M in MENU %}
-    <a href="{{M.permalink}}">{{M.meta.title}}</a>
+    <a href="{{M.file.path}}">{{M.meta.title}}</a>
     {% if not loop.last %}&nbsp;{% endif %}
     {% endfor %}
   </nav>
@@ -47,7 +51,7 @@
   {% if LIST %}
   <ul>
     {% for P in LIST %}
-    <li><a href="{{P.permalink}}"><strong>{{P.meta.title}}</strong></a><br>
+    <li class="page_li"><a href="{{P.file.path}}"><strong>{{P.meta.title}}</strong></a><br>
       {% if P.meta.excerpt and not page.tag %}
       <small>{{P.meta.excerpt}}</small>
       {% endif %}

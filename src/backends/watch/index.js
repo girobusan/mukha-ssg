@@ -11,6 +11,7 @@ import { createMemoryRenderer } from "./memory_render";
 import { startWatcher } from "./watcher";
 import { delFile, newPage, newDir } from "./fileops";
 import { getLogger } from "../../lib/logging";
+import { absPath } from "../../lib/util";
 var log = getLogger("devserver");
 
 const basePath = "";
@@ -147,11 +148,11 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       res.end(
         extname === ".html"
           ? injectWS(
-            fileObj.content,
-            myPort,
-            config.edit_cmd ? fileObj.page.file.src : false,
-            config.edit_cmd ? fileObj.page.file.path : false,
-          )
+              fileObj.content,
+              myPort,
+              config.edit_cmd ? fileObj.page.file.src : false,
+              config.edit_cmd ? fileObj.page.file.path : false,
+            )
           : fileObj.content,
       );
     }
@@ -162,7 +163,7 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
     let mj = JSON.parse(m);
     let action = mj.action;
     if (action === "edit") {
-      spawn(config.edit_cmd, [mj.page], {
+      spawn(config.edit_cmd, [absPath(mj.page)], {
         detached: true,
         shell: true,
       }).unref();

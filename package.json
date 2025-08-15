@@ -21,6 +21,7 @@
     "build": "npx webpack --mode production",
     "watch": "npm run prebuild ; npx webpack --mode development",
     "prebuild": "npx webpack -c prebuild.config.js --mode production",
+    "watch_site": "cd site_tpl ; mukha-ssg -w",
     "postbuild": "shx chmod +x dist/mukha.js && shx chmod +x dist/latid2mukha.js ; shx cp LICENSE.txt dist/"
   },
   "babel": {

@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-import { niceDate } from "../../lib/util";
+import { niceDate, absPath } from "../../lib/util";
 import { getLogger } from "../../lib/logging";
 var log = getLogger("file ops");
 
@@ -23,6 +23,7 @@ export function delFile(fp, in_dir) {
 export function newPage(near, fname) {
   const id = crypto.randomBytes(16).toString("hex");
   const fp = path.join(path.dirname(near), fname + ".md");
+
   const content = `---
 title: "Untitled"
 tags: 
@@ -34,7 +35,7 @@ Write here
 `;
 
   fs.writeFileSync(fp, content, { encoding: "utf8" });
-  return fp;
+  return absPath(fp);
 }
 
 export function newDir(near, dname) {
