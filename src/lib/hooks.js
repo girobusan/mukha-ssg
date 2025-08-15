@@ -5,7 +5,7 @@ var execSync = require("child_process").execSync;
 import { getLogger } from "./logging";
 var log = getLogger("hooks");
 /* hooks */
-const jsrx = /.*\.js$/i;
+const jsrx = /.*\.(c|m)?js$/i;
 
 function execHookList(lst, in_dir, param) {
   lst.forEach((hft) => {

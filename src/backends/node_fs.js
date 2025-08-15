@@ -4,6 +4,7 @@ const yaml = require("js-yaml");
 import { createCore } from "../lib/core";
 import { getLogger } from "../lib/logging";
 import { execHooks } from "../lib/hooks";
+import { absPath } from "../lib/util";
 var log = getLogger("node-fs");
 
 // backend takes its args
@@ -163,13 +164,7 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
             out_dir,
           );
         }
-        execHooks(
-          "after",
-          in_dir,
-          path.isAbsolute(out_dir)
-            ? out_dir
-            : path.resolve(process.cwd(), out_dir),
-        );
+        execHooks("after", in_dir, absPath(out_dir));
         // execHooks("after", in_dir, out_dir);
         log.info("Site ready. Written", written.length, "files total.");
       }

@@ -7,6 +7,7 @@ import { createCore } from "../../lib/core";
 import { cleanupAfter } from "../node_fs";
 import { getLogger } from "../../lib/logging";
 import { execHooks } from "../../lib/hooks";
+import { absPath } from "../../lib/util";
 var log = getLogger("memrender");
 
 const errorDoc = (e, p) => {
@@ -110,18 +111,13 @@ export function createMemoryRenderer(in_dir, out_dir, cleanup) {
         }
       }; //end writeFn
       if (!inProcess) {
+        //:TODO: redo
         writeCached();
-        execHooks("after", in_dir, out_dir);
+        execHooks("after", in_dir, absPath(out_dir));
       } else {
         eventBus.on("end", () => {
           writeCached();
-          execHooks(
-            "after",
-            in_dir,
-            path.isAbsolute(out_dir)
-              ? out_dir
-              : path.resolve(process.cwd(), out_dir),
-          );
+          execHooks("after", in_dir, absPath(out_dir));
         });
       }
     },
