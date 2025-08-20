@@ -4,10 +4,11 @@
 // async load of local datasets
 import { posix } from "path-browserify";
 
-(function () {
+(function() {
   if (window.Mukha) {
     return;
   } // dont
+  const siteData = "@DATA@";
 
   const myLocation = document.currentScript.dataset.location;
   console.info("Mukha JS API client", VERSION, "at", myLocation);
@@ -98,11 +99,11 @@ import { posix } from "path-browserify";
       });
     },
     permalink: myLocation,
-    getLocalData: function (name, ns) {
+    getLocalData: function(name, ns) {
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function (name, ns) {
+    getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },

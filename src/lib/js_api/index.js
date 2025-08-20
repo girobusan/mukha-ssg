@@ -8,6 +8,7 @@ const clientCode = require("../../../prebuild/js_api_client.js?raw");
 let data = [];
 let localData = [];
 let lib = [];
+let siteData = { version: VERSION };
 
 // function data2js(dataObj) {
 //   const json = stringify2JSON(dataObj.data);
@@ -96,5 +97,9 @@ export function saveJSAPIfiles(saveFn) {
     saveFn(lp, l.content);
   });
   // client
-  saveFn("/_js/client.js", clientCode);
+
+  saveFn(
+    "/_js/client.js",
+    clientCode.replace(/("|')@DATA@('|")/, JSON.stringify(siteData)),
+  );
 }

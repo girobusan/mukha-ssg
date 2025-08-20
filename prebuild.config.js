@@ -69,7 +69,7 @@ module.exports = function(_, argv) {
           terserOptions: {
             format: {
               comments: false,
-              // max_line_len: 120,
+              max_line_len: 120,
               // preamble: "#!/usr/bin/env node",
             },
           },
