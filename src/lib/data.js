@@ -88,7 +88,7 @@ function runTransformTasks() {
         tester() && (ds = delCols(ds, t.cols));
         break;
       case "number":
-        tester() && (ds = number(ds, t.cols));
+        tester() && (ds = number(ds, t.cols, t.locale));
         break;
       case "pass2js":
       case "save2js":

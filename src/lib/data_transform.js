@@ -71,11 +71,27 @@ export function delCols(tbl, cols) {
     });
   });
 }
-export function number(tbl, cols) {
+export function number(tbl, cols, loc) {
+  let myloc = loc || "en";
+  let nf = new Intl.NumberFormat(myloc, { style: "currency" });
+  let locinfo = nf.formatToParts(5000000.05);
+  let replaces = [];
+  locinfo.currency &&
+    replaces.push([new RegExp(`${locinfo.currency}`, "g"), ""]);
+  locinfo.group && replaces.push([new RegExp(`${locinfo.group}`, "g"), ""]);
+  locinfo.decimal &&
+    replaces.push([new RegExp(`${locinfo.decimal}`, "g"), "."]);
+
+  const toN = (s) => {
+    let r = s;
+    replaces.forEach((rx) => r.replace(rx[0], rx[1]));
+    return Number(r);
+  };
+
   tbl.forEach((row) => {
     cols.forEach((col) => {
       if (row[col] !== undefined) {
-        row[col] = Number(row[col]);
+        row[col] = toN(row[col]);
       }
     });
   });
