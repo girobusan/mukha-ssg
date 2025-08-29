@@ -74,7 +74,7 @@ function runTransformTasks() {
 
     switch (t.task) {
       case "sort":
-        tester() && (ds = sort(ds, t.col, t.as_number, t.desc));
+        tester() && (ds = sort(ds, t.col || t.column, t.as_number, t.desc));
         break;
       case "slugify":
         tester() && (ds = slugify(ds, t.input_col, t.output_col));
@@ -85,10 +85,10 @@ function runTransformTasks() {
           (ds = aggregate(ds, t.type, t.group_by, t.input_col, t.output_col));
         break;
       case "del_cols":
-        tester() && (ds = delCols(ds, t.cols));
+        tester() && (ds = delCols(ds, t.cols || t.columns));
         break;
       case "number":
-        tester() && (ds = number(ds, t.cols, t.locale));
+        tester() && (ds = number(ds, t.cols || t.columns, t.locale));
         break;
       case "pass2js":
       case "save2js":
@@ -130,7 +130,7 @@ function runRenderTasks() {
         break;
       case "col":
       case "column":
-        let lstc = generateFromCol(ds, t.col, {
+        let lstc = generateFromCol(ds, t.col || t.column, {
           meta: t.meta,
           content: t.content || t.markdown || "",
           path: t.path,
