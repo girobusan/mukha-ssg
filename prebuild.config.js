@@ -61,7 +61,7 @@ module.exports = function(_, argv) {
   let builddir = "prebuild";
 
   const browserPart = {
-    watch: argv.mode != "production",
+    watch: false, //argv.mode != "production",
     optimization: {
       minimize: argv.mode === "production" ? true : false,
       minimizer: [

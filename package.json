@@ -9,6 +9,7 @@
   ],
   "bin": {
     "mukha-ssg": "dist/mukha.js",
+    "mukha": "dist/mukha.js",
     "latid2mukha": "dist/latid2mukha.js"
   },
   "files": [
