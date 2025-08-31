@@ -73,7 +73,7 @@ export function delCols(tbl, cols) {
 }
 export function number(tbl, cols, loc) {
   let myloc = loc || "en";
-  let nf = new Intl.NumberFormat(myloc, { style: "currency" });
+  let nf = new Intl.NumberFormat(myloc);
   let locinfo = nf.formatToParts(5000000.05);
   let replaces = [];
   locinfo.currency &&

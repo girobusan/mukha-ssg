@@ -1,6 +1,6 @@
 {
   "name": "mukha-ssg",
-  "version": "0.1.3b",
+  "version": "0.1.4b",
   "description": "Minimalist static site generator",
   "keywords": [
     "ssg",
@@ -9,8 +9,8 @@
   ],
   "bin": {
     "mukha-ssg": "dist/mukha.js",
-    "mukha": "dist/mukha.js",
-    "latid2mukha": "dist/latid2mukha.js"
+    "latid2mukha": "dist/latid2mukha.js",
+    "mukha": "dist/mukha.js"
   },
   "files": [
     "dist/mukha.js",
@@ -23,6 +23,7 @@
     "watch": "npm run prebuild ; npx webpack --mode development",
     "prebuild": "npx webpack -c prebuild.config.js --mode production",
     "watch_site": "cd site_tpl ; mukha-ssg -w",
+    "dist": "node scripts/makedist.mjs",
     "postbuild": "shx chmod +x dist/mukha.js && shx chmod +x dist/latid2mukha.js ; shx cp LICENSE.txt dist/"
   },
   "babel": {

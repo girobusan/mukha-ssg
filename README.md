@@ -21,13 +21,34 @@ is on the way.**
 
 ## Install
 
-```
+```bash
 npm install -g  mukha-ssg
+```
+
+## Create new site
+
+```bash
+mukha -n
+```
+
+Freshly created site will have minimal functionality, check example site for more.
+
+## With new site, you can...
+
+```bash
+# preview in browser
+
+mukha -w
+
+# generate site files
+
+mukha
+
 ```
 
 ## Build
 
-```
+```bash
 git clone git@github.com:girobusan/mukha-ssg.git
 cd mukha-ssg
 npm install
