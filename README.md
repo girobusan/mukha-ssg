@@ -1,8 +1,6 @@
 # Mukha 🌝 SSG
 
-Small, versatile, opinionated static site generator.
-
-🌏→ [Example site, built with **Mukha**](https://girobusan.github.io/mukha-basic-site/) (sources available)
+**Small, versatile, opinionated static site generator.**
 
 - **No external tools**, zero dependencies.
 - **Links are relative;** the site is extremely portable.
@@ -11,9 +9,12 @@ Small, versatile, opinionated static site generator.
 - **Pages from data** generation — declarative way.
 - Integrated **Lunr search** (works even when page opened locally).
 - **Site preview** in browser with automatic reloading.
-- **Themes**, using Nunjucks template language.
+- Strong separation of design and content, **themes**, written in Nunjucks template language.
 - **Tags**, with custom or automatically generated pages for them.
 - **Standard Markdown** + ability to insert some richer content.
+
+🌏 → [Example site, built with **Mukha**](https://girobusan.github.io/mukha-basic-site/) (sources available)  
+🌏 → Documentation (just started!): [English](https://mukha.surge.sh/en), [Русский](https://mukha.surge.sh/ru)
 
 **Project is in the earliest stage, but somehow usable.
 Check source code of example site for reference, documentation
@@ -57,7 +58,6 @@ npm run build
 
 ## Todo
 
-- Documentation (on the way)
-- WebUI
+- Web UI (maybe)
 
 मुख
