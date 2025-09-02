@@ -38,6 +38,8 @@ export class SimpleWebSocketServer extends EventEmitter {
 
       // client id (use Set?)
       const clientId = crypto.randomBytes(16).toString("hex");
+
+      log.debug("Connecting client:", clientId);
       this.clients.set(clientId, {
         socket,
         buffer: Buffer.alloc(0),
@@ -46,6 +48,7 @@ export class SimpleWebSocketServer extends EventEmitter {
       // console.log(`Client added. Clients total: ${this.clients.size}`);
 
       socket.on("data", (data) => {
+        log.debug("Incoming message:", clientId);
         this.handleMessage(clientId, data);
       });
 

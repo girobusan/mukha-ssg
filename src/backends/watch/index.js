@@ -84,7 +84,9 @@ btnND.addEventListener("click" ,
     if(event.data==='reload') { location.reload(); }
        else{ alert( event.data );}
    };
+  ws.addEventListener("open" , ()=>{
  ${file_src ? helperCode : ""}
+})
  </script></body></html>`;
 
   let r = html.replace(/<\/body\>[\s\n]*<\/html\>[\s\n]*$/i, code);
@@ -148,11 +150,11 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       res.end(
         extname === ".html"
           ? injectWS(
-              fileObj.content,
-              myPort,
-              config.edit_cmd ? fileObj.page.file.src : false,
-              config.edit_cmd ? fileObj.page.file.path : false,
-            )
+            fileObj.content,
+            myPort,
+            config.edit_cmd ? fileObj.page.file.src : false,
+            config.edit_cmd ? fileObj.page.file.path : false,
+          )
           : fileObj.content,
       );
     }
