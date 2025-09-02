@@ -53,7 +53,7 @@ mukha
 ## Сборка
 
 ```bash
-git clone git@github.com:girobusan/mukha-ssg.git
+git clone ssh://git@gitverse.ru:2222/girobusan/mukha-ssg.git
 cd mukha-ssg
 npm install
 npm run build

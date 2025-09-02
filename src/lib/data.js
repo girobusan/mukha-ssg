@@ -5,6 +5,8 @@ import {
   generateFromCol,
   generateFromRows,
   generateForEachKey,
+  combine,
+  shorten,
   slugify,
   aggregate,
   number,
@@ -75,6 +77,15 @@ function runTransformTasks() {
     switch (t.task) {
       case "sort":
         tester() && (ds = sort(ds, t.col || t.column, t.as_number, t.desc));
+        break;
+      case "combine":
+        tester() && (ds = combine(ds, t.input_cols, t.output_col, t.short));
+        // console.log("slugify", ds.slice(0, 5));
+        break;
+      case "hash":
+      case "shorten":
+        tester() && (ds = shorten(ds, t.input_col, t.output_col, t.short));
+        // console.log("slugify", ds.slice(0, 5));
         break;
       case "slugify":
         tester() && (ds = slugify(ds, t.input_col, t.output_col));
