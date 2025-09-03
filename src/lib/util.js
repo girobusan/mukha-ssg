@@ -1,6 +1,25 @@
 const unidecode = require("unidecode");
 const path = require("path");
 
+var sha256 = require("js-sha256").sha256;
+var md5 = require("js-md5");
+const Base62Str = require("base62str").default;
+const base62 = Base62Str.createInstance();
+
+export const simpleMemo = (f) => {
+  let memo = {};
+  return (a) => {
+    if (!memo.hasOwnProperty(a)) memo[a] = f(a);
+    return memo[a];
+  };
+};
+
+const makeHashFn = (HF) => (t) =>
+  String.fromCharCode.apply(null, base62.encode(HF(t)));
+
+export const shortHash = simpleMemo(makeHashFn(md5.digest));
+export const longHash = simpleMemo(makeHashFn(sha256.digest));
+
 export function translit(t, short) {
   let r = unidecode(t.trim())
     .toLowerCase()

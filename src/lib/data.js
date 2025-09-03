@@ -79,12 +79,14 @@ function runTransformTasks() {
         tester() && (ds = sort(ds, t.col || t.column, t.as_number, t.desc));
         break;
       case "combine":
-        tester() && (ds = combine(ds, t.input_cols, t.output_col, t.short));
+        tester() &&
+          (ds = combine(ds, t.input_cols, t.output_col, t.short, t.long));
         // console.log("slugify", ds.slice(0, 5));
         break;
       case "hash":
       case "shorten":
-        tester() && (ds = shorten(ds, t.input_col, t.output_col, t.short));
+        tester() &&
+          (ds = shorten(ds, t.input_col, t.output_col, t.short, t.long));
         // console.log("slugify", ds.slice(0, 5));
         break;
       case "slugify":

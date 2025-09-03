@@ -1,11 +1,7 @@
-import { translit } from "./util";
+import { translit, shortHash, longHash } from "./util";
 import { makePageLikeObj } from "./util";
 import { numSort, strSort } from "./list";
 import { getLogger } from "./logging";
-var sha256 = require("js-sha256").sha256;
-var md5 = require("js-md5");
-const Base62Str = require("base62str").default;
-const base62 = Base62Str.createInstance();
 var log = getLogger("data-transform");
 
 function median(numbers) {
@@ -75,6 +71,7 @@ export function delCols(tbl, cols) {
       }
     });
   });
+  return tbl;
 }
 export function number(tbl, cols, loc) {
   let myloc = loc || "en";
@@ -108,37 +105,14 @@ export function sort(tbl, col, as_number, desc) {
   return strSort(tbl, (r) => r[col], desc);
 }
 
-const hashMemo = (() => {
-  let memo = {};
-  return (txt) => {
-    if (memo[txt]) return memo[txt];
-    let hash = String.fromCharCode.apply(
-      this,
-      base62.encode(sha256.digest(txt)),
-    );
-    memo[txt] = hash;
-    return hash;
-  };
-})();
-
-const shortHashMemo = (() => {
-  let memo = {};
-  return (txt) => {
-    if (memo[txt]) return memo[txt];
-    let hash = String.fromCharCode.apply(this, base62.encode(md5.digest(txt)));
-    memo[txt] = hash;
-    return hash;
-  };
-})();
-
-export function shorten(tbl, input_col, short_col_name, short) {
-  const HF = short ? shortHashMemo : hashMemo;
-  tbl.forEach((row) => (row[short_col_name] = HF(row[input_col])));
+export function shorten(tbl, input_col, short_col_name, short, long) {
+  let HF = long || short === false ? longHash : shortHash;
+  tbl.forEach((row) => (row[short_col_name] = HF(row[input_col].toString())));
   return tbl;
 }
 
-export function combine(tbl, input_cols, output_col, short) {
-  const HF = short ? shortHashMemo : hashMemo;
+export function combine(tbl, input_cols, output_col, short, long) {
+  let HF = long || short === false ? longHash : shortHash;
   tbl.forEach((row) => {
     let combined = input_cols.reduce((a, e) => (a += row[e].toString()), "");
     row[output_col] = HF(combined);

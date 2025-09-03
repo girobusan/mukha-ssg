@@ -77,6 +77,7 @@ btnND.addEventListener("click" ,
 })
 `;
   const code = `<script>
+ (()=>{
  const src="${file_src || ""}"
  const ws = new WebSocket("ws://localhost:${port}");
  ws.onmessage = function(event) {
@@ -84,9 +85,13 @@ btnND.addEventListener("click" ,
     if(event.data==='reload') { location.reload(); }
        else{ alert( event.data );}
    };
-  ws.addEventListener("open" , ()=>{
- ${file_src ? helperCode : ""}
-})
+ if(src){
+ ws.onopen= ()=>{
+ console.info("WebSocket connected...")
+ ${file_src ? helperCode : "/* nothing to do */"}
+}
+}
+})()
  </script></body></html>`;
 
   let r = html.replace(/<\/body\>[\s\n]*<\/html\>[\s\n]*$/i, code);
@@ -150,11 +155,11 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       res.end(
         extname === ".html"
           ? injectWS(
-            fileObj.content,
-            myPort,
-            config.edit_cmd ? fileObj.page.file.src : false,
-            config.edit_cmd ? fileObj.page.file.path : false,
-          )
+              fileObj.content,
+              myPort,
+              config.edit_cmd ? fileObj.page.file.src : false,
+              config.edit_cmd ? fileObj.page.file.path : false,
+            )
           : fileObj.content,
       );
     }
