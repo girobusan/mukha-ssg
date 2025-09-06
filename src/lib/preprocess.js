@@ -118,6 +118,7 @@ function sortAndRun(lst, writeFn, config, templates, data) {
   // tags
   lister = makeTags(lister, config);
   // templating
+  log.debug("Preparing to render html...");
   renderAndSave(lister, config, templates, writeFn, data);
 }
 

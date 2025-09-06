@@ -37,6 +37,7 @@ function makeObjectLoader(obj) {
 }
 
 export function renderAndSave(fullLister, config, templates, writeFn, data) {
+  log.debug("Rendering html for", fullLister.length, "pages");
   // Environment
   const objLoader = makeObjectLoader(templates);
   const tpl = new nunjucks.Environment([objLoader], {
@@ -45,7 +46,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function (str, count) {
+  tpl.addFilter("shorten", function(str, count) {
     return str.slice(0, count || 5);
   });
 
@@ -55,7 +56,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function (lst, length) {
+    return function(lst, length) {
       // console.log("Make pagination!");
       let onPage = length || config.list_length || 20;
       if (lst.length <= onPage) {
@@ -99,7 +100,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       config: config,
       datasets: data.datasets,
       data: data,
-      splitToPages: pass && pass === 1 ? makeMP(page) : () => {},
+      splitToPages: pass && pass === 1 ? makeMP(page) : () => { },
       // splitToPages: () =>
       //   log.warn(
       //     "Attempt to call unsafe function in safe context",
@@ -116,9 +117,19 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
         makeTable: (d) => tableFilter(d),
         debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
-        debug: function () {
+        debug: function() {
           console.log.apply(this, arguments);
         },
+        rollup: (d, key) => {
+          let res = d.reduce((a, e) => {
+            a[e[key]] = e;
+            return a;
+          }, {});
+          return Object.values(res).map((e) =>
+            e.constructor === Array ? e : [e],
+          );
+        },
+        unique: (d, key) => { },
         paginate: (edges, center) => {
           if (!page.page_count || page.page_count < 2) return [];
           let sequence = makePaginationSeq(
