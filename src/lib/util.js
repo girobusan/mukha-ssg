@@ -3,7 +3,8 @@ const path = require("path");
 
 var sha256 = require("js-sha256").sha256;
 var md5 = require("js-md5");
-const Base62Str = require("./base62.js").default;
+// const Base62Str = require("./base62.js").default;
+import { Base62Str } from "./base62.js";
 const base62 = Base62Str.createInstance();
 
 export const simpleMemo = (f) => {
