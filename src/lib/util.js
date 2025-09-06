@@ -7,6 +7,32 @@ var md5 = require("js-md5");
 import { Base62Str } from "./base62.js";
 const base62 = Base62Str.createInstance();
 
+// const bytes = [24, 122, 200, 0];
+//
+// console.log("Big endian:", bytesToUint32(bytes));           // 413944704
+// console.log("Little endian:", bytesToUint32(bytes, true));  // 13165432
+
+function isLittleEndianHost() {
+  const buffer = new ArrayBuffer(4);
+  new Uint32Array(buffer)[0] = 0x01020304;
+  return new Uint8Array(buffer)[0] === 0x04;
+}
+
+function bytesToUint32(bytes, littleEndian = false) {
+  if (bytes.length !== 4) {
+    throw new Error("4 bytes required");
+  }
+
+  const buffer = new ArrayBuffer(4);
+  const view = new DataView(buffer);
+
+  bytes.forEach((b, i) => {
+    new Uint8Array(buffer)[i] = b;
+  });
+
+  return view.getUint32(0, littleEndian);
+}
+
 export const simpleMemo = (f) => {
   let memo = {};
   return (a) => {
