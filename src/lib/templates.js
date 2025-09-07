@@ -1,6 +1,6 @@
 const nunjucks = require("nunjucks");
 import { format as dateFormat } from "date-fns";
-import { makeLister } from "./list";
+import { makeLister, LISTER_TAG } from "./list";
 import { tableFilter } from "./template_additions";
 import { md2html } from "./md_parser";
 import {
@@ -129,10 +129,16 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         },
         groupBy: (d, keyPath) => {
           // console.log(d);
-          const res = d.reduce((acc, item) => {
-            const groupKey = retrieveByStr(keyPath, item);
-            (acc[groupKey] ??= []).push(item);
-            return acc;
+          var arr = d;
+          if (d[LISTER_TAG]) {
+            arr = d.unwrap();
+            // remove later
+            arr.unwrap = () => arr;
+          }
+          const res = arr.reduce((a, e) => {
+            const groupKey = retrieveByStr(keyPath, e);
+            (a[groupKey] ??= []).push(e);
+            return a;
           }, {});
 
           return Object.values(res);

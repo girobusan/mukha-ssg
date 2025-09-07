@@ -3,6 +3,7 @@ import { getLogger } from "./logging";
 var log = getLogger("lister");
 const path = nodepath.posix;
 export const indexPageRx = /index(_\d*)?\.html$/i;
+export const LISTER_TAG = Symbol.for("lister");
 /**
  * @typedef Page
  * @type {object}
@@ -139,6 +140,7 @@ export function makeLister(LIST) {
    * @type Lister
    * */
   const L = {
+    [LISTER_TAG]: true,
     [Symbol.iterator]: () => LIST[Symbol.iterator](),
     replace: (l) => makeLister(l),
     append: (list2add) => makeLister(LIST.concat(list2add)),
