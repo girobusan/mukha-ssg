@@ -3,7 +3,13 @@ import { format as dateFormat } from "date-fns";
 import { makeLister } from "./list";
 import { tableFilter } from "./template_additions";
 import { md2html } from "./md_parser";
-import { addNumber, cloneFile, niceDate, rangeArray } from "./util";
+import {
+  addNumber,
+  cloneFile,
+  niceDate,
+  rangeArray,
+  retrieveByStr,
+} from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
 import { indexAll } from "./search";
@@ -120,16 +126,23 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         debug: function() {
           console.log.apply(this, arguments);
         },
-        rollup: (d, key) => {
-          let res = d.reduce((a, e) => {
-            a[e[key]] = e;
-            return a;
+        groupBy: (d, keyPath) => {
+          const res = d.reduce((acc, item) => {
+            const groupKey = retrieveByStr(keyPath, item);
+            (acc[groupKey] ??= []).push(item);
+            return acc;
           }, {});
-          return Object.values(res).map((e) =>
-            e.constructor === Array ? e : [e],
-          );
+
+          return Object.values(res);
         },
-        unique: (d, key) => { },
+        // roolup: safeContext.util.groupBy,
+        unique: (d, key) => {
+          const set = new Set();
+          for (const e of d) {
+            if (e?.[key] != null) set.add(e[key]);
+          }
+          return [...set];
+        },
         paginate: (edges, center) => {
           if (!page.page_count || page.page_count < 2) return [];
           let sequence = makePaginationSeq(
