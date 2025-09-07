@@ -16,6 +16,7 @@ import { indexAll } from "./search";
 import { saveLocalData4JS } from "./js_api";
 import { getLogger } from "./logging";
 var log = getLogger("templates");
+var dlog = getLogger("tpl-debug");
 
 function makeObjectLoader(obj) {
   //
@@ -122,11 +123,12 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         niceDate: niceDate,
         dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
         makeTable: (d) => tableFilter(d),
-        debugObj: (o) => console.log(JSON.stringify(o, null, 2)),
+        debugObj: (o) => dlog.info(JSON.stringify(o, null, 2)),
         debug: function() {
-          console.log.apply(this, arguments);
+          dlog.info.apply(this, arguments);
         },
         groupBy: (d, keyPath) => {
+          // console.log(d);
           const res = d.reduce((acc, item) => {
             const groupKey = retrieveByStr(keyPath, item);
             (acc[groupKey] ??= []).push(item);
@@ -192,7 +194,11 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           try {
             page.html = tpl.renderString(page.html, SC);
           } catch (e) {
-            log.warn("Malformed template tags in html at", page.file.path);
+            log.warn(
+              "Template tags in markdown error",
+              page.file.path,
+              e.message,
+            );
           }
         } else {
           if (page.content) {
@@ -203,6 +209,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
               log.warn(
                 "Malformed template tags in markdown at",
                 page.file.path,
+                e.message,
               );
               page.html = md2html(page.content);
             }
