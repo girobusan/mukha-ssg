@@ -130,12 +130,12 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
   const data_pages = data.render();
   if (data_pages.length > 0) {
     log.debug("Pages rendered from data:", data_pages.length);
-    data_pages.forEach((dp) => {
+    data_pages.forEach((dp, i, a) => {
       if (!dp.meta.date) {
         dp.meta.date = new Date(0);
-        return;
       }
       dp.meta.date = parseDate(dp.meta.date);
+      if (dp.file.path.match(indexRx)) dp.index = true; // :TODO: redo!!!
     });
   }
 
