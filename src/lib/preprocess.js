@@ -17,25 +17,29 @@ const realImageRx = /[("](\/[^[\](\)"']+\.(jpg|jpeg|png|gif|webm|svg))/i;
 const indexRx = /index\.html?$/i;
 
 function parseDate(dt) {
-  // console.log(dt);
-  if (typeof dt !== "string") {
-    return dt;
+  if (!dt) return new Date(0);
+
+  if (dt instanceof Date) return dt;
+
+  if (typeof dt !== "string") return new Date(0);
+
+  //
+  const isoParsed = Date.parse(dt);
+  if (!Number.isNaN(isoParsed)) {
+    return new Date(isoParsed);
   }
-  let dateParts = dt.split(/\D+/).map((e) => +e);
-  let r;
-  try {
-    r = new Date(
-      dateParts[0],
-      dateParts[1] - 1,
-      dateParts[2],
-      dateParts[3] || 0,
-      dateParts[4] || 0,
-    );
-  } catch (e) {
-    log.warn("Wrong data:", dt);
-    r = new Date(0);
+
+  // 2023-09-10 12:30
+  const parts = dt.split(/\D+/).map(Number).filter(Boolean);
+
+  if (parts.length >= 3) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = parts;
+    return new Date(year, month - 1, day, hour, minute, second);
   }
-  return r;
+
+  // fallback
+  // console.warn("Wrong date format:", dt);
+  return new Date(0);
 }
 
 /**
@@ -56,10 +60,10 @@ function preparseMdFile(f) {
   if (!metadata.title) {
     return { file: f, meta: null, content: content };
   }
-  if (metadata.date && typeof metadata.date === "string") {
-    metadata.date = parseDate(metadata.date);
-  }
-  if (!metadata.date) metadata.date = new Date(0);
+  // if (metadata.date && typeof metadata.date === "string") {
+  //   metadata.date = parseDate(metadata.date);
+  // }
+  // if (!metadata.date) metadata.date = new Date(0);
   return { file: f, meta: metadata, content: parts.markdown };
 }
 
@@ -93,8 +97,6 @@ function sortAndRun(lst, writeFn, config, templates, data) {
     }
     page.meta.image = img[1];
   });
-  // if timed option is
-  //...and...
   // wrap to lister
   // for future operations
   let lister = makeLister(lst);
@@ -130,17 +132,11 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
   const data_pages = data.render();
   if (data_pages.length > 0) {
     log.debug("Pages rendered from data:", data_pages.length);
-    data_pages.forEach((dp, i, a) => {
-      if (!dp.meta.date) {
-        dp.meta.date = new Date(0);
-      }
-      dp.meta.date = parseDate(dp.meta.date);
-      if (dp.file.path.match(indexRx)) dp.index = true; // :TODO: redo!!!
-    });
   }
 
   // GENERATE LIST OF OUTPUT FILES, INCLUDING
-  //  - tags pages
+  //
+  // files from src - parse to obj
   lst.forEach((f) => {
     if (!f.name.match(mdfileRx)) {
       copyList.push(f);
@@ -154,18 +150,27 @@ export function preprocessFileList(lst, writeFn, config, templates, data) {
     }
     // path on site will be html
     preparsed.file.path = preparsed.file.path.replace(/\.[^.]+$/, ".html");
-    preparsed.permalink = preparsed.file.path;
-    if (preparsed.file.path.match(indexRx)) preparsed.index = true;
-    let skipIt =
-      preparsed.meta.date && preparsed.meta.date.getTime() > timeFrame;
-    skipIt = skipIt || preparsed.meta.draft;
+    processList.push(preparsed);
+  });
+  //
+  // add datafiles, do final touches here
+  processList = processList.concat(data_pages);
+  //
+  processList.forEach((pf) => {
+    pf.meta.date = parseDate(pf.meta.date);
+    pf.permalink = pf.file.path;
+    if (pf.file.path.match(indexRx)) pf.index = true;
+  });
+  processList = processList.filter((pf) => {
+    let skipIt = pf.meta.date.getTime() > timeFrame || pf.meta.draft;
     if (!skipIt) {
-      processList.push(preparsed);
+      return true;
     } else {
-      log.debug("Skipping, draft or timed:", preparsed.file.path);
+      log.debug("Skipping, draft or timed:", pf.file.path);
+      return false;
     }
   });
-  processList = processList.concat(data_pages);
+
   log.debug("Source files to process:", processList.length);
   sortAndRun(processList, writeFn, config, templates, data);
   return copyList;
