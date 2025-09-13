@@ -49,7 +49,9 @@ function parseDataConfig(conf, lang) {
   } else {
     log.warn("Data config is not an array, left empty.");
   }
-  render_tasks = transform_tasks.filter((t) => t.task === "render");
+  render_tasks = transform_tasks.filter(
+    (t) => t.task === "render" || t.T === "render",
+  );
 }
 
 function runTransformTasks() {
@@ -71,10 +73,10 @@ function runTransformTasks() {
     };
   };
   transform_tasks.forEach((t) => {
-    let ds = retrieveByStr(t.dataset, datasets);
-    let tester = makeTester(t.dataset, ds, t);
+    let ds = retrieveByStr(t.dataset || t.D, datasets);
+    let tester = makeTester(t.dataset || t.D, ds, t);
 
-    switch (t.task) {
+    switch (t.task || t.T) {
       case "sort":
         tester() && (ds = sort(ds, t.col || t.column, t.as_number, t.desc));
         break;
@@ -124,7 +126,7 @@ function runRenderTasks() {
   log.debug("Render tasks count:", render_tasks.length);
   render_tasks.forEach((t) => {
     // console.log(t);
-    let ds = retrieveByStr(t.dataset, datasets);
+    let ds = retrieveByStr(t.dataset || t.D, datasets);
     //
     if (!ds || Object.keys(ds).length === 0) {
       log.warn("Data: No data for render in", t.dataset);
