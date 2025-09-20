@@ -8,7 +8,7 @@ export function extractFM(mdsrc) {
  }
 
  const divLength = Array.from(test[0].trim()).length;
- const endRX = new RegExp(`^-{${divLength}}\s*$`, ""); //*/*
+ const endRX = new RegExp(`^-{${divLength}}\\s*$`, ""); //*/*
 
  const strings = mdsrc.split("\n");
 

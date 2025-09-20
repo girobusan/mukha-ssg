@@ -17,7 +17,7 @@ var log = getLogger("node-fs");
 // run generation — ?
 
 function path2os(p) {
-  return p.replace(/[\/]/g, path.sep);
+  return p.replace(/[\\\/]/g, path.sep);
 }
 
 export function makeReadSrcListFn(inDir) {

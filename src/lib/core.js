@@ -8,6 +8,7 @@ import { saveJSAPIfiles } from "./js_api";
 
 function makeSitePath(sitedir, filename) {
   let p = posixpath.join(sitedir, filename);
+  p = p.replace(/[\\]/g, "/"); // need to fix for win (probably)
   if (!p.startsWith("/")) {
     p = "/" + p;
   }
