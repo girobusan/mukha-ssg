@@ -48,8 +48,8 @@ export function indexAll(lst, keepExcerpts, langs_in) {
   var Idx = lunr(function () {
     if (langs && langs.length > 1) this.use(lunr.multiLanguage(...langs));
     if (!nolangs && langs && langs.length === 1) this.use(lunr[langs[0]]);
-    this.field("title", { boost: 1.2 });
-    this.field("excerpt", { boost: 1.2 });
+    this.field("title", { boost: 2 });
+    this.field("excerpt", { boost: 1.5 });
     this.field("content");
     this.field("id");
     this.ref("id");
