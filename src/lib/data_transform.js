@@ -133,7 +133,7 @@ export function idfy(tbl, input_col, output_col, dictHandler) {
 }
 
 export function combine(tbl, input_cols, output_col, short, long) {
-  let HF = long || short === false ? longHash : shortHash;
+  let HF = long || !short ? longHash : shortHash;
   tbl.forEach((row) => {
     let combined = input_cols.reduce((a, e) => (a += row[e].toString()), "");
     row[output_col] = HF(combined);
