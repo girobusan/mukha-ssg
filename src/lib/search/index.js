@@ -45,17 +45,17 @@ export function indexAll(lst, keepExcerpts, langs_in) {
     });
   }
   var path2title = [];
-  var Idx = lunr(function() {
+  var Idx = lunr(function () {
     if (langs && langs.length > 1) this.use(lunr.multiLanguage(...langs));
     if (!nolangs && langs && langs.length === 1) this.use(lunr[langs[0]]);
-    this.field("title", { boost: 6 });
-    this.field("excerpt", { boost: 3 });
+    this.field("title", { boost: 1.2 });
+    this.field("excerpt", { boost: 1.2 });
     this.field("content");
     this.field("id");
     this.ref("id");
     //
     const L = this;
-    lst.forEach(function(page) {
+    lst.forEach(function (page) {
       if (page.virtual) return;
       let refobj = { path: page.file.path, title: page.meta.title };
       if (keepExcerpts) {
@@ -64,10 +64,10 @@ export function indexAll(lst, keepExcerpts, langs_in) {
       path2title.push(refobj);
 
       L.add({
-        title: page.meta.title,
+        title: page.meta.title.replace(/<[^>]*>/g, ""),
         id: page.file.path,
-        content: page.html || page.content || "",
-        excerpt: page.meta.excerpt || "",
+        content: (page.html || page.content || "").replace(/<[^>]*>/g, ""),
+        excerpt: (page.meta.excerpt || "").replace(/<[^>]*>/g, " "),
       });
     }); // adding this here doesn't work (why?)
   });
