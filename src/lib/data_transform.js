@@ -39,6 +39,18 @@ function substValues(obj, substDict) {
   return obj;
 }
 
+function idfyArray(arr) {
+  const uniq = Array.from(new Set(arr));
+  const ids = uniq.map((v, i) => i + 1); // start from 1
+  const pairs = ids.map((v, i) => [uniq[i], v]);
+  const inv_pairs = ids.map((v, i) => [v, uniq[i]]);
+
+  const encode_dict = Object.fromEntries(pairs);
+
+  const output = arr.map((e) => encode_dict[e]);
+  return [output, Object.fromEntries(inv_pairs)];
+}
+
 function slugifyArray(arr) {
   const col_values = Array.from(new Set(arr));
   const slugSet = new Set();
@@ -108,6 +120,15 @@ export function sort(tbl, col, as_number, desc) {
 export function shorten(tbl, input_col, short_col_name, short, long) {
   let HF = long || short === false ? longHash : shortHash;
   tbl.forEach((row) => (row[short_col_name] = HF(row[input_col].toString())));
+  return tbl;
+}
+
+export function idfy(tbl, input_col, output_col, dictHandler) {
+  const [ids, dict] = idfyArray(tbl.map((e) => e[input_col]));
+  tbl.forEach((row, i) => {
+    row[output_col] = ids[i];
+  });
+  if (typeof dictHandler === "function") dictHandler(dict);
   return tbl;
 }
 

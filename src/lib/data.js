@@ -8,6 +8,7 @@ import {
   combine,
   shorten,
   slugify,
+  idfy,
   aggregate,
   number,
   delCols,
@@ -44,14 +45,63 @@ function parseDataConfig(conf, lang) {
       log.warn("Can not render data conf (yaml):", e);
     }
   }
+  // expand shortcuts
+  confcontent.forEach((task) => {
+    // common
+    if (task.T) task.task = task.T;
+    if (task.D) task.dataset = task.D;
+    if (task["/"]) task.title = task["/"];
+    // render
+    if (task.render) {
+      task.task = "render";
+      task.type = task.render;
+    }
+    if (task.R) {
+      task.task = "render";
+      task.type = task.R;
+    }
+    // aggregate
+    if (task.A) {
+      task.task = "aggregate";
+      task.type = task.A;
+    }
+    if (task.aggregate) {
+      task.task = "aggregate";
+      task.type = task.aggregate;
+    }
+    if (task.dataset && !task.task) {
+      task.task = "set_ds";
+    }
+  });
+  // fillin datasets
+  confcontent = confcontent.reduce(
+    (a, e) => {
+      if (e.dataset) {
+        a.array.push(e);
+        a.ds = e.dataset;
+        return a;
+      }
+      if (!a.ds) {
+        log.error(
+          "Dataset is not specified, nor inherited,  skipping:",
+          e.title || e.task,
+        );
+        return a;
+      }
+      e.dataset = a.ds;
+      a.array.push(e);
+      return a;
+    },
+
+    { array: [], ds: null },
+  ).array;
+  // filled
   if (Array.isArray(confcontent)) {
     transform_tasks = confcontent;
   } else {
     log.warn("Data config is not an array, left empty.");
   }
-  render_tasks = transform_tasks.filter(
-    (t) => t.task === "render" || t.T === "render",
-  );
+  render_tasks = transform_tasks.filter((t) => t.task === "render");
 }
 
 function runTransformTasks() {
@@ -73,8 +123,8 @@ function runTransformTasks() {
     };
   };
   transform_tasks.forEach((t) => {
-    let ds = retrieveByStr(t.dataset || t.D, datasets);
-    let tester = makeTester(t.dataset || t.D, ds, t);
+    let ds = retrieveByStr(t.dataset, datasets);
+    let tester = makeTester(t.dataset, ds, t);
 
     switch (t.task || t.T) {
       case "sort":
@@ -83,17 +133,17 @@ function runTransformTasks() {
       case "combine":
         tester() &&
           (ds = combine(ds, t.input_cols, t.output_col, t.short, t.long));
-        // console.log("slugify", ds.slice(0, 5));
         break;
       case "hash":
       case "shorten":
         tester() &&
           (ds = shorten(ds, t.input_col, t.output_col, t.short, t.long));
-        // console.log("slugify", ds.slice(0, 5));
+        break;
+      case "idfy":
+        tester && (ds = idfy(ds, t.input_col, t.output_col || t.input_col));
         break;
       case "slugify":
         tester() && (ds = slugify(ds, t.input_col, t.output_col));
-        // console.log("slugify", ds.slice(0, 5));
         break;
       case "aggregate":
         tester() &&
@@ -110,6 +160,7 @@ function runTransformTasks() {
         saveGlobalData4JS(null, t.dataset, ds);
         break;
       case "render":
+      case "set_ds":
         break;
       default:
         log.warn("Unknown task:", t.task);
