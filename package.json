@@ -1,6 +1,6 @@
 {
   "name": "mukha-ssg",
-  "version": "0.1.6b",
+  "version": "0.1.7b",
   "description": "Minimalist static site generator",
   "keywords": [
     "ssg",

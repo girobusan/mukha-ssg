@@ -1,6 +1,6 @@
 # Mukha 🌝 SSG
 
-**Small, versatile, opinionated static site generator.**
+**Small and versatile data-oriented static site generator.**
 
 - **No external tools**, zero dependencies.
 - **Links are relative;** the site is extremely portable.

@@ -118,7 +118,7 @@ export function sort(tbl, col, as_number, desc) {
 }
 
 export function shorten(tbl, input_col, short_col_name, short, long) {
-  let HF = long || short === false ? longHash : shortHash;
+  let HF = long || !short ? longHash : shortHash;
   tbl.forEach((row) => (row[short_col_name] = HF(row[input_col].toString())));
   return tbl;
 }
