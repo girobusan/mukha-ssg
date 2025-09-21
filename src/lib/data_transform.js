@@ -118,7 +118,7 @@ export function sort(tbl, col, as_number, desc) {
 }
 
 export function shorten(tbl, input_col, short_col_name, short, long) {
-  let HF = long || !short ? longHash : shortHash;
+  let HF = long ? longHash : shortHash;
   tbl.forEach((row) => (row[short_col_name] = HF(row[input_col].toString())));
   return tbl;
 }
@@ -133,7 +133,8 @@ export function idfy(tbl, input_col, output_col, dictHandler) {
 }
 
 export function combine(tbl, input_cols, output_col, short, long) {
-  let HF = long || !short ? longHash : shortHash;
+  let HF = long ? longHash : shortHash;
+
   tbl.forEach((row) => {
     let combined = input_cols.reduce((a, e) => (a += row[e].toString()), "");
     row[output_col] = HF(combined);
