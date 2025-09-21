@@ -1,3 +1,4 @@
+import { stripHTML } from "../util";
 const stemmer = require("lunr-languages/lunr.stemmer.support");
 const multi = require("lunr-languages/lunr.multi");
 import { langs as langDict } from "./multilang";
@@ -45,17 +46,18 @@ export function indexAll(lst, keepExcerpts, langs_in) {
     });
   }
   var path2title = [];
-  var Idx = lunr(function () {
+  var Idx = lunr(function() {
     if (langs && langs.length > 1) this.use(lunr.multiLanguage(...langs));
     if (!nolangs && langs && langs.length === 1) this.use(lunr[langs[0]]);
     this.field("title", { boost: 2 });
+    this.field("keywords", { boost: 2.5 });
     this.field("excerpt", { boost: 1.5 });
     this.field("content");
     this.field("id");
     this.ref("id");
     //
     const L = this;
-    lst.forEach(function (page) {
+    lst.forEach(function(page) {
       if (page.virtual) return;
       let refobj = { path: page.file.path, title: page.meta.title };
       if (keepExcerpts) {
@@ -64,10 +66,11 @@ export function indexAll(lst, keepExcerpts, langs_in) {
       path2title.push(refobj);
 
       L.add({
-        title: page.meta.title.replace(/<[^>]*>/g, ""),
+        title: stripHTML(page.meta.title),
         id: page.file.path,
-        content: (page.html || page.content || "").replace(/<[^>]*>/g, ""),
-        excerpt: (page.meta.excerpt || "").replace(/<[^>]*>/g, " "),
+        keywords: page.meta.keywords || "",
+        content: stripHTML(page.html || page.content || ""),
+        excerpt: stripHTML(page.meta.excerpt || ""),
       });
     }); // adding this here doesn't work (why?)
   });

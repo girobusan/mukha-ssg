@@ -18,7 +18,7 @@
     "dist/search_client.js"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "console.log('No tests')",
     "build": "npx webpack --mode production",
     "watch": "npm run prebuild ; npx webpack --mode development",
     "prebuild": "npx webpack -c prebuild.config.js --mode production",

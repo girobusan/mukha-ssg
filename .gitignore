@@ -6,6 +6,7 @@
 node_modules/
 dist/hatcher*
 test/
+__tests__/
 prebuild/
 prebuild/**.*
 # some from dist

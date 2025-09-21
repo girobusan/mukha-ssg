@@ -288,3 +288,25 @@ export function stringify2JSON(obj) {
 export function absPath(p) {
   return path.isAbsolute(p) ? p : path.resolve(process.cwd(), p);
 }
+
+export function stripHTML(str) {
+  if (!str || str.length <= 2) return str;
+  let txt = str;
+
+  const rexp = [
+    [/<script[^>]*\>.*?<\/script>/gi, " "],
+    [/<style[^>]*\>.*?<\/style>/gi, " "],
+    [/<noscript[^>]*\>.*?<\/noscript>/gi, " "],
+    [/<\/?(p|br|hr|ul|ol|li|div)[^>]*>/gi, " "],
+    [/<[^>]*>/gi, ""],
+    [/^\s*\n+/gm, ""],
+    [/^\s+/gm, ""],
+  ];
+
+  rexp.forEach((r) => (txt = txt.replace(r[0], r[1])));
+  // console.log(str);
+  // console.log("-↓result↓-");
+  // console.log(txt);
+  // console.log("====");
+  return txt.trim();
+}
