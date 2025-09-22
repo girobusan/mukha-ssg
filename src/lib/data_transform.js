@@ -231,7 +231,8 @@ function prepPage({ meta, content, path, html }, repDict, data) {
     page_meta,
     content ? makeSubst(content, repDict) : "",
     makeSubst(path, repDict),
-    html ? makeSubst(html, repDict) : "",
+    null, // html ? makeSubst(html, repDict) : "",
+    html ? makeSubst(html, repDict) : "", // prehtml
   );
   page.local_data = data;
   page.debug = JSON.stringify(data, null, 2);

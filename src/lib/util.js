@@ -12,13 +12,13 @@ const base62 = Base62Str.createInstance();
 // console.log("Big endian:", bytesToUint32(bytes));           // 413944704
 // console.log("Little endian:", bytesToUint32(bytes, true));  // 13165432
 
-function isLittleEndianHost() {
+export function isLittleEndianHost() {
   const buffer = new ArrayBuffer(4);
   new Uint32Array(buffer)[0] = 0x01020304;
   return new Uint8Array(buffer)[0] === 0x04;
 }
 
-function bytesToUint32(bytes, littleEndian = false) {
+export function bytesToUint32(bytes, littleEndian = false) {
   if (bytes.length !== 4) {
     throw new Error("4 bytes required");
   }
@@ -73,12 +73,13 @@ export function lowercaseKeys(obj) {
   return r;
 }
 
-export function makePageLikeObj(meta, markdown, path, html) {
+export function makePageLikeObj(meta, markdown, path, html, prehtml) {
   return {
     meta: meta,
     content: markdown,
     permalink: path,
     html: html || "",
+    prehtml: prehtml || "",
     file: {
       getContent: () => markdown,
       path: path,
@@ -196,38 +197,6 @@ export function median(numbers) {
   }
 
   return sorted[middle];
-}
-
-export function formatLastModified(date) {
-  if (!(date instanceof Date)) {
-    throw new TypeError("Аргумент должен быть объектом Date");
-  }
-
-  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  const day = weekdays[date.getUTCDay()];
-  const dateNum = date.getUTCDate().toString().padStart(2, "0");
-  const month = months[date.getUTCMonth()];
-  const year = date.getUTCFullYear();
-  const hours = date.getUTCHours().toString().padStart(2, "0");
-  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-  const seconds = date.getUTCSeconds().toString().padStart(2, "0");
-
-  return `${day}, ${dateNum} ${month} ${year} ${hours}:${minutes}:${seconds} GMT`;
 }
 
 export function isTable(dset) {
