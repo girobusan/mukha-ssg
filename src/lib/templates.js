@@ -53,7 +53,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function(str, count) {
+  tpl.addFilter("shorten", function (str, count) {
     return str.slice(0, count || 5);
   });
 
@@ -63,7 +63,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function(lst, length) {
+    return function (lst, length) {
       if (f.page_count) {
         log.warn("Split to pages more than once, skipping:", f.file.path);
         return;
@@ -110,7 +110,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       config: config,
       datasets: data.datasets,
       data: data,
-      splitToPages: pass && pass === 1 ? makeMP(page) : () => { },
+      splitToPages: pass && pass === 1 ? makeMP(page) : () => {},
       // splitToPages: () =>
       //   log.warn(
       //     "Attempt to call unsafe function in safe context",
@@ -127,7 +127,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
         makeTable: (d) => tableFilter(d),
         debugObj: (o) => dlog.info(JSON.stringify(o, null, 2)),
-        debug: function() {
+        debug: function () {
           dlog.info.apply(this, arguments);
         },
         groupBy: (d, keyPath) => {
@@ -181,79 +181,82 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     return safeContext;
   }
 
-  function renderList(list, writeFn, pass) {
+  function renderList(list, writeFn, secondary) {
     //render exerpts and content
     // if (pass == 1) {
-    if (true) {
-      list.forEach((page) => {
-        let SC = makeSafeContext(page, pass);
+    //if (true) {
+    let pass = secondary ? 2 : 1;
 
-        if (page.meta.excerpt) {
-          if (pass === 1) page.meta.excerpt = md2html(page.meta.excerpt);
-          try {
-            if (pass === 1)
-              page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
-          } catch (e) {
-            log.warn(
-              "Can not render template tags in excerpt ",
-              page.file.path,
-            );
-          }
-        }
-        if (page.html && !page.prehtml && !page.content) {
-          //
-          log.warn("Orphaned html in:", page.file.path);
+    list.forEach((page) => {
+      let SC = makeSafeContext(page, pass);
 
-          try {
-            // no need to render when clones are rendered
-            if (pass === 1) page.html = tpl.renderString(page.prehtml, SC);
-          } catch (e) {
-            log.warn(
-              "Template tags in static html error",
-              page.file.path,
-              e.message,
-            );
-          }
+      if (!secondary && page.meta.excerpt) {
+        page.meta.excerpt = md2html(page.meta.excerpt);
+        try {
+          page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
+        } catch (e) {
+          log.warn(
+            "Can not render template tags in excerpt ",
+            page.file.path,
+            e.message,
+            "\n" + page.meta.excerpt,
+          );
         }
+      }
+      if (page.html && !page.content) {
+        //
+        log.warn("Orphaned html in:", page.file.path);
 
-        if (page.prehtml) {
-          try {
-            page.html = tpl.renderString(page.prehtml, SC);
-          } catch (e) {
-            log.warn(
-              "Template tags in pre-html error",
-              page.file.path,
-              e.message,
-            );
-          }
-        } else {
-          if (page.content) {
-            try {
-              let renderedInMd = tpl.renderString(page.content, SC);
-              page.html = md2html(renderedInMd);
-            } catch (e) {
-              log.warn(
-                "Malformed template tags in markdown at",
-                page.file.path,
-                e.message,
-              );
-              page.html = md2html(page.content);
-            }
-          }
+        try {
+          // no need to render when clones are rendered
+          if (!secondary) page.html = tpl.renderString(page.html, SC);
+        } catch (e) {
+          log.warn(
+            "Template tags in static html error",
+            page.file.path,
+            e.message,
+          );
         }
-      });
-    }
+      }
+
+      if (page.meta.html && page.content) {
+        try {
+          page.html = tpl.renderString(page.content, SC);
+        } catch (e) {
+          log.warn("Template tags in html error", page.file.path, e.message);
+        }
+      }
+      // else {
+      if (!page.meta.html && page.content) {
+        try {
+          let renderedInMd = tpl.renderString(page.content, SC);
+          page.html = md2html(renderedInMd);
+        } catch (e) {
+          log.warn(
+            "Malformed template tags in markdown at",
+            page.file.path,
+            e.message,
+          );
+          page.html = md2html(page.content);
+        }
+      }
+      // }
+    });
+    //}//end if(true)
 
     //render full pages
+    //
     list.forEach((page) => {
+      const JSAPI = config.js_api
+        ? `<script data-location="${page.file.path}" src="/_js/client.js"></script>`
+        : "<!--js api off--->";
+      //
       let adultContext = Object.assign(makeSafeContext(page, pass), {
         // list: fullLister,
         // splitToPages: pass === 1 ? makeMP(page) : () => {},
         html: page.html,
-        jsapi: config.js_api
-          ? `<script data-location="${page.file.path}" src="/_js/client.js">
-</script>`
-          : "<!--js api off--->",
+        js_api: JSAPI,
+        jsapi: JSAPI, // TODO: remove
       });
       let html = tpl.render("index.njk", adultContext);
       html = postprocess(html, page.file.path, fullLister);
@@ -261,8 +264,8 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     });
   }
   //passes
-  renderList(fullLister, writeFn, 1);
-  renderList(makeLister(virtuals), writeFn, 2);
+  renderList(fullLister, writeFn, false);
+  renderList(makeLister(virtuals), writeFn, true);
   if (config.search && config.js_api)
     indexAll(fullLister, config.keep_excerpts, config.search_lang || null);
 }

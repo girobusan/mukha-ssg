@@ -226,16 +226,20 @@ export function aggregate(in_tbl, aggregateType, group_by, col, out_col) {
 //
 function prepPage({ meta, content, path, html }, repDict, data) {
   let page_meta = substValues(Object.assign({}, meta), repDict);
+  if (html) page_meta.html = true;
+  // auto excerpt is almost always bad here
+  if (!meta.excerpt) meta.excerpt = "<!--no excerpt-->";
+  let pageContent = content || html;
 
   const page = makePageLikeObj(
     page_meta,
-    content ? makeSubst(content, repDict) : "",
+    makeSubst(pageContent, repDict),
     makeSubst(path, repDict),
     null, // html ? makeSubst(html, repDict) : "",
-    html ? makeSubst(html, repDict) : "", // prehtml
+    // html ? makeSubst(html, repDict) : "", // prehtml
   );
   page.local_data = data;
-  page.debug = JSON.stringify(data, null, 2);
+  // page.debug = JSON.stringify(data, null, 2); // FIX: remove
   return page;
 }
 

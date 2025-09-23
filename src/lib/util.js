@@ -73,15 +73,15 @@ export function lowercaseKeys(obj) {
   return r;
 }
 
-export function makePageLikeObj(meta, markdown, path, html, prehtml) {
+export function makePageLikeObj(meta, content, path, html, prehtml) {
   return {
     meta: meta,
-    content: markdown,
+    content: content,
     permalink: path,
     html: html || "",
-    prehtml: prehtml || "",
+    // prehtml: prehtml || "",
     file: {
-      getContent: () => markdown,
+      getContent: () => content,
       path: path,
     },
   };
