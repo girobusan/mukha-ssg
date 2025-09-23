@@ -12,6 +12,7 @@
 - Strong separation of design and content, **themes**, written in Nunjucks template language.
 - **Tags**, with custom or automatically generated pages for them.
 - **Standard Markdown** + ability to insert some richer content.
+- **RSS and Atom feeds**
 
 🌏 → [Example site, built with **Mukha**](https://girobusan.github.io/mukha-basic-site/) (sources available)  
 🌏 → Documentation (just started!): [English](https://mukha.surge.sh/en), [Русский](https://mukha.surge.sh/ru)
