@@ -199,6 +199,12 @@ export function median(numbers) {
   return sorted[middle];
 }
 
+/**
+ * Checks, if dataset is a table
+ * @param {Object} dset  any dataset
+ * @returns {Boolean}  true if dataset is a table
+ **/
+
 export function isTable(dset) {
   if (!Array.isArray(dset)) return false;
   let ref = dset[0];
@@ -240,6 +246,13 @@ export function uncompactTable(tobj) {
   return tout;
 }
 
+/**
+ * Stringifies JSON with self-ref prevention
+ *
+ * @param {Object} obj Object to stringiry
+ * @returns {String} JSON representation
+ */
+
 export function stringify2JSON(obj) {
   const seen = new WeakSet();
   return JSON.stringify(obj, (_, value) => {
@@ -251,8 +264,10 @@ export function stringify2JSON(obj) {
   });
 }
 
-/*
+/**
  *  returns absolute path
+ *  @param {String} p  valid path
+ *  @returns {String}  absolute path
  */
 export function absPath(p) {
   return path.isAbsolute(p) ? p : path.resolve(process.cwd(), p);

@@ -24,44 +24,24 @@ export const LISTER_TAG = Symbol.for("lister");
  * @property {function(function):void} forEach - regular for each
  * @property {number} length - Lister length
  * @property {function(function):Lister} map - regular map
- * @property {function(function):Lister} slice - regular slice
+ * @property {function(number, number):Lister} slice - regular slice
  * @property {function(function):Lister} sort - returns sorted copy of Lister
- *
- * @property {function():Lister} tags - retrurns tag list
- *
- * @property {function(string, boolean , boolean): Lister} sortByMeta - retrurns
- * sorted by given meta copy.
- *
- * @property {function(string): Page} getByPath - retrurns page by site path
- *
- * @property {function(string,any):Page} getByMeta - retrurns page by metadata
- * name/value pair
- *
- * @property {function(string,any):Page} excludeByMeta - excludes page by metadata
- * name/value pair, returns new lister
- *
- * @property {function(string,any):Lister} getAllByMeta - retrurns all pages
- * with given meta value
- *
- * @property {function(string|Page):Lister} getAllFiles - retrurns all pages
- * under the given path
- *
- * @property {function(string|Page):Lister} getAllDirs - retrurns all pages
- * under the given path
- *
- * @property {function(string|Page):Lister} getNearFiles - retrurns all pages
- * near the given path
- *
- * @property {function(string|Page):Lister} getNearDirs - retrurns all dirs (index
- * files) near the given path
- *
- * @property {function(string|Page):Page} getParent - retrurns nearest index
- * up the directory tree
- *
- * @property {function(string|Page, number):array} getBreadcrumbs - retrurns
- * breadcrumbs, directries without index files are skipped. Second parameters
- * defines, how many dirs to skip
- *
+ * @property {function():Lister} tags - returns tag list
+ * @property {function(string, boolean, boolean): Lister} sortByMeta - returns sorted by given meta copy
+ * @property {function(string): Page} getByPath - returns page by site path
+ * @property {function(string, any):Page} getByMeta - returns page by metadata name/value pair
+ * @property {function(string, any):Lister} excludeByMeta - excludes page by metadata name/value pair, returns new lister
+ * @property {function(string, any):Lister} getAllByMeta - returns all pages with given meta value
+ * @property {function(string):Lister} getAllWithMeta - returns all pages with given meta name
+ * @property {function(string|Page):Lister} getAllFiles - returns all pages under the given path
+ * @property {function(string|Page):Lister} getAllDirs - returns all pages under the given path
+ * @property {function(string|Page):Lister} getNearFiles - returns all pages near the given path
+ * @property {function(string|Page):Lister} getNearDirs - returns all dirs (index files) near the given path
+ * @property {function(string|Page):Page} getParent - returns nearest index up the directory tree
+ * @property {function(string|Page, number):Array<Page>} getBreadcrumbs - returns breadcrumbs, directories without index files are skipped. Second parameter defines how many dirs to skip
+ * @property {function():Array} unwrap - returns underlying array
+ * @property {function(Array):Lister} replace - replaces content with new list
+ * @property {Symbol.iterator} [Symbol.iterator] - iterator for the lister
  */
 
 export const numSort = (arr, accessor, desc) => {
@@ -109,8 +89,8 @@ const ensurePath = (something) => {
 
 /**
  * @param {Lister} lister - Lister to search
- * @returns {Page}
- * */
+ * @returns {Page|null}
+ */
 
 const ensurePage = (something, lister) => {
   if (typeof something === "string") {
@@ -122,17 +102,18 @@ const ensurePage = (something, lister) => {
 //
 //
 /**
+ * Creates a Lister wrapper around an array of pages
  *
- * @param {array} LIST - list of pages
+ * @param {Array<Page>} pageList - list of pages
  * @returns {Lister}
  * */
-export function makeLister(LIST) {
+export function makeLister(pageList) {
   let tags; // = lst.filter((f) => f.tag);
   const byMeta = {};
   const allByMeta = {};
   const allWithMeta = {};
   const allFiles = {};
-  const byPath = LIST.reduce((a, p) => {
+  const byPath = pageList.reduce((a, p) => {
     a[p.file.path] = p;
     return a;
   }, {});
@@ -141,36 +122,38 @@ export function makeLister(LIST) {
    * */
   const L = {
     [LISTER_TAG]: true,
-    [Symbol.iterator]: () => LIST[Symbol.iterator](),
+    [Symbol.iterator]: () => pageList[Symbol.iterator](),
     replace: (l) => makeLister(l),
-    append: (list2add) => makeLister(LIST.concat(list2add)),
-    forEach: (f) => LIST.forEach(f),
-    map: (f) => makeLister(LIST.map(f)),
-    unwrap: () => LIST.slice(),
-    length: LIST.length,
-    sort: (f) => makeLister(LIST.slice().sort(f)),
-    slice: (f, t) => LIST.slice(f, t),
+    append: (list2add) => makeLister(pageList.concat(list2add)),
+    forEach: (f) => pageList.forEach(f),
+    map: (f) => makeLister(pageList.map(f)),
+    unwrap: () => pageList.slice(),
+    length: pageList.length,
+    sort: (f) => makeLister(pageList.slice().sort(f)),
+    slice: (f, t) => pageList.slice(f, t),
     tags: () =>
       tags !== undefined
         ? tags
-        : (tags = LIST.filter((f) => f.tag).sort((a, b) => {
-          let aval = a.meta.title.toLowerCase();
-          let bval = b.meta.title.toLowerCase();
-          if (aval === bval) {
-            return 0;
-          }
-          if (aval > bval) {
-            return 1;
-          }
-          if (aval < bval) {
-            return -1;
-          }
-        })),
+        : (tags = pageList
+          .filter((f) => f.tag)
+          .sort((a, b) => {
+            let aval = a.meta.title.toLowerCase();
+            let bval = b.meta.title.toLowerCase();
+            if (aval === bval) {
+              return 0;
+            }
+            if (aval > bval) {
+              return 1;
+            }
+            if (aval < bval) {
+              return -1;
+            }
+          })),
     getByPath: (p) => {
       if (byPath[p]) {
         return byPath[p];
       }
-      let r = LIST.filter((e) => e.file.path === p);
+      let r = pageList.filter((e) => e.file.path === p);
       let r1 = r.length == 0 ? null : r[0];
       byPath[p] = r1;
       return r1;
@@ -182,7 +165,7 @@ export function makeLister(LIST) {
      *
      * */
     sortByMeta: (name, asNumber, desc) => {
-      let r = LIST.slice();
+      let r = pageList.slice();
       let sortfn;
       if (name === "date") {
         sortfn = dateSort;
@@ -206,12 +189,16 @@ export function makeLister(LIST) {
       if (!byMeta[name]) {
         byMeta[name] = {};
       }
-      let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
+      let r = pageList.filter(
+        (f) => f.meta[name] && f.meta[name].trim() == val,
+      );
       byMeta[name][val] = r.length === 0 ? null : r[0];
       return byMeta[name][val];
     },
     excludeByMeta: (name, val) => {
-      let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() != val);
+      let r = pageList.filter(
+        (f) => f.meta[name] && f.meta[name].trim() != val,
+      );
       return makeLister(r);
     },
 
@@ -223,33 +210,37 @@ export function makeLister(LIST) {
       if (!allByMeta[name]) {
         allByMeta[name] = {};
       }
-      let r = LIST.filter((f) => f.meta[name] && f.meta[name].trim() == val);
+      let r = pageList.filter(
+        (f) => f.meta[name] && f.meta[name].trim() == val,
+      );
       allByMeta[name][val] = r.length === 0 ? null : makeLister(r);
       return allByMeta[name][val];
     },
     getAllWithMeta: (name) => {
       if (allWithMeta[name]) return allWithMeta[name];
-      let r = makeLister(LIST.filter((f) => f.meta[name] !== undefined));
+      let r = makeLister(pageList.filter((f) => f.meta[name] !== undefined));
       allWithMeta[name] = r;
       return r;
     },
     getNearFiles: (p) => {
       let pth = ensurePath(p);
       let base = path.dirname(pth);
-      let r = LIST.filter((e) => !e.index).filter(
-        (e) => path.dirname(e.file.path) === base,
-      );
+      let r = pageList
+        .filter((e) => !e.index)
+        .filter((e) => path.dirname(e.file.path) === base);
       // return r;
       return makeLister(r); // makes error!
     },
     getNearDirs: (p) => {
       let pth = ensurePath(p);
       let base = path.dirname(pth);
-      let r = LIST.filter((e) => e.index).filter(
-        (e) =>
-          path.dirname(e.file.path) != base &&
-          path.dirname(path.dirname(e.file.path)) === base,
-      );
+      let r = pageList
+        .filter((e) => e.index)
+        .filter(
+          (e) =>
+            path.dirname(e.file.path) != base &&
+            path.dirname(path.dirname(e.file.path)) === base,
+        );
       // return r;
       return makeLister(r);
     },
@@ -271,14 +262,14 @@ export function makeLister(LIST) {
           return allFiles[cacheKey];
         }
       if (cacheKey == "_all") {
-        const resAll = LIST.filter((e) => !e.tag && !e.virtual && !e.index);
+        const resAll = pageList.filter((e) => !e.tag && !e.virtual && !e.index);
         log.debug("Add all files to _all cache:", resAll.length);
         allFiles[cacheKey] = makeLister(resAll);
         return allFiles[cacheKey];
       }
 
       let base = pth ? path.dirname(pth) : "/";
-      let r = LIST.filter(
+      let r = pageList.filter(
         (e) => e.file.path.startsWith(base) && !e.tag && !e.virtual && !e.index,
       );
       // return r;
@@ -291,7 +282,7 @@ export function makeLister(LIST) {
       let base = pth ? path.dirname(pth) : "/";
       let baselen = base.length;
       let isindex = pg.index;
-      let r = LIST.filter(
+      let r = pageList.filter(
         (e) =>
           (isindex
             ? path.dirname(e.file.path).startsWith(base) &&
