@@ -183,15 +183,13 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
 
   function renderList(list, writeFn, secondary) {
     //render exerpts and content
-    // if (pass == 1) {
-    //if (true) {
     let pass = secondary ? 2 : 1;
 
     list.forEach((page) => {
       let SC = makeSafeContext(page, pass);
 
       if (!secondary && page.meta.excerpt) {
-        page.meta.excerpt = md2html(page.meta.excerpt);
+        if (!page.meta.html) page.meta.excerpt = md2html(page.meta.excerpt);
         try {
           page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
         } catch (e) {
@@ -206,43 +204,29 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       if (page.html && !page.content) {
         //
         log.warn("Orphaned html in:", page.file.path);
-
-        try {
-          // no need to render when clones are rendered
-          if (!secondary) page.html = tpl.renderString(page.html, SC);
-        } catch (e) {
-          log.warn(
-            "Template tags in static html error",
-            page.file.path,
-            e.message,
-          );
-        }
       }
 
-      if (page.meta.html && page.content) {
+      // all type of content: expand template tags
+      if (page.content) {
         try {
           page.html = tpl.renderString(page.content, SC);
         } catch (e) {
-          log.warn("Template tags in html error", page.file.path, e.message);
+          log.warn("Template tags in content error", page.file.path, e.message);
         }
       }
-      // else {
+      // if markdown, render markdown then?
       if (!page.meta.html && page.content) {
         try {
-          let renderedInMd = tpl.renderString(page.content, SC);
-          page.html = md2html(renderedInMd);
+          page.html = md2html(page.html);
         } catch (e) {
           log.warn(
-            "Malformed template tags in markdown at",
+            "Can not render markdown in content:",
             page.file.path,
             e.message,
           );
-          page.html = md2html(page.content);
         }
       }
-      // }
     });
-    //}//end if(true)
 
     //render full pages
     //
