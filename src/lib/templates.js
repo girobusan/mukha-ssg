@@ -233,7 +233,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     list.forEach((page) => {
       const JSAPI = config.js_api
         ? `<script data-location="${page.file.path}" src="/_js/client.js"></script>`
-        : "<!--js api off--->";
+        : "<!--JS API off--->";
       //
       let adultContext = Object.assign(makeSafeContext(page, pass), {
         // list: fullLister,

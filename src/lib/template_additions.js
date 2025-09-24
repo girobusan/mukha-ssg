@@ -1,4 +1,4 @@
-export function tableFilter(data, columns) {
+export function tableFilter(data, columns, col_names) {
   if (data.length === 0) {
     return "";
   }
@@ -6,7 +6,9 @@ export function tableFilter(data, columns) {
 <thead><tr>`;
   const cols = columns || Object.keys(data[0]);
 
-  cols.forEach((c) => (r += `<th>${c}</th>`));
+  cols.forEach(
+    (c, i) => (r += `<th>${col_names && col_names[i] ? col_names[i] : c}</th>`),
+  );
 
   r += "</tr></thead><tbody>";
 
