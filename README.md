@@ -15,7 +15,7 @@
 - **RSS and Atom feeds**
 
 🌏 → [Example site, built with **Mukha**](https://girobusan.github.io/mukha-basic-site/) (sources available)  
-🌏 → Documentation (just started!): [English](https://girobusan.github.io/mukha-site/en/), [Русский](hhttps://girobusan.github.io/mukha-site/ru)
+🌏 → Documentation (just started!): [English](https://girobusan.github.io/mukha-site/en/), [Русский](https://girobusan.github.io/mukha-site/ru)
 
 **Project is in the earliest stage, but somehow usable.
 Check source code of example site for reference, documentation
