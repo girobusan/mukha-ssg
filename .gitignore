@@ -9,6 +9,8 @@ test/
 __tests__/
 prebuild/
 prebuild/**.*
+graphics/
+mukha.free
 # some from dist
 dist/
 dist/latid2mukha.js
