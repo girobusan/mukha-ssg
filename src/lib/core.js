@@ -99,7 +99,7 @@ function runSSG({
     throw "No theme files at " + templateSrcPath;
   }
   const Templates = templateFiles.reduce((a, f) => {
-    let tname = posixpath.join(f.parentPath, f.name);
+    let tname = posixpath.join(f.parentPath.replace(/\\/g, "/"), f.name); // FIXME:
     log.debug("Template file:", tname.substring(templateSrcPath.length + 1));
     a[tname.substring(templateSrcPath.length + 1)] = f.getContent();
     return a;
