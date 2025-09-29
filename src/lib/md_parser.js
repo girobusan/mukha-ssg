@@ -11,7 +11,7 @@ const fencedRx = /`{3,5}\n(.*?)`{3,5}\n/ms;
 //
 const shortenSyntaxRx = /^```@([a-zA-Z0-9-_]+)\n(.*?)\n```$/gms;
 
-export function md2html(md_src) {
+export function md2html(md_src, inline) {
   if (!md_src) {
     return "";
   }

@@ -1,7 +1,7 @@
 const nunjucks = require("nunjucks");
 import { format as dateFormat } from "date-fns";
 import { makeLister, LISTER_TAG } from "./list";
-import { tableFilter, shorten } from "./template_additions";
+import { tableFilter, shorten, un_para, add_para } from "./template_additions";
 import { md2html } from "./md_parser";
 import {
   addNumber,
@@ -9,6 +9,7 @@ import {
   niceDate,
   rangeArray,
   getFirstPara,
+  unPara,
   retrieveByStr,
 } from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
@@ -55,6 +56,8 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   });
   tpl.addFilter("to_table", tableFilter);
   tpl.addFilter("shorten", shorten);
+  tpl.addFilter("un_para", un_para);
+  tpl.addFilter("add_para", add_para);
 
   let virtuals = [];
   //
@@ -190,7 +193,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       if (!secondary && page.meta.excerpt) {
         if (!page.meta.html) page.meta.excerpt = md2html(page.meta.excerpt);
         try {
-          page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
+          page.meta.excerpt = unPara(tpl.renderString(page.meta.excerpt, SC));
         } catch (e) {
           log.warn(
             "Can not render template tags in excerpt ",

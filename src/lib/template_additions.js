@@ -1,3 +1,5 @@
+import { unPara } from "./util";
+
 export function tableFilter(data, columns, titles) {
   if (data.length === 0) {
     return "";
@@ -24,10 +26,13 @@ export function tableFilter(data, columns, titles) {
 }
 
 export function shorten(str, maxln, fin) {
-  if (str.trim().length <= maxln) return str;
+  if (str.trim().length <= maxln) return str.trim();
   let maxLength = maxln || 64;
   let endSymbol = fin || "&hellip;";
-  let strArray = str.split(/\s+/i).filter((e) => !e.match(/^\s*$/));
+  let strArray = str
+    .trim()
+    .split(/\s+/i)
+    .filter((e) => !e.match(/^\s*$/));
   if (strArray.length === 0) return "";
   if (strArray[0].length === maxLength) return strArray[0] + endSymbol;
   if (strArray[0] > maxLength)
@@ -42,4 +47,12 @@ export function shorten(str, maxln, fin) {
     txt_next += " " + strArray.shift();
   }
   return txt_next.length > maxLength ? txt + endSymbol : txt_next + endSymbol;
+}
+
+export function un_para(str) {
+  return unPara(str);
+}
+
+export function add_para(str) {
+  return "<p>" + str + "</p>";
 }
