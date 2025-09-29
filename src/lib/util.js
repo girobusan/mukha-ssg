@@ -313,5 +313,5 @@ export function getFirstPara(html) {
   const FP = /<p[^>]*>(.*?)<\/p>/ims;
   const match = FP.exec(html);
   const txt = match ? match[1].trim() : null;
-  return txt ? "<p>" + cleanMediaTags(txt) + "</p>" : "";
+  return txt ? cleanMediaTags(txt) : "";
 }
