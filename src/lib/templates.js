@@ -1,13 +1,14 @@
 const nunjucks = require("nunjucks");
 import { format as dateFormat } from "date-fns";
 import { makeLister, LISTER_TAG } from "./list";
-import { tableFilter } from "./template_additions";
+import { tableFilter, shorten } from "./template_additions";
 import { md2html } from "./md_parser";
 import {
   addNumber,
   cloneFile,
   niceDate,
   rangeArray,
+  getFirstPara,
   retrieveByStr,
 } from "./util";
 import { generate as makePaginationSeq } from "./pagination/pagination";
@@ -53,9 +54,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
     lstripBlocks: true,
   });
   tpl.addFilter("to_table", tableFilter);
-  tpl.addFilter("shorten", function (str, count) {
-    return str.slice(0, count || 5);
-  });
+  tpl.addFilter("shorten", shorten);
 
   let virtuals = [];
   //
@@ -63,7 +62,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function (lst, length) {
+    return function(lst, length) {
       if (f.page_count) {
         log.warn("Split to pages more than once, skipping:", f.file.path);
         return;
@@ -110,7 +109,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       config: config,
       datasets: data.datasets,
       data: data,
-      splitToPages: pass && pass === 1 ? makeMP(page) : () => {},
+      splitToPages: pass && pass === 1 ? makeMP(page) : () => { },
       // splitToPages: () =>
       //   log.warn(
       //     "Attempt to call unsafe function in safe context",
@@ -127,7 +126,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
         makeTable: (d) => tableFilter(d),
         debugObj: (o) => dlog.info(JSON.stringify(o, null, 2)),
-        debug: function () {
+        debug: function() {
           dlog.info.apply(this, arguments);
         },
         groupBy: (d, keyPath) => {
@@ -226,6 +225,12 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
           );
         }
       }
+      // html ready, try to fill excerpt
+      if (!page.meta.hasOwnProperty("excerpt")) {
+        let fp = getFirstPara(page.html);
+        if (fp) page.meta.excerpt = fp;
+      }
+      //
     });
 
     //render full pages

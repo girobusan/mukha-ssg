@@ -294,3 +294,17 @@ export function stripHTML(str) {
   // console.log("====");
   return txt.trim();
 }
+
+const cleanMediaTags = (text) => {
+  return text
+    .replace(/<img\b[^>]*\/?>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<(picture|video|audio|small|big)\b[^>]*>[\s\S]*?<\/\1>/gis, "");
+};
+
+export function getFirstPara(html) {
+  const FP = /<p[^>]*>(.*?)<\/p>/ims;
+  const match = FP.exec(html);
+  const txt = match ? match[1].trim() : null;
+  return txt ? cleanMediaTags(txt) : "";
+}

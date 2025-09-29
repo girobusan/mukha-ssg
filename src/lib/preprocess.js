@@ -74,18 +74,18 @@ function sortAndRun(lst, writeFn, config, templates, data) {
     const btime = b.meta.date.getTime();
     return Math.sign(btime - atime);
   });
-  // search for excerpts
-  lst.forEach((page) => {
-    if (page.meta.excerpt === undefined && page.content) {
-      // console.log(f);
-      let firstP = page.content.match(paragraphRx);
-      if (!firstP) {
-        return;
-      }
-      // console.log("Excerpt found", firstP[0]);
-      page.meta.excerpt = firstP[0].trim();
-    }
-  });
+  // search for excerpts FIX: moved to template routine
+  // lst.forEach((page) => {
+  //   if (page.meta.excerpt === undefined && page.content) {
+  //     // console.log(f);
+  //     let firstP = page.content.match(paragraphRx);
+  //     if (!firstP) {
+  //       return;
+  //     }
+  //     // console.log("Excerpt found", firstP[0]);
+  //     page.meta.excerpt = firstP[0].trim();
+  //   }
+  // });
   // find images
   lst.forEach((page) => {
     if (page.meta.image) {
