@@ -193,7 +193,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       if (!secondary && page.meta.excerpt) {
         if (!page.meta.html) page.meta.excerpt = md2html(page.meta.excerpt);
         try {
-          page.meta.excerpt = unPara(tpl.renderString(page.meta.excerpt, SC));
+          page.meta.excerpt = tpl.renderString(page.meta.excerpt, SC);
         } catch (e) {
           log.warn(
             "Can not render template tags in excerpt ",
@@ -229,9 +229,10 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         }
       }
       // html ready, try to fill excerpt
+      // excerpt by deafult wrapped to <P>
       if (!page.meta.hasOwnProperty("excerpt")) {
         let fp = getFirstPara(page.html);
-        if (fp) page.meta.excerpt = fp;
+        if (fp) page.meta.excerpt = "<p>" + fp + "</p>"; // TEST:
       }
       //
     });
