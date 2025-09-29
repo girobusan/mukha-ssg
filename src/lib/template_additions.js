@@ -25,7 +25,9 @@ export function tableFilter(data, columns, titles) {
   return r;
 }
 
-export function shorten(str, maxln, fin) {
+export function shorten(in_str, maxln, fin) {
+  let str = unPara(in_str.trim());
+  let do_para = in_str.trim().length > str.length;
   if (str.trim().length <= maxln) return str.trim();
   let maxLength = maxln || 64;
   let endSymbol = fin || "&hellip;";
@@ -46,7 +48,9 @@ export function shorten(str, maxln, fin) {
     txt = txt_next;
     txt_next += " " + strArray.shift();
   }
-  return txt_next.length > maxLength ? txt + endSymbol : txt_next + endSymbol;
+  const R =
+    txt_next.length > maxLength ? txt + endSymbol : txt_next + endSymbol;
+  return do_para ? add_para(R) : R;
 }
 
 export function un_para(str) {
