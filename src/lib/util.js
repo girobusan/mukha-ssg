@@ -309,8 +309,6 @@ export function unPara(html) {
     .replace(/<\/p>$/i, "");
 }
 
-export function smartUnPara(html) { }
-
 export function getFirstPara(html) {
   const FP = /<p[^>]*>(.*?)<\/p>/ims;
   const match = FP.exec(html);
