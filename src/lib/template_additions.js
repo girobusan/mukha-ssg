@@ -27,22 +27,24 @@ export function tableFilter(data, columns, titles) {
 
 export function shorten(in_str, maxln, fin) {
   let str = unPara(in_str.trim());
-  let do_para = in_str.trim().length > str.length;
-  if (str.trim().length <= maxln) return str.trim();
+  if (str.length <= maxln || str.length === 0) return in_str;
+  //
+  //do we need to add Ps after
+  const postFn = in_str.trim().length > str.length ? add_para : (s) => s;
   let maxLength = maxln || 64;
   let endSymbol = fin || "&hellip;";
   let strArray = str
-    .trim()
+    // .trim()
     .split(/\s+/i)
     .filter((e) => !e.match(/^\s*$/));
-  if (strArray.length === 0) return "";
+  if (strArray.length === 0) return postFn(""); // TEST: it must be a lot of spaces
   if (strArray[0].length === maxLength) return strArray[0] + endSymbol;
   if (strArray[0] > maxLength)
     return strArray[0].substring(0, maxLength) + endSymbol;
-  if (strArray.length === 1) return strArray[0] + endSymbol;
+  if (strArray.length === 1) return postFn(strArray[0]);
   //
   let txt = strArray[0];
-  let txt_next = strArray.shift() + " " + strArray.shift() || "";
+  let txt_next = strArray.shift() + " " + strArray.shift();
 
   while (txt_next.length <= maxLength && strArray.length > 0) {
     txt = txt_next;
@@ -50,7 +52,7 @@ export function shorten(in_str, maxln, fin) {
   }
   const R =
     txt_next.length > maxLength ? txt + endSymbol : txt_next + endSymbol;
-  return do_para ? add_para(R) : R;
+  return postFn(R);
 }
 
 export function un_para(str) {

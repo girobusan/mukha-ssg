@@ -305,9 +305,11 @@ const cleanNonTextTags = (text) => {
 export function unPara(html) {
   return html
     .trim()
-    .replace(/^<p>/i, "")
+    .replace(/^<p\b[^>]*>/i, "")
     .replace(/<\/p>$/i, "");
 }
+
+export function smartUnPara(html) { }
 
 export function getFirstPara(html) {
   const FP = /<p[^>]*>(.*?)<\/p>/ims;
