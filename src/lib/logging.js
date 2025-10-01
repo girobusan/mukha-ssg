@@ -13,8 +13,8 @@ const colormap = {
 
 const symbolmap = {
   TRACE: " ≈ ",
-  DEBUG: " ~ ",
-  INFO: " i ",
+  DEBUG: " : ",
+  INFO: " · ",
   WARN: " ! ",
   ERROR: "!!!",
 };
@@ -22,7 +22,7 @@ const symbolmap = {
 const emojimap = {
   TRACE: "🔎",
   DEBUG: "🔧",
-  INFO: "💬",
+  INFO: "🔹",
   WARN: "❗",
   ERROR: "💢",
 };

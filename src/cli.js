@@ -38,12 +38,19 @@ if (params.values.new) {
 }
 
 setLevel(params.values.loglevel || "info", true);
+const baner = " Mukha SSG v" + VERSION + " ";
+const line = Array.from(baner)
+  .map((e) => "=")
+  .join("");
 
-console.log(colors.cyanBright("\x1b[1mMukha SSG " + VERSION + " \x1b[0m"));
+console.log(colors.blue(line));
+console.log(colors.blue(baner));
+console.log(colors.blue(line));
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 // `before`
 execHooks("before", input_dir, "Before hooks");
+// log.warn("Test warning");
 
 if (params.values.watch) {
   let port = +params.values.port;
