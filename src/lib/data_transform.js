@@ -117,7 +117,56 @@ export function sort(tbl, col, as_number, desc) {
   return strSort(tbl, (r) => r[col], desc);
 }
 
-export function shorten(tbl, input_col, short_col_name, short, long) {
+/**
+ * Unpivots specified columns, transforming them into key-value pairs.
+ * This operation makes the table narrower and longer.
+ *
+ * @param {Array<Object>} tbl - Source array of objects
+ * @param {Array<string>} columnsToUnpivot - Array of column names to unpivot
+ * @param {string} [keyHeader='key'] - Name for the new column to store unpivoted column names
+ * @param {string} [valueHeader='value'] - Name for the new column to store values
+ * @returns {Array<Object>} Unpivoted table
+ */
+export function unpivot(
+  tbl,
+  columnsToUnpivot,
+  keyHeader = "key",
+  valueHeader = "value",
+) {
+  // Return empty array if no data
+  if (!tbl.length) return [];
+
+  // Identify fixed columns (those not being unpivoted)
+  const allColumns = Object.keys(tbl[0]);
+  const fixedColumns = allColumns.filter(
+    (col) => !columnsToUnpivot.includes(col),
+  );
+
+  const result = [];
+
+  // Process each row
+  for (const row of tbl) {
+    // For each column to unpivot, create a new row
+    for (const column of columnsToUnpivot) {
+      const newRow = {};
+
+      // Copy fixed columns to new row
+      for (const fixedCol of fixedColumns) {
+        newRow[fixedCol] = row[fixedCol];
+      }
+
+      // Add key-value pair
+      newRow[keyHeader] = column;
+      newRow[valueHeader] = row[column];
+
+      result.push(newRow);
+    }
+  }
+
+  return result;
+}
+
+export function shorten(tbl, input_col, short_col_name, _, long) {
   let HF = long ? longHash : shortHash;
   tbl.forEach((row) => (row[short_col_name] = HF(row[input_col].toString())));
   return tbl;

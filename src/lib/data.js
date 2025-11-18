@@ -13,6 +13,7 @@ import {
   number,
   delCols,
   sort,
+  unpivot,
 } from "./data_transform";
 import { saveData4JS, saveGlobalData4JS } from "./js_api";
 import { getLogger } from "./logging";
@@ -127,6 +128,10 @@ function runTransformTasks() {
     let tester = makeTester(t.dataset, ds, t);
 
     switch (t.task || t.T) {
+      case "unpivot":
+        tester() &&
+          (ds = unpivot(ds, t.cols || t.columns, t.key_col, t.value_col));
+        break;
       case "sort":
         tester() && (ds = sort(ds, t.col || t.column, t.as_number, t.desc));
         break;
