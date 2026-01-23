@@ -130,7 +130,12 @@ function runTransformTasks() {
     switch (t.task || t.T) {
       case "unpivot":
         tester() &&
-          (ds = unpivot(ds, t.cols || t.columns, t.key_col, t.value_col));
+          (ds = unpivot(
+            ds,
+            t.cols || t.columns,
+            t.key_col || t.key_column,
+            t.value_col || t.value_column,
+          ));
         break;
       case "sort":
         tester() && (ds = sort(ds, t.col || t.column, t.as_number, t.desc));

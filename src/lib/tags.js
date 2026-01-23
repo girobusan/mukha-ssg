@@ -9,7 +9,13 @@ var log = getLogger("tags");
  *@param {Lister} lister
  *@param {object} config
  * */
-
+function parseTags(tgs) {
+  if (tgs.constructor && tgs.constructor === Array) {
+    return tgs;
+  } else {
+    return tgs.split(",");
+  }
+}
 export function makeTags(lister, config) {
   //list pages by tag
   const tags = {};
@@ -20,8 +26,7 @@ export function makeTags(lister, config) {
     if (!f.meta.tags) {
       return;
     }
-    const pretags = f.meta.tags
-      .split(",")
+    const pretags = parseTags(f.meta.tags)
       .map((t) => t.trim())
       .filter((t) => t)
       .map((t) => {
