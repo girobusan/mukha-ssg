@@ -4,18 +4,19 @@ import { makeLister } from "./list";
 
 import { getLogger } from "./logging";
 var log = getLogger("tags");
-/**
- *
- *@param {Lister} lister
- *@param {object} config
- * */
+
 function parseTags(tgs) {
-  if (tgs.constructor && tgs.constructor === Array) {
+  if (tgs instanceof Array) {
     return tgs;
   } else {
     return tgs.split(",");
   }
 }
+/**
+ *
+ *@param {Lister} lister
+ *@param {object} config
+ * */
 export function makeTags(lister, config) {
   //list pages by tag
   const tags = {};

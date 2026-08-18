@@ -68,52 +68,109 @@ function makeCopyFn(_, outDir) {
     fs.cpSync(from_p, to_p, { recursive: true, force: true });
   };
 }
-
 export function cleanupAfter(writtenFiles, out_dir) {
   log.info("Cleaning up...");
-  let allThere = fs.readdirSync(out_dir, {
+
+  // Set for speed
+  const writtenSet = new Set(writtenFiles);
+
+  const allEntries = fs.readdirSync(out_dir, {
     recursive: true,
     withFileTypes: true,
   });
-  //const writtenFiles = written;.map((e) => e.path);
 
-  allThere
-    .filter((f) => f.isFile())
-    .map((f) => path.join(f.parentPath, f.name))
-    .forEach((f) => {
-      let rezpath = f.substring(out_dir.length).replace(/[\\]/g, "/");
-      if (writtenFiles.indexOf(rezpath) == -1) {
-        log.debug(" - Removing unknown file:", f);
-        try {
-          fs.rmSync(f);
-        } catch (e) {
-          log.warn("Not deleted", f, e);
-        }
-      }
-    });
+  const files = [];
+  const dirs = [];
 
-  allThere
-    .filter((e) => e.isDirectory())
-    .filter((d) => {
-      let dir = path.join(d.parentPath, d.name);
-      return (
-        fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isFile())
-          .length === 0
-      );
-    })
-    .map((e) => path.join(e.parentPath, e.name))
-    .sort((a, b) => b.length - a.length)
-    .forEach((p) => {
-      log.debug(" - Removing empty dir:", p);
+  for (const entry of allEntries) {
+    const fullPath = path.join(entry.parentPath, entry.name);
+    if (entry.isFile()) {
+      files.push(fullPath);
+    } else if (entry.isDirectory()) {
+      dirs.push(fullPath);
+    }
+  }
+
+  // remove unwritten files
+  let deletedCount = 0;
+  for (const filePath of files) {
+    const rezpath = filePath.substring(out_dir.length).replace(/[\\]/g, "/");
+    if (!writtenSet.has(rezpath)) {
+      log.debug(" - Removing unknown file:", filePath);
       try {
-        fs.rmdirSync(p);
+        fs.rmSync(filePath);
+        deletedCount++;
       } catch (e) {
-        log.debug("Not deleted:", p, e.code);
+        log.warn("Not deleted", filePath, e);
       }
-    });
-  log.info("All clean.");
-  // console.log(writtenFiles);
+    }
+  }
+
+  // remove empty dirs
+  const sortedDirs = dirs.sort((a, b) => b.length - a.length);
+
+  for (const dirPath of sortedDirs) {
+    // if exists and empty
+    try {
+      const contents = fs.readdirSync(dirPath);
+      if (contents.length === 0) {
+        log.debug(" - Removing empty dir:", dirPath);
+        fs.rmdirSync(dirPath);
+      }
+    } catch (e) {
+      if (e.code !== "ENOENT") {
+        log.debug("Not deleted:", dirPath, e.code);
+      }
+    }
+  }
+
+  log.info(`All clean. Removed ${deletedCount} files and empty directories.`);
 }
+// export function cleanupAfter_old(writtenFiles, out_dir) {
+//   log.info("Cleaning up...");
+//   let allThere = fs.readdirSync(out_dir, {
+//     recursive: true,
+//     withFileTypes: true,
+//   });
+//   //const writtenFiles = written;.map((e) => e.path);
+//
+//   allThere
+//     .filter((f) => f.isFile())
+//     .map((f) => path.join(f.parentPath, f.name))
+//     .forEach((f) => {
+//       let rezpath = f.substring(out_dir.length).replace(/[\\]/g, "/");
+//       if (writtenFiles.indexOf(rezpath) == -1) {
+//         log.debug(" - Removing unknown file:", f);
+//         try {
+//           fs.rmSync(f);
+//         } catch (e) {
+//           log.warn("Not deleted", f, e);
+//         }
+//       }
+//     });
+//
+//   allThere
+//     .filter((e) => e.isDirectory())
+//     .filter((d) => {
+//       let dir = path.join(d.parentPath, d.name);
+//       return (
+//         fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isFile())
+//           .length === 0
+//       );
+//     })
+//     .map((e) => path.join(e.parentPath, e.name))
+//     .sort((a, b) => b.length - a.length)
+//     .forEach((p) => {
+//       log.debug(" - Removing empty dir:", p);
+//       try {
+//         fs.rmdirSync(p);
+//       } catch (e) {
+//         log.debug("Not deleted:", p, e.code);
+//       }
+//     });
+//   log.info("All clean.");
+//   // console.log(writtenFiles);
+// }
 
 function makeMemoGetContent(p) {
   var content;
