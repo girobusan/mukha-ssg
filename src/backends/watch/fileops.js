@@ -43,7 +43,7 @@ Write here
 export function newDir(near, dname) {
   let cleanName = sanitizeFileName(dname);
   let basen = path.dirname(near);
-  // log.info("Creating directory:", path.join(basen, dname));
+  // log.info("Creating directory:", path.join(basen, cleanName));
   fs.mkdirSync(path.join(basen, cleanName), { recursive: true });
   return newPage(path.join(basen, cleanName, "index.md"), "index");
 }
