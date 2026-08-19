@@ -356,12 +356,12 @@ export function checkSafeEditor(str) {
 
   for (const flag of flags) {
     if (forbiddenPatterns.test(flag)) {
-      return { good: false, msg: "Forbidden pattern:" + flag };
+      return { good: false, msg: "Forbidden pattern: " + flag };
     }
   }
 
   if (forbiddenCommands.has(path.basename(command).trim().toLowerCase())) {
-    return { good: false, msg: "Forbidden command:" + command };
+    return { good: false, msg: "Forbidden command: " + command };
   }
 
   if (knownEditors.has(path.basename(command))) {
@@ -372,4 +372,23 @@ export function checkSafeEditor(str) {
   }
 
   return { good: true, msg: "You editor is " + command };
+}
+
+export function sanitizeFileName(str) {
+  // Удаляем пробелы в начале и конце строки
+  let fileName = str.trim();
+
+  fileName = fileName.replace(/\s+/g, "_");
+
+  fileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "");
+
+  fileName = fileName.replace(/_+/g, "_");
+
+  fileName = fileName.replace(/^_+|_+$/g, "");
+
+  if (fileName.length === 0) {
+    return "file_" + Math.round(Math.random() * 100000);
+  }
+
+  return fileName;
 }

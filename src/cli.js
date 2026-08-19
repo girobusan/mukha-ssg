@@ -22,7 +22,7 @@ process.on("uncaughtException", (error) => {
 const options = {
   input: { type: "string", short: "i" },
   output: { type: "string", short: "o" },
-  safe: { type: "boolean", short: "s" }, // safe mode = no hooks
+  safe: { type: "boolean", short: "S" }, // TODO:  safe mode = no hooks
   timed: { type: "boolean", short: "t" },
   version: { type: "boolean", short: "v" },
   cleanup: { type: "boolean", short: "c" },
@@ -45,7 +45,7 @@ if (params.values.new) {
 setLevel(params.values.loglevel || "info", true);
 const baner = " Mukha SSG v" + VERSION + " ";
 const line = Array.from(baner)
-  .map((e) => "=")
+  .map(() => "=")
   .join("");
 
 console.log(colors.blue(line));
@@ -56,9 +56,7 @@ const output_dir = path.normalize(params.values.output || "./static");
 // `before`
 execHooks("before", input_dir, "Before hooks");
 // load config HERE!
-const configPath = path.join(input_dir, "config", "site.yaml");
 let Conf;
-
 try {
   Conf = yaml.load(
     fs.readFileSync(path.join(input_dir, "config", "site.yaml"), {
@@ -73,10 +71,11 @@ try {
 if (Conf.edit_cmd) {
   let test = checkSafeEditor(Conf.edit_cmd);
   if (!test.good) {
-    test.msg && log.error(test.msg);
-    process.exit(1);
+    log.error("Editor disabled.", test.msg || "By reason.");
+    Conf.edit_cmd = "";
+  } else {
+    test.msg && log.info(test.msg);
   }
-  test.msg && log.info(test.msg);
 }
 //
 if (params.values.timed) {

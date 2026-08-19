@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 import { niceDate, absPath } from "../../lib/util";
 import { getLogger } from "../../lib/logging";
+import { sanitizeFileName } from "../../lib/util";
 var log = getLogger("file ops");
 
 export function delFile(fp, in_dir) {
@@ -21,8 +22,9 @@ export function delFile(fp, in_dir) {
 }
 
 export function newPage(near, fname) {
+  let cleanName = sanitizeFileName(fname);
   const id = crypto.randomBytes(16).toString("hex");
-  const fp = path.join(path.dirname(near), fname + ".md");
+  const fp = path.join(path.dirname(near), cleanName + ".md");
 
   const content = `---
 title: "Untitled"
@@ -39,8 +41,9 @@ Write here
 }
 
 export function newDir(near, dname) {
+  let cleanName = sanitizeFileName(dname);
   let basen = path.dirname(near);
   // log.info("Creating directory:", path.join(basen, dname));
-  fs.mkdirSync(path.join(basen, dname), { recursive: true });
-  return newPage(path.join(basen, dname, "index.md"), "index");
+  fs.mkdirSync(path.join(basen, cleanName), { recursive: true });
+  return newPage(path.join(basen, cleanName, "index.md"), "index");
 }

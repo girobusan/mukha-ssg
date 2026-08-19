@@ -104,14 +104,17 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       return;
     }
     let action = mj.action;
-    //
-    if (action === "edit") {
+    const spawnEditor = (...args) => {
       let cmd = config.edit_cmd.split(/\s+/);
-      spawn(cmd.shift(), [...cmd, absPath(mj.page)], {
+      spawn(cmd.shift(), [...cmd, ...args], {
         detached: true,
         shell: false,
       }).unref();
       return;
+    };
+    //
+    if (action === "edit") {
+      return spawnEditor(absPath(mj.page));
     }
     if (action === "del") {
       delFile(mj.page, in_dir);
@@ -123,15 +126,13 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       let nd = newDir(mj.near, mj.fname);
 
       log.info("Creating new dir", nd);
-      spawn(config.edit_cmd, [nd], { detached: true, shell: true }).unref();
-      return;
+      return spawnEditor(nd);
     }
     if (action === "new") {
       let nf = newPage(mj.near, mj.fname);
 
       log.info("Creating new page", nf);
-      spawn(config.edit_cmd, [nf], { detached: true, shell: true }).unref();
-      return;
+      return spawnEditor(nf);
     }
     log.warn("Unknown request from page:", m);
   });
