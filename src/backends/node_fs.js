@@ -115,6 +115,7 @@ export function cleanupAfter(writtenFiles, out_dir) {
       if (contents.length === 0) {
         log.debug(" - Removing empty dir:", dirPath);
         fs.rmdirSync(dirPath);
+        deletedCount++;
       }
     } catch (e) {
       if (e.code !== "ENOENT") {

@@ -100,7 +100,14 @@ function sortAndRun(lst, writeFn, config, templates, data) {
   // wrap to lister
   // for future operations
   let lister = makeLister(lst);
-  //must be ok to build rss
+  // console.log("We have", lister.length, "pages to process");
+  // tags
+  lister = makeTags(lister, config);
+  // templating
+  log.debug("Preparing to render html...");
+  renderAndSave(lister, config, templates, writeFn, data);
+  //
+  //must be ok to build rss (excerpts added/fixed)
   if (config.rss_length) {
     log.debug("Writting RSS...");
     let feeds = [];
@@ -116,12 +123,6 @@ function sortAndRun(lst, writeFn, config, templates, data) {
     let feeds_content = makeFeed(lister, config, feeds);
     uris.forEach((u, i) => writeFn(u, feeds_content[i]));
   }
-  // console.log("We have", lister.length, "pages to process");
-  // tags
-  lister = makeTags(lister, config);
-  // templating
-  log.debug("Preparing to render html...");
-  renderAndSave(lister, config, templates, writeFn, data);
 }
 
 export function preprocessFileList(lst, writeFn, config, templates, data) {
