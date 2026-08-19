@@ -32,7 +32,7 @@ btnD.setAttribute("style" , "${btnStyle}");
 btnD.style.backgroundColor="orangered";
 btnN.setAttribute("style" , "${btnStyle}");
 btnND.setAttribute("style" , "${btnStyle}");
-cont.setAttribute("style" , "position:absolute;position: fixed; bottom: 8px ; right: 0px;" + 
+cont.setAttribute("style" , "position: fixed; bottom: 8px ; right: 0px;" + 
 "z-index:10000;background-color: transparent;")
 
 cont.appendChild(btnE);

@@ -315,3 +315,61 @@ export function getFirstPara(html) {
   const txt = match ? match[1].trim() : null;
   return txt ? cleanNonTextTags(txt) : "";
 }
+
+export function checkSafeEditor(str) {
+  const cmdParts = str.split(/\s+/);
+  const command = cmdParts[0]; // binary?
+  const flags = cmdParts.slice(1); // flags?
+  const knownEditors = new Set([
+    "nano",
+    "vim",
+    "vi",
+    "emacs",
+    "gedit",
+    "code",
+    "subl",
+    "atom",
+    "micro",
+    "nvim",
+    "zed",
+    "mcedit",
+  ]);
+  const forbiddenPatterns = /[;&|`$><()]|\.\./;
+  const forbiddenCommands = new Set([
+    "rm",
+    "dd",
+    "mkfs",
+    "shred",
+    "kill",
+    "pkill",
+    "chmod",
+    "chown",
+    "wget",
+    "curl",
+    "nc",
+    "telnet",
+    "eval",
+    "exec",
+    "source",
+    "alias",
+  ]);
+
+  for (const flag of flags) {
+    if (forbiddenPatterns.test(flag)) {
+      return { good: false, msg: "Forbidden pattern:" + flag };
+    }
+  }
+
+  if (forbiddenCommands.has(path.basename(command).trim().toLowerCase())) {
+    return { good: false, msg: "Forbidden command:" + command };
+  }
+
+  if (knownEditors.has(path.basename(command))) {
+    return {
+      good: true,
+      msg: "+1 for " + path.basename(command) + " as editor!",
+    };
+  }
+
+  return { good: true, msg: "You editor is " + command };
+}

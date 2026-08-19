@@ -19,7 +19,7 @@ const dirs = [
   ["config", "themes", "bland", "templates"],
 ];
 
-export function makeSiteAt(pth) {
+export function makeSiteAt() {
   var sitedirname = "mysite";
   var conf = {
     title: "Very New One",

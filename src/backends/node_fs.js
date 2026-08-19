@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const yaml = require("js-yaml");
 import { createCore } from "../lib/core";
 import { getLogger } from "../lib/logging";
 import { execHooks } from "../lib/hooks";
@@ -187,22 +186,8 @@ function makeMemoGetContent(p) {
   };
 }
 
-export function backend({ in_dir, out_dir, timed, cleanup }) {
-  let Config;
+export function backend({ in_dir, out_dir, cleanup, config }) {
   let written = [];
-  try {
-    Config = yaml.load(
-      fs.readFileSync(path.join(in_dir, "config", "site.yaml"), {
-        encoding: "utf8",
-      }),
-    );
-  } catch (e) {
-    log.error("Can not load or parse config. Exiting.", e.message);
-    process.exit(1);
-  }
-  if (timed) {
-    Config.timed = timed;
-  }
 
   const core = createCore({
     listSourceFiles: makeReadSrcListFn(in_dir),
@@ -226,7 +211,7 @@ export function backend({ in_dir, out_dir, timed, cleanup }) {
         log.info("Site ready. Written", written.length, "files total.");
       }
     },
-    config: Config,
+    config: config,
     env: {
       app: { version: VERSION, build_mode: "MODE", build_date: "BUILDDATE" },
     },

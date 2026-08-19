@@ -1,5 +1,6 @@
 const { parseArgs } = require("node:util");
 const path = require("path");
+const fs = require("fs");
 import { backend as node_backend } from "./backends/node_fs";
 import { backend as watch_backend } from "./backends/watch";
 import { getLogger, setLevel } from "./lib/logging";
@@ -7,6 +8,9 @@ var log = getLogger("cli");
 import colors from "yoctocolors";
 import { execHooks } from "./lib/hooks";
 import { makeSiteAt } from "./lib/make_site";
+import { checkSafeEditor } from "./lib/util";
+
+const yaml = require("js-yaml");
 //
 process.on("uncaughtException", (error) => {
   console.error(error.message, error.code); // Message and code
@@ -18,6 +22,7 @@ process.on("uncaughtException", (error) => {
 const options = {
   input: { type: "string", short: "i" },
   output: { type: "string", short: "o" },
+  safe: { type: "boolean", short: "s" }, // safe mode = no hooks
   timed: { type: "boolean", short: "t" },
   version: { type: "boolean", short: "v" },
   cleanup: { type: "boolean", short: "c" },
@@ -50,7 +55,33 @@ const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 // `before`
 execHooks("before", input_dir, "Before hooks");
-// log.warn("Test warning");
+// load config HERE!
+const configPath = path.join(input_dir, "config", "site.yaml");
+let Conf;
+
+try {
+  Conf = yaml.load(
+    fs.readFileSync(path.join(input_dir, "config", "site.yaml"), {
+      encoding: "utf8",
+    }),
+  );
+} catch (e) {
+  log.error("Can not load or parse config. Exiting.", e.message);
+  process.exit(1);
+}
+//
+if (Conf.edit_cmd) {
+  let test = checkSafeEditor(Conf.edit_cmd);
+  if (!test.good) {
+    test.msg && log.error(test.msg);
+    process.exit(1);
+  }
+  test.msg && log.info(test.msg);
+}
+//
+if (params.values.timed) {
+  Conf.timed = true;
+}
 
 if (params.values.watch) {
   let port = +params.values.port;
@@ -61,6 +92,7 @@ if (params.values.watch) {
     timed: params.values.timed,
     port: port,
     cleanup: params.values.cleanup,
+    config: Conf,
   });
   log.info("Watch mode on.");
   watch_b.run();
@@ -70,6 +102,7 @@ if (params.values.watch) {
     out_dir: output_dir,
     timed: params.values.timed,
     cleanup: params.values.cleanup,
+    config: Conf,
   });
   node_b.run();
 }

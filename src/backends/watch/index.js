@@ -106,9 +106,10 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
     let action = mj.action;
     //
     if (action === "edit") {
-      spawn(config.edit_cmd, [absPath(mj.page)], {
+      let cmd = config.edit_cmd.split(/\s+/);
+      spawn(cmd.shift(), [...cmd, absPath(mj.page)], {
         detached: true,
-        shell: true,
+        shell: false,
       }).unref();
       return;
     }
@@ -157,7 +158,6 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
   const closeServer = () => {
     log.info("Stopping server...");
     watcher.close().then(() => console.log("Watch stopped."));
-    // clients.forEach((ws) => ws.close());
     wss.close();
     server.close(() => {
       log.info("Server stopped.");
@@ -185,21 +185,7 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
   };
 }
 
-export function backend({ in_dir, out_dir, timed, port, cleanup }) {
-  let CONF;
-  try {
-    CONF = yaml.load(
-      fs.readFileSync(path.join(in_dir, "config", "site.yaml"), {
-        encoding: "utf8",
-      }),
-    );
-  } catch (e) {
-    log.error("Can not load or parse config.", e.message);
-    process.exit(1);
-  }
-  if (timed) {
-    CONF.timed = timed;
-  }
-  let server = createServer(port, in_dir, out_dir, CONF, cleanup);
+export function backend({ in_dir, out_dir, port, cleanup, config }) {
+  let server = createServer(port, in_dir, out_dir, config, cleanup);
   return server;
 }
