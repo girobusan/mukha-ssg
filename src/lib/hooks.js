@@ -6,6 +6,9 @@ import { getLogger } from "./logging";
 var log = getLogger("hooks");
 /* hooks */
 const jsrx = /.*\.(c|m)?js$/i;
+const GREEN = "\x1b[32m";
+const RED = "\x1b[31m";
+const RESET = "\x1b[0m";
 
 function execHookList(lst, in_dir, param) {
   lst.forEach((hft) => {
@@ -13,18 +16,22 @@ function execHookList(lst, in_dir, param) {
     let logname = hft.name;
     let command = logname.match(jsrx) ? "node " : "";
     let output;
-    log.info("Running:", logname);
+    log.info(logname, "started...");
+    console.log(GREEN);
     try {
       output = execSync(
         command + path.join(getLocation(hft.parentPath), hft.name),
         {
           input: param,
           cwd: in_dir,
+          stdio: ["pipe", "inherit", "inherit"],
         },
       );
     } catch (e) {
       log.error("Can not exec", logname, e.message);
     }
+    console.log(RESET);
+    log.info(logname, "finished.");
     if (output) {
       output
         .toString()

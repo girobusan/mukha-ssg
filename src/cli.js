@@ -54,7 +54,7 @@ console.log(colors.blue(line));
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 // `before`
-execHooks("before", input_dir, "Before hooks");
+if (!params.values.safe) execHooks("before", input_dir, "Before hooks");
 // load config HERE!
 let Conf;
 try {
@@ -68,6 +68,7 @@ try {
   process.exit(1);
 }
 //
+Conf.safe_mode = params.values.safe;
 if (Conf.edit_cmd) {
   let test = checkSafeEditor(Conf.edit_cmd);
   if (!test.good) {

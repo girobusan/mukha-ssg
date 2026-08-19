@@ -126,54 +126,9 @@ export function cleanupAfter(writtenFiles, out_dir) {
 
   log.info(`All clean. Removed ${deletedCount} files and empty directories.`);
 }
-// export function cleanupAfter_old(writtenFiles, out_dir) {
-//   log.info("Cleaning up...");
-//   let allThere = fs.readdirSync(out_dir, {
-//     recursive: true,
-//     withFileTypes: true,
-//   });
-//   //const writtenFiles = written;.map((e) => e.path);
-//
-//   allThere
-//     .filter((f) => f.isFile())
-//     .map((f) => path.join(f.parentPath, f.name))
-//     .forEach((f) => {
-//       let rezpath = f.substring(out_dir.length).replace(/[\\]/g, "/");
-//       if (writtenFiles.indexOf(rezpath) == -1) {
-//         log.debug(" - Removing unknown file:", f);
-//         try {
-//           fs.rmSync(f);
-//         } catch (e) {
-//           log.warn("Not deleted", f, e);
-//         }
-//       }
-//     });
-//
-//   allThere
-//     .filter((e) => e.isDirectory())
-//     .filter((d) => {
-//       let dir = path.join(d.parentPath, d.name);
-//       return (
-//         fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isFile())
-//           .length === 0
-//       );
-//     })
-//     .map((e) => path.join(e.parentPath, e.name))
-//     .sort((a, b) => b.length - a.length)
-//     .forEach((p) => {
-//       log.debug(" - Removing empty dir:", p);
-//       try {
-//         fs.rmdirSync(p);
-//       } catch (e) {
-//         log.debug("Not deleted:", p, e.code);
-//       }
-//     });
-//   log.info("All clean.");
-//   // console.log(writtenFiles);
-// }
 
 function makeMemoGetContent(p) {
-  var content;
+  let content;
   return () => {
     if (content === undefined) {
       try {
@@ -207,8 +162,8 @@ export function backend({ in_dir, out_dir, cleanup, config }) {
             out_dir,
           );
         }
-        execHooks("after", in_dir, absPath(out_dir));
-        // execHooks("after", in_dir, out_dir);
+        if (!config.safe_mode) execHooks("after", in_dir, absPath(out_dir));
+        //
         log.info("Site ready. Written", written.length, "files total.");
       }
     },
