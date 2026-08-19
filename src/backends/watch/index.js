@@ -12,90 +12,20 @@ import { startWatcher } from "./watcher";
 import { delFile, newPage, newDir } from "./fileops";
 import { getLogger } from "../../lib/logging";
 import { absPath } from "../../lib/util";
+import { injectWS } from "./injects";
 var log = getLogger("devserver");
 
 const basePath = "";
 const watchPaths = ["config", "assets", "src", "data"];
-
-const btnStyle = `all:unset;
-font-family: system-ui, sans-serif;
-border: 2px solid #444;
-background: white;
-color: black;
-border-radius: 6px;
-padding:2px 6px;
-font-size: 14px;
-user-select:none;
-cursor:pointer;
-margin-right: 8px;
-`.replace(/\n/g, "");
-
-function injectWS(html, port, file_src, page_path) {
-  const helperCode = `
-const ppath="${page_path}"
-const cont = document.createElement("div");
-const btnE = document.createElement("button");
-const btnD = document.createElement("button");
-const btnN = document.createElement("button");
-const btnND = document.createElement("button");
-btnE.innerHTML="edit"
-btnD.innerHTML="del"
-btnN.innerHTML="new page"
-btnND.innerHTML="new dir"
 //
-btnE.setAttribute("style" , "${btnStyle}");
-btnD.setAttribute("style" , "${btnStyle}");
-btnD.style.backgroundColor="orangered";
-btnN.setAttribute("style" , "${btnStyle}");
-btnND.setAttribute("style" , "${btnStyle}");
-cont.setAttribute("style" , "position:absolute;position: fixed; bottom: 8px ; right: 0px;" + 
-"z-index:10000;background-color: transparent;")
+function safePath(baseDir, requestedPath, absolute = true) {
+  const absoluteRequested = path.resolve(baseDir, requestedPath);
+  const absoluteBase = path.resolve(baseDir);
 
-cont.appendChild(btnE);
-cont.appendChild(btnN);
-cont.appendChild(btnND);
-cont.appendChild(btnD);
-document.body.appendChild(cont);
-btnE.addEventListener("click" , ()=>ws.send(JSON.stringify({action:'edit', page: src}))  )
-btnD.addEventListener("click" , 
-  ()=>{ if(confirm('Are you sure?')){
-      ws.send(JSON.stringify({action:'del', page: src , path: ppath})); 
-      history.go(-1);
-}})
-btnN.addEventListener("click" ,
-  ()=>{console.log("new")
-      let fnm = prompt("Enter filename without extension:");
-      if(!fnm) return;
-      ws.send(JSON.stringify({action:'new', near: src , fname: fnm})); 
-})
-
-btnND.addEventListener("click" ,
-  ()=>{console.log("new")
-      let fnm = prompt("Enter directory name:");
-      if(!fnm) return;
-      ws.send(JSON.stringify({action:'dir', near: src , fname: fnm})); 
-})
-`;
-  const code = `<script>
- (()=>{
- const src="${file_src || ""}"
- const ws = new WebSocket("ws://localhost:${port}");
- ws.onmessage = function(event) {
-    console.log("Message:", event.data);
-    if(event.data==='reload') { location.reload(); }
-       else{ alert( event.data );}
-   };
- if(src){
- ws.onopen= ()=>{
- console.info("WebSocket connected...")
- ${file_src ? helperCode : "/* nothing to do */"}
-}
-}
-})()
- </script></body></html>`;
-
-  let r = html.replace(/<\/body\>[\s\n]*<\/html\>[\s\n]*$/i, code);
-  return r;
+  if (!absoluteRequested.startsWith(absoluteBase)) {
+    return null; // !!!
+  }
+  return absolute ? absoluteRequested : requestedPath; //
 }
 
 function createServer(port, in_dir, out_dir, config, cleanup) {
@@ -105,14 +35,6 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
     watchPaths.map((p) => path.join(in_dir, p)),
     memoryRenderer.run,
   );
-  memoryRenderer.on("end", () => {
-    log.info("Reloading...");
-    wss.broadcast("reload");
-  });
-  memoryRenderer.on("error", () => {
-    log.error("Error rebuilding, see browser.");
-    wss.broadcast("reload");
-  });
 
   //
   const server = http.createServer((req, res) => {
@@ -150,6 +72,13 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
 
     if (fileObj.type === "copy") {
       const readStream = fs.createReadStream(fileObj.src);
+      readStream.on("error", (err) => {
+        log.error(`Error streaming file ${fileObj.src}:`, err);
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end("Internal Server Error");
+        }
+      });
       readStream.pipe(res);
     } else {
       res.end(
@@ -167,8 +96,15 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
 
   const wss = new SWSS(server);
   wss.on("message", (m) => {
-    let mj = JSON.parse(m);
+    let mj;
+    try {
+      mj = JSON.parse(m);
+    } catch (e) {
+      log.warn("Invalid JSON from WebSocket:", m);
+      return;
+    }
     let action = mj.action;
+    //
     if (action === "edit") {
       spawn(config.edit_cmd, [absPath(mj.page)], {
         detached: true,
@@ -197,6 +133,15 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       return;
     }
     log.warn("Unknown request from page:", m);
+  });
+
+  memoryRenderer.on("end", () => {
+    log.info("Reloading...");
+    wss && wss.broadcast("reload");
+  });
+  memoryRenderer.on("error", () => {
+    log.error("Error rebuilding, see browser.");
+    wss && wss.broadcast("reload");
   });
 
   const runServer = () => {
