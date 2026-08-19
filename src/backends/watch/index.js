@@ -30,7 +30,12 @@ function safePath(baseDir, requestedPath, absolute = true) {
 
 function createServer(port, in_dir, out_dir, config, cleanup) {
   var myPort = port; //await getFreePort(port);
-  const memoryRenderer = createMemoryRenderer(in_dir, out_dir, cleanup);
+  const memoryRenderer = createMemoryRenderer(
+    in_dir,
+    out_dir,
+    cleanup,
+    config.safe_mode,
+  );
   const watcher = startWatcher(
     watchPaths.map((p) => path.join(in_dir, p)),
     memoryRenderer.run,

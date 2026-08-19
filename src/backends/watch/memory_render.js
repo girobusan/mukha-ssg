@@ -36,7 +36,7 @@ function loadConfig(in_dir, timed) {
   return Config;
 }
 
-export function createMemoryRenderer(in_dir, out_dir, cleanup) {
+export function createMemoryRenderer(in_dir, out_dir, cleanup, nohooks) {
   const eventBus = new EventEmitter();
   var config = loadConfig(in_dir);
   var inProcess = false;
@@ -76,7 +76,7 @@ export function createMemoryRenderer(in_dir, out_dir, cleanup) {
     on: (evt, fn) => eventBus.on(evt, fn),
     ready: () => !inProcess,
     run: () => {
-      (core = core.changeConfigFile(loadConfig(in_dir))), (inProcess = true);
+      ((core = core.changeConfigFile(loadConfig(in_dir))), (inProcess = true));
       try {
         core.run();
       } catch (e) {
@@ -113,7 +113,7 @@ export function createMemoryRenderer(in_dir, out_dir, cleanup) {
       if (!inProcess) {
         //:TODO: redo
         writeCached();
-        execHooks("after", in_dir, absPath(out_dir));
+        !nohooks && execHooks("after", in_dir, absPath(out_dir));
       } else {
         eventBus.on("end", () => {
           writeCached();
