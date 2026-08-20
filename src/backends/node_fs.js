@@ -124,15 +124,12 @@ export function cleanupAfter(writtenFiles, out_dir) {
       }
     }
   }
-
-  let logMsg = "All clean. ";
-  if (deletedFilesCount > 0 && deletedDirsCount === 0)
-    logMsg += `Deleted ${deletedFilesCount} file(s).`;
-  if (deletedFilesCount === 0 && deletedDirsCount > 0)
-    logMsg += `Deleted ${deletedDirsCount} directories.`;
-  if (deletedDirsCount > 0 && deletedFilesCount > 0)
-    logMsg += `Deleted ${deletedFilesCount} file(s) and ${deletedDirsCount} directories.`;
-
+  let logMsg;
+  if (deletedFilesCount | (deletedDirsCount !== 0)) {
+    logMsg = `Deleted: files — ${deletedFilesCount}, directories — ${deletedDirsCount}.`;
+  } else {
+    logMsg = "No extraneous files were found.";
+  }
   log.info(logMsg);
 }
 
