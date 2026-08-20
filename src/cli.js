@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 import { backend as node_backend } from "./backends/node_fs";
 import { backend as watch_backend } from "./backends/watch";
-import { getLogger, setLevel } from "./lib/logging";
+import { getLogger, setLevel, setBW } from "./lib/logging";
 var log = getLogger("main");
 import colors from "yoctocolors";
 import { execHooks } from "./lib/hooks";
@@ -26,6 +26,7 @@ const options = {
   timed: { type: "boolean", short: "t" },
   version: { type: "boolean", short: "v" },
   cleanup: { type: "boolean", short: "c" },
+  nocolor: { type: "boolean", short: "C" },
   watch: { type: "boolean", short: "w" },
   port: { type: "string", short: "p" },
   loglevel: { type: "string", short: "l" },
@@ -42,15 +43,22 @@ if (params.values.new) {
   process.exit(0);
 }
 
+//
+if (params.values.nocolor) {
+  process.env["NO_COLOR"] = 1;
+  process.env["NODE_DISABLE_COLORS"] = 1;
+  setBW(true);
+}
+
 setLevel(params.values.loglevel || "info", true);
 const baner = " Mukha SSG v" + VERSION + " ";
 const line = Array.from(baner)
   .map(() => "=")
   .join("");
 
-console.log(colors.blue(line));
-console.log(colors.blue(baner));
-console.log(colors.blue(line));
+console.log(params.values.nocolor ? line : colors.blue(line));
+console.log(params.values.nocolor ? baner : colors.blue(baner));
+console.log(params.values.nocolor ? line : colors.blue(line));
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
 // load config HERE!

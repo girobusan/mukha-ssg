@@ -3,12 +3,29 @@ const prefix = require("loglevel-plugin-prefix");
 import colors from "yoctocolors";
 import { supportEmoji } from "./terminal_emojii_support";
 
+let BW = false;
+export function setBW(v) {
+  BW = v;
+  if (v) {
+    mapping = symbolmap;
+    colormapping = bwmap;
+  }
+}
+
 const colormap = {
   TRACE: colors.magenta,
   DEBUG: colors.cyan,
   INFO: colors.blueBright,
   WARN: colors.yellow,
   ERROR: colors.red,
+};
+
+const bwmap = {
+  TRACE: (a) => a,
+  DEBUG: (a) => a,
+  INFO: (a) => a,
+  WARN: (a) => a,
+  ERROR: (a) => a,
 };
 
 const symbolmap = {
@@ -26,9 +43,11 @@ const emojimap = {
   WARN: "❗",
   ERROR: "💢",
 };
+
 var mapping = symbolmap;
+var colormapping = colormap;
 const SE = supportEmoji();
-if (SE) {
+if (SE && !BW) {
   mapping = emojimap;
 }
 const loggers = [];
@@ -37,7 +56,7 @@ prefix.reg(log);
 prefix.apply(log, {
   // template: "%l (%n)",
   format(level, name, _) {
-    return `${colors.bold(colormap[level](mapping[level]))} ${colors.dim(`${name}:`)}`;
+    return `${colormapping[level](mapping[level])} ${BW ? name + ": " : colors.dim(`${name}:`)}`;
   },
 });
 //log.enableAll();

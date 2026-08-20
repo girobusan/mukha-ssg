@@ -126,11 +126,16 @@ export function cleanupAfter(writtenFiles, out_dir) {
   }
   let logMsg;
   if (deletedFilesCount | (deletedDirsCount !== 0)) {
-    logMsg = `Deleted: files — ${deletedFilesCount}, directories — ${deletedDirsCount}.`;
+    logMsg = [
+      `Deleted: files —`,
+      deletedFilesCount,
+      "directories —",
+      deletedDirsCount,
+    ];
   } else {
-    logMsg = "No extraneous files were found.";
+    logMsg = ["No extraneous files were found."];
   }
-  log.info(logMsg);
+  log.info(...logMsg);
 }
 
 function makeMemoGetContent(p) {

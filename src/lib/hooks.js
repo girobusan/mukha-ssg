@@ -16,8 +16,8 @@ function execHookList(lst, in_dir, param) {
     let command = logname.match(jsrx) ? "node " : "";
     let output;
     log.info(logname, "started...");
-    // console.log(GREEN);
-    process.stdout.write(GREEN);
+    console.log();
+    // process.stdout.write(GREEN);
     try {
       output = execSync(
         command + path.join(getLocation(hft.parentPath), hft.name),
@@ -30,7 +30,7 @@ function execHookList(lst, in_dir, param) {
     } catch (e) {
       log.error("Can not exec", logname, e.message);
     }
-    console.log(RESET);
+    console.log();
     // log.info(logname, "finished.");
     if (output) {
       output
