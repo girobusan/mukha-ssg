@@ -22,7 +22,7 @@ process.on("uncaughtException", (error) => {
 const options = {
   input: { type: "string", short: "i" },
   output: { type: "string", short: "o" },
-  safe: { type: "boolean", short: "S" }, // TODO:  safe mode = no hooks
+  safe: { type: "boolean", short: "S" }, // safe mode = no hooks
   timed: { type: "boolean", short: "t" },
   version: { type: "boolean", short: "v" },
   cleanup: { type: "boolean", short: "c" },
@@ -34,6 +34,9 @@ const options = {
 };
 
 const params = parseArgs({ options });
+const input_dir = path.normalize(params.values.input || "./site");
+const output_dir = path.normalize(params.values.output || "./static");
+//
 if (params.values.version) {
   console.log(VERSION);
   process.exit(0);
@@ -42,26 +45,10 @@ if (params.values.new) {
   makeSiteAt();
   process.exit(0);
 }
-
-//
-if (params.values.nocolor) {
-  process.env["NO_COLOR"] = 1;
-  process.env["NODE_DISABLE_COLORS"] = 1;
-  setBW(true);
-}
-
 setLevel(params.values.loglevel || "info", true);
-const baner = " Mukha SSG v" + VERSION + " ";
-const line = Array.from(baner)
-  .map(() => "=")
-  .join("");
-
-console.log(params.values.nocolor ? line : colors.blue(line));
-console.log(params.values.nocolor ? baner : colors.blue(baner));
-console.log(params.values.nocolor ? line : colors.blue(line));
-const input_dir = path.normalize(params.values.input || "./site");
-const output_dir = path.normalize(params.values.output || "./static");
-// load config HERE!
+//
+// load config
+//
 let Conf;
 try {
   Conf = yaml.load(
@@ -75,6 +62,30 @@ try {
 }
 //
 Conf.safe_mode = params.values.safe;
+
+if (params.values.timed) {
+  Conf.timed = params.values.timed;
+}
+//
+if (params.values.nocolor) {
+  Conf.nocolor = true;
+  process.env["NO_COLOR"] = 1;
+  process.env["NODE_DISABLE_COLORS"] = 1;
+  setBW(true);
+}
+
+//show baner
+
+const baner = " Mukha SSG v" + VERSION + " ";
+const line = Array.from(baner)
+  .map(() => "=")
+  .join("");
+
+console.log(Conf.nocolor ? line : colors.blue(line));
+console.log(Conf.nocolor ? baner : colors.blue(baner));
+console.log(Conf.nocolor ? line : colors.blue(line));
+//
+
 if (Conf.edit_cmd) {
   let test = checkSafeEditor(Conf.edit_cmd);
   if (!test.good) {
@@ -85,9 +96,6 @@ if (Conf.edit_cmd) {
   }
 }
 //
-if (params.values.timed) {
-  Conf.timed = true;
-}
 
 // `before`
 if (!params.values.safe) execHooks("before", input_dir, "Before hooks");
