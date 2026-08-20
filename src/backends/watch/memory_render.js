@@ -89,7 +89,12 @@ export function createMemoryRenderer(in_dir, out_dir, cleanup, nohooks) {
         log.info("Nothing is written to output.");
         return;
       }
-      log.info("Writting", Object.keys(cache).length, "objects to", out_dir);
+      log.info(
+        "Writting",
+        Object.keys(cache).length,
+        "objects to",
+        "'" + out_dir + "'...",
+      );
 
       const writeCached = () => {
         for (let pth in cache) {
@@ -113,11 +118,13 @@ export function createMemoryRenderer(in_dir, out_dir, cleanup, nohooks) {
       if (!inProcess) {
         //:TODO: redo
         writeCached();
+        log.info("Files written.");
         !nohooks && execHooks("after", in_dir, absPath(out_dir));
       } else {
         eventBus.on("end", () => {
           writeCached();
-          execHooks("after", in_dir, absPath(out_dir));
+          log.info("Files written.");
+          !nohooks && execHooks("after", in_dir, absPath(out_dir));
         });
       }
     },

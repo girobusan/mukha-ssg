@@ -182,7 +182,7 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
   process.on("SIGINT", closeServer); // Ctrl+C
   process.on("SIGTERM", closeServer); // kill
   process.on("exit", () => {
-    log.info("Exiting...");
+    log.info("Exiting.");
   });
   //
   return {
