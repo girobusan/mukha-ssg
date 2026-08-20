@@ -352,22 +352,19 @@ export function checkSafeEditor(str) {
 
   for (const flag of flags) {
     if (forbiddenPatterns.test(flag)) {
-      return { good: false, msg: "Forbidden pattern: " + flag };
+      return [false, "Forbidden pattern: " + flag];
     }
   }
 
   if (forbiddenCommands.has(path.basename(command).trim().toLowerCase())) {
-    return { good: false, msg: "Forbidden command: " + command };
+    return [false, "Forbidden command: " + command];
   }
 
   if (knownEditors.has(path.basename(command))) {
-    return {
-      good: true,
-      msg: "+1 for " + path.basename(command) + " as editor!",
-    };
+    return [true, "+1 for " + path.basename(command) + " as editor!"];
   }
 
-  return { good: true, msg: "You editor is " + command };
+  return [true, "You editor is " + command];
 }
 
 export function sanitizeFileName(str) {
