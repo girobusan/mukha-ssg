@@ -7,7 +7,6 @@ var log = getLogger("hooks");
 /* hooks */
 const jsrx = /.*\.(c|m)?js$/i;
 const GREEN = "\x1b[32m";
-const RED = "\x1b[31m";
 const RESET = "\x1b[0m";
 
 function execHookList(lst, in_dir, param) {
@@ -17,7 +16,8 @@ function execHookList(lst, in_dir, param) {
     let command = logname.match(jsrx) ? "node " : "";
     let output;
     log.info(logname, "started...");
-    console.log(GREEN);
+    // console.log(GREEN);
+    process.stdout.write(GREEN);
     try {
       output = execSync(
         command + path.join(getLocation(hft.parentPath), hft.name),

@@ -4,7 +4,7 @@ const fs = require("fs");
 import { backend as node_backend } from "./backends/node_fs";
 import { backend as watch_backend } from "./backends/watch";
 import { getLogger, setLevel } from "./lib/logging";
-var log = getLogger("cli");
+var log = getLogger("main");
 import colors from "yoctocolors";
 import { execHooks } from "./lib/hooks";
 import { makeSiteAt } from "./lib/make_site";

@@ -4,7 +4,7 @@ var spawn = require("child_process").spawn;
 import { SimpleWebSocketServer as SWSS } from "./SimpleWebSocketServer";
 const fs = require("node:fs");
 const path = require("node:path");
-const yaml = require("js-yaml");
+// const yaml = require("js-yaml");
 import open from "open";
 import { mimeTypes } from "./mimes";
 import { createMemoryRenderer } from "./memory_render";
