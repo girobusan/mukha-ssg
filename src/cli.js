@@ -87,12 +87,12 @@ console.log(Conf.nocolor ? line : colors.blue(line));
 //
 
 if (Conf.edit_cmd) {
-  let test = checkSafeEditor(Conf.edit_cmd);
-  if (!test.good) {
-    log.error("Editor disabled.", test.msg || "By reason.");
+  let [test, msg] = checkSafeEditor(Conf.edit_cmd);
+  if (!test) {
+    log.error("Editor disabled.", msg || "By reason.");
     Conf.edit_cmd = "";
   } else {
-    test.msg && log.info(test.msg);
+    msg && log.info(msg);
   }
 }
 //

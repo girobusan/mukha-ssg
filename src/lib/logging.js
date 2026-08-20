@@ -29,11 +29,11 @@ const bwmap = {
 };
 
 const symbolmap = {
-  TRACE: " ≈ ",
-  DEBUG: " : ",
-  INFO: " · ",
-  WARN: " ! ",
-  ERROR: "!!!",
+  TRACE: "≈ ",
+  DEBUG: ": ",
+  INFO: "· ",
+  WARN: "! ",
+  ERROR: "× ",
 };
 
 const emojimap = {
@@ -56,7 +56,7 @@ prefix.reg(log);
 prefix.apply(log, {
   // template: "%l (%n)",
   format(level, name, _) {
-    return `${colormapping[level](mapping[level])} ${BW ? name + ": " : colors.dim(`${name}:`)}`;
+    return `${colormapping[level](mapping[level])}${BW ? name + ": " : colors.dim(`${name}:`)}`;
   },
 });
 //log.enableAll();
