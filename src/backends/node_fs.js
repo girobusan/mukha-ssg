@@ -91,14 +91,15 @@ export function cleanupAfter(writtenFiles, out_dir) {
   }
 
   // remove unwritten files
-  let deletedCount = 0;
+  let deletedFilesCount = 0;
+  let deletedDirsCount = 0;
   for (const filePath of files) {
     const rezpath = filePath.substring(out_dir.length).replace(/[\\]/g, "/");
     if (!writtenSet.has(rezpath)) {
       log.debug(" - Removing unknown file:", filePath);
       try {
         fs.rmSync(filePath);
-        deletedCount++;
+        deletedFilesCount++;
       } catch (e) {
         log.warn("Not deleted", filePath, e);
       }
@@ -115,7 +116,7 @@ export function cleanupAfter(writtenFiles, out_dir) {
       if (contents.length === 0) {
         log.debug(" - Removing empty dir:", dirPath);
         fs.rmdirSync(dirPath);
-        deletedCount++;
+        deletedDirsCount++;
       }
     } catch (e) {
       if (e.code !== "ENOENT") {
@@ -124,7 +125,15 @@ export function cleanupAfter(writtenFiles, out_dir) {
     }
   }
 
-  log.info(`All clean. Removed ${deletedCount} files and empty directories.`);
+  let logMsg = "All clean. ";
+  if (deletedFilesCount > 0 && deletedDirsCount === 0)
+    logMsg += `Deleted ${deletedFilesCount} file(s).`;
+  if (deletedFilesCount === 0 && deletedDirsCount > 0)
+    logMsg += `Deleted ${deletedDirsCount} directories.`;
+  if (deletedDirsCount > 0 && deletedFilesCount > 0)
+    logMsg += `Deleted ${deletedFilesCount} file(s) and ${deletedDirsCount} directories.`;
+
+  log.info(logMsg);
 }
 
 function makeMemoGetContent(p) {
