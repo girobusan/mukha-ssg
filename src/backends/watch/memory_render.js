@@ -116,7 +116,7 @@ export function createMemoryRenderer(in_dir, out_dir, cleanup, nohooks) {
         }
       }; //end writeFn
       if (!inProcess) {
-        //:TODO: redo
+        // TODO: redo
         writeCached();
         log.info("Files written.");
         !nohooks && execHooks("after", in_dir, absPath(out_dir));

@@ -119,7 +119,7 @@ export function cleanupAfter(writtenFiles, out_dir) {
       }
     } catch (e) {
       if (e.code !== "ENOENT") {
-        log.debug("Not deleted:", dirPath, e.code);
+        log.warn("Not deleted:", dirPath, e.code);
       }
     }
   }
