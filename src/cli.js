@@ -53,8 +53,6 @@ console.log(colors.blue(baner));
 console.log(colors.blue(line));
 const input_dir = path.normalize(params.values.input || "./site");
 const output_dir = path.normalize(params.values.output || "./static");
-// `before`
-if (!params.values.safe) execHooks("before", input_dir, "Before hooks");
 // load config HERE!
 let Conf;
 try {
@@ -82,6 +80,9 @@ if (Conf.edit_cmd) {
 if (params.values.timed) {
   Conf.timed = true;
 }
+
+// `before`
+if (!params.values.safe) execHooks("before", input_dir, "Before hooks");
 
 if (params.values.watch) {
   let port = +params.values.port;

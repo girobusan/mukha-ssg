@@ -31,7 +31,7 @@ function execHookList(lst, in_dir, param) {
       log.error("Can not exec", logname, e.message);
     }
     console.log(RESET);
-    log.info(logname, "finished.");
+    // log.info(logname, "finished.");
     if (output) {
       output
         .toString()

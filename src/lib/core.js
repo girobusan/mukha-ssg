@@ -187,4 +187,5 @@ function runSSG({
   });
   if (Config.js_api) saveJSAPIfiles(loggedWriteFn);
   Callback.status("done");
+  log.info("Generation done.");
 }

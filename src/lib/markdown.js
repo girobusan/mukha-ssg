@@ -1,7 +1,6 @@
 const hljs = require("highlight.js/lib/common");
 import { full as emoji } from "markdown-it-emoji";
 
-console.log("Markdown!!1");
 export const md = require("markdown-it")({
   html: true,
   langPrefix: "language-",
