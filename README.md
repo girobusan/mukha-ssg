@@ -17,9 +17,7 @@
 🌏 → [Example site, built with **Mukha**](https://girobusan.github.io/mukha-basic-site/) (sources available)  
 🌏 → Documentation (just started!): [English](https://girobusan.github.io/mukha-site/en/), [Русский](https://girobusan.github.io/mukha-site/ru)
 
-**Project is in the early stage (working beta).
-Check source code of example site for reference, documentation
-is on the way.**
+** Check source code of example site for reference.**
 
 ## Install
 
