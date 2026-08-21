@@ -2,6 +2,14 @@
   "name": "mukha-ssg",
   "version": "0.1.10",
   "description": "Minimalist static site generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com"
+  },
+  "alternativeRepository": {
+    "type": "git",
+    "url": "https://github.com/girobusan/mukha-ssg.git"
+  },
   "keywords": [
     "ssg",
     "static",
