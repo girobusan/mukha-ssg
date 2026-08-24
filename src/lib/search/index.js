@@ -72,7 +72,7 @@ export function indexAll(lst, keepExcerpts, langs_in) {
         content: stripHTML(page.html || page.content || ""),
         excerpt: stripHTML(page.meta.excerpt || ""),
       });
-    }); // adding this here doesn't work (why?)
+    });
   });
 
   //

@@ -74,18 +74,6 @@ import { posix } from "path-browserify";
     registerData: (ns, name, dt, compact) => {
       return registerData(ns, name, dt, compact);
     },
-    // registerLocalData: (path, name, dt, compact) => {
-    //   let key = path + "/" + name;
-    //   let dts = compact ? uncompact(dt) : dt;
-    //   if (localDataRqsts[key]) {
-    //     localDataRqsts[key](dts);
-    //     delete localDataRqsts[key];
-    //     return;
-    //   }
-    //   console.warn("Unrequested local dataset:", key);
-    //   if (!localData[path]) localData[path] = {};
-    //   localData[path][name] = dts;
-    // },
     relpath: (f, t) => relative(f, t),
     relTo: (t) => relative(myLocation, t),
     attachScript: (url) => {

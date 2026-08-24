@@ -274,9 +274,10 @@ export function stripHTML(str) {
   let txt = str;
 
   const rexp = [
-    [/<script[^>]*\>.*?<\/script>/gi, " "],
-    [/<style[^>]*\>.*?<\/style>/gi, " "],
-    [/<noscript[^>]*\>.*?<\/noscript>/gi, " "],
+    [/<script[^>]*\>.*?<\/script>/gis, " "],
+    [/<style[^>]*\>.*?<\/style>/gis, " "],
+    [/<noscript[^>]*\>.*?<\/noscript>/gis, " "],
+    [/<!--(.*?)-->/gis, " "],
     [/<\/?(p|br|hr|ul|ol|li|div)[^>]*>/gi, " "],
     [/<[^>]*>/gi, ""],
     [/^\s*\n+/gm, ""],

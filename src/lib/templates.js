@@ -79,25 +79,25 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         f.list_page = lst;
         return;
       }
-      let pages = rangeArray(1, Math.ceil(lst.length / onPage));
+      let page_numbers = rangeArray(1, Math.ceil(lst.length / onPage));
       // console.log("Pages:", pages.length);
-      let urls = pages.map((n, i) => {
+      let page_urls = page_numbers.map((n, i) => {
         return i == 0 ? f.file.path : addNumber(f.file.path, n);
       });
       //
-      f.page_count = pages.length;
-      f.page_links = urls;
+      f.page_count = page_numbers.length;
+      f.page_links = page_urls;
       f.page_number = 1;
       f.list_page = lst.slice(0, onPage);
       // console.log("paginated:", urls.join(", "));
-      pages.forEach((n, i) => {
+      page_numbers.forEach((n, i) => {
         if (i == 0) {
           //skip first
           return;
         } //skip 1st page
         let clone = cloneFile(f);
         clone.page_number = n;
-        clone.file.path = urls[i];
+        clone.file.path = page_urls[i];
         clone.virtual = true;
         clone.list_page = lst.slice(i * onPage, (i + 1) * onPage);
 
