@@ -369,7 +369,6 @@ export function checkSafeEditor(str) {
 }
 
 export function sanitizeFileName(str) {
-  // Удаляем пробелы в начале и конце строки
   let fileName = str.trim();
 
   fileName = fileName.replace(/\s+/g, "_");
