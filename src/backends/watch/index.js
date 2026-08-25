@@ -43,7 +43,8 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
 
   //
   const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
+    const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+    // const parsedUrl = url.parse(req.url, true);
     const requestedPath = parsedUrl.pathname;
 
     let filePath = decodeURIComponent(requestedPath).substring(basePath.length);
@@ -164,6 +165,7 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
   const closeServer = () => {
     log.info("Stopping server...");
     watcher.close().then(() => console.log("Watch stopped."));
+    wss.broadcast("close");
     wss.close();
     server.close(() => {
       log.info("Server stopped.");

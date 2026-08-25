@@ -67,9 +67,9 @@ btnND.addEventListener("click" ,
  ws.onmessage = function(event) {
     console.log("Message:", event.data);
     if(event.data==='reload') { location.reload(); }
+    if(event.data==='close') { window.close() ; }
        else{ alert( event.data );}
    };
- ws.onclose=()=>window.close();
  if(src){
  ws.onopen= ()=>{
  console.info("WebSocket connected...")
