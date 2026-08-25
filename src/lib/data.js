@@ -150,7 +150,14 @@ function runTransformTasks() {
           (ds = shorten(ds, t.input_col, t.output_col, t.short, t.long));
         break;
       case "idfy":
-        tester && (ds = idfy(ds, t.input_col, t.output_col || t.input_col));
+        tester &&
+          (ds = idfy(
+            ds,
+            t.input_col,
+            t.output_col || t.input_col,
+            null,
+            t.type,
+          ));
         break;
       case "slugify":
         tester() && (ds = slugify(ds, t.input_col, t.output_col));

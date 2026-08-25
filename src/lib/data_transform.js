@@ -39,9 +39,21 @@ function substValues(obj, substDict) {
   return obj;
 }
 
-function idfyArray(arr) {
-  const uniq = Array.from(new Set(arr));
-  const ids = uniq.map((v, i) => i + 1); // start from 1
+function idfyArray(arr, fn) {
+  let theSet = new Set();
+  let uniq = arr.filter((e) => {
+    if (!theSet.has(e)) {
+      theSet.add(e);
+      return true;
+    } else {
+      return false;
+    }
+  });
+  //
+  if (typeof fn === "function") uniq = fn(uniq);
+  //
+  const ids = uniq.map((_, i) => i + 1); // start from 1
+  //
   const pairs = ids.map((v, i) => [uniq[i], v]);
   const inv_pairs = ids.map((v, i) => [v, uniq[i]]);
 
@@ -171,9 +183,27 @@ export function shorten(tbl, input_col, short_col_name, _, long) {
   tbl.forEach((row) => (row[short_col_name] = HF(row[input_col].toString())));
   return tbl;
 }
+// type = asis | sorted | revsorted | top | down
+export function idfy(tbl, input_col, output_col, dictHandler, type = "asis") {
+  let arrayFn;
+  switch (type.trim()) {
+    case "down":
+      arrayFn = (a) => a.reverse();
+      break;
+    case "sorted":
+      arrayFn = (a) => a.sort();
+      break;
+    case "revsorted": //reverse sorted
+      arrayFn = (a) => a.sort().reverse();
+      break;
+    default:
+      arrayFn = (a) => a;
+  }
 
-export function idfy(tbl, input_col, output_col, dictHandler) {
-  const [ids, dict] = idfyArray(tbl.map((e) => e[input_col]));
+  let [ids, dict] = idfyArray(
+    tbl.map((e) => e[input_col]),
+    arrayFn,
+  );
   tbl.forEach((row, i) => {
     row[output_col] = ids[i];
   });

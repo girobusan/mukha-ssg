@@ -13,22 +13,34 @@ export function componentSingle(...args) {
 }
 
 export function componentTag() {
-  this.tags = ["component"];
-  this.parse = function(parser, nodes) {
+  this.tags = ["component", "componentWrap"];
+  this.parse = function (parser, nodes) {
+    // console.log(parser.tokens[0]);
     var tok = parser.nextToken();
+    let my_tag = tok.value;
     //
     const args = parser.parseSignature(null, true);
     parser.advanceAfterBlockEnd(tok.value);
     //
-    const body = parser.parseUntilBlocks("component", "endcomponent");
-    parser.advanceAfterBlockEnd();
+    let body = null;
+    let hasClosingTag = false;
+    // const currentPos = parser.peekToken();
+    if (my_tag !== "component") {
+      body = parser.parseUntilBlocks("endcomponent");
+      parser.advanceAfterBlockEnd();
+    }
 
     // Actually do work on block body and arguments
-    return new nodes.CallExtension(this, "run", args, [body]);
+    return new nodes.CallExtension(this, "run", args, body ? [body] : []);
     //
   };
-  this.run = function(...args) {
+  this.run = function (context, ...args) {
     // context , ...args , body
-    args.forEach((a) => console.log(a));
+    let body =
+      typeof args[args.length - 1] === "function" ? args.pop() : () => "";
+    // context = {env , ctx, blocks , exported}
+    let comp_name = args[0];
+
+    return comp_name + ":";
   };
 }
