@@ -9,12 +9,13 @@ import { findRequires, normalizeName } from "./comp_util";
 //
 // dicts
 const internal = {
-  preact: preact, //module!!
-  "preact/hooks": hooks,
-  "preact/compat": compat,
-  "htm/preact": htm,
+  preact: { module: preact }, //module!!
+  "preact/hooks": { module: hooks },
+  "preact/compat": { module: compat },
+  "htm/preact": { module: htm },
 };
 const loaded = {};
+const lookup = {};
 const assets = {};
 //
 
@@ -25,7 +26,21 @@ function myRequire(n) {
     log.error("Can not require", n);
     return;
   }
-  return M;
+  return M.module;
+}
+//
+export function findComponent(name) {
+  // find component...
+  let mname = lookup[name];
+  if (!mname) {
+    console.error("Can not find entity", name);
+    return null;
+  }
+  return loaded[mname][name];
+}
+//
+function runComponent(name, props) {
+  return findComponent(name)(props);
 }
 //
 export function initComponents(flist) {
@@ -78,9 +93,12 @@ export function initComponents(flist) {
     log.warn("Some components are not loaded:");
     log.warn(
       "can not satisfy requirements for",
-      sortTable.map((e) => e.name).join(", "),
+      sortTable
+        .map((e) => e.name)
+        .sort()
+        .join(", "),
     );
-    log.warn("Not found:", unsatisfied.join(", "));
+    log.warn("Not found:", unsatisfied.sort().join(", "));
     // if nothing is left, everything is ok (for now)
   } else {
     log.info("Components load order established.");
@@ -101,9 +119,22 @@ export function initComponents(flist) {
     let module = { exports: {} };
     //
     eval(mDict[n].src);
-    loaded[n] = module.exports;
+    loaded[n] = {
+      module: module.exports,
+      name: n,
+      exported: new Set(Object.keys(module.exports)),
+      requires: mDict[n].requires,
+    };
     log.info(n, "loaded.");
   });
+  //
+  // build lookup dictionary of exported entities
+  Object.values(loaded).reduce((a, e) => {
+    for (let E of e.exported) {
+      a[E] = e.name;
+    }
+    return a;
+  }, lookup);
   // create table for saving to client
   // !!!
 }
