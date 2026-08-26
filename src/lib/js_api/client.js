@@ -95,5 +95,11 @@ import { posix } from "path-browserify";
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
+    registerComponent: function(name, exports) {
+      // registration
+    },
+    require: function(name, callee) {
+      // for components
+    },
   };
 })();

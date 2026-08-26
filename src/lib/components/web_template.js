@@ -2,13 +2,14 @@ export function wrapForWeb(code, name) {
   return `
 (function() {
   let module = {};
-  let require = window.myRequire;
+  let require = (what)=>window.Mukha.require(what , ${name});
   let mrequire = require;
 
   ${code}
 
   window.modules[${name}] = module.exports;
   // call register function?
+  window.Mukha.registerComponent(${name} , ${module.exports})
 })()
 `;
 }
