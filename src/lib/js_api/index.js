@@ -76,6 +76,7 @@ export function saveLocalData4JS(dname, dset, dpath) {
 
 export function saveLib(pth, cnt) {
   lib.push({ path: pth, content: cnt });
+  return path.join("/_js/lib", pth);
 }
 
 export function saveJSAPIfiles(saveFn) {

@@ -2,6 +2,7 @@ const posixpath = require("path/posix");
 // const yaml = require("js-yaml");
 import { preprocessFileList } from "./preprocess";
 import { initData } from "./data";
+import { initComponents } from "./components/components";
 import { getLogger } from "./logging";
 var log = getLogger("core");
 import { saveJSAPIfiles } from "./js_api";
@@ -130,6 +131,15 @@ function runSSG({
     return f;
   });
   Data = initData(dataFiles, Data);
+  //
+  // load components
+  log.info("Components:");
+  const compPath = "components";
+  const compFiles = listSourceFiles(compPath).map((f) => {
+    f.dir = f.parentPath.substring(compPath.length);
+    return f;
+  });
+  initComponents(compFiles);
   //
   //  run preprocess
   //

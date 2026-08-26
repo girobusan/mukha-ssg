@@ -1,5 +1,4 @@
 const http = require("node:http");
-const url = require("node:url");
 var spawn = require("child_process").spawn;
 import { SimpleWebSocketServer as SWSS } from "./SimpleWebSocketServer";
 const fs = require("node:fs");
