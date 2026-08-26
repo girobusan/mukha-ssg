@@ -1,5 +1,7 @@
 const preact = require("preact");
 const hooks = require("preact/hooks");
+const htm = require("htm/preact");
+const compat = require("preact/compat");
 
 import { getLogger } from "../logging";
 var log = getLogger("comps");
@@ -9,7 +11,8 @@ import { findRequires, normalizeName } from "./comp_util";
 const internal = {
   preact: preact, //module!!
   "preact/hooks": hooks,
-  // "preact/compat": 2,
+  "preact/compat": compat,
+  "htm/preact": htm,
 };
 const loaded = {};
 const assets = {};
@@ -69,11 +72,15 @@ export function initComponents(flist) {
   log.info("Sort passes:", modulesTable.length - pass);
   // if something is left
   if (sortTable.length > 0) {
+    let unsatisfied = sortTable.reduce((a, e) => {
+      return a.concat(e.requires);
+    }, []);
     log.warn("Some components are not loaded:");
     log.warn(
       "can not satisfy requirements for",
       sortTable.map((e) => e.name).join(", "),
     );
+    log.warn("Not found:", unsatisfied.join(", "));
     // if nothing is left, everything is ok (for now)
   } else {
     log.info("Components load order established.");
@@ -97,4 +104,6 @@ export function initComponents(flist) {
     loaded[n] = module.exports;
     log.info(n, "loaded.");
   });
+  // create table for saving to client
+  // !!!
 }

@@ -25,7 +25,8 @@ export function findRequires(code) {
   return requires; // ['fs', 'path', 'http', './my-module', 'express']
 }
 
-export function normalizeName(n) {
+export function normalizeName(n, from) {
+  // path.resolve( "/" + from/module/path , n); ?
   let r = path.normalize(n); // it's always path
   // if (r.startsWith("./")) {
   //   r = r.substring(2);
