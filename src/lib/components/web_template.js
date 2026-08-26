@@ -1,26 +1,14 @@
-(function(factory, filename) {
-  // Браузер: складываем в пространство имён
+export function wrapForWeb(code, name) {
+  return `
+(function() {
   let module = {};
-  factory();
-  window.modules[filename] = module.exports;
-  //
-})(function() {
-  //module content start
+  let require = window.myRequire;
+  let mrequire = require;
 
-  function Button(props) {
-    //...code...
-  }
+  ${code}
 
-  module.exports = { Button };
-  //module content end
-});
-
-function prep(name) {
-  let module = {};
-  let require = winodw.myRequire;
-  //...
-
-  // module code as is
-
-  window.modules[name] = module.exports;
+  window.modules[${name}] = module.exports;
+  // call register function?
+})()
+`;
 }
