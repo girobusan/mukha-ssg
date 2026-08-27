@@ -77,9 +77,15 @@ function runSSG({
   const Callback = makeCallbacks(callback);
   log.info("Start generation...");
   Callback.status("start", 0);
+
   const loggedWriteFn = (p, c, pinfo) => {
     Callback.file("write", null, p, "processing");
     writeOutputFile(p, c, pinfo);
+  };
+
+  const loggedCopyFn = (f, t, pinfo) => {
+    Callback.file("copy", f, t, pinfo || "copy");
+    copyFile(f, t);
   };
 
   //
@@ -195,7 +201,7 @@ function runSSG({
     Callback.file("copy", f.src, p_to, "theme_assets");
     copyFile(f.src, p_to);
   });
-  if (Config.js_api) saveJSAPIfiles(loggedWriteFn);
+  if (Config.js_api) saveJSAPIfiles(loggedWriteFn, loggedCopyFn);
   Callback.status("done");
   log.info("Generation done.");
 }

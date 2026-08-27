@@ -8,6 +8,7 @@ const clientCode = require("../../../prebuild/js_api_client.js?raw");
 let data = [];
 let localData = [];
 let lib = [];
+let libcopy = [];
 let siteData = { version: VERSION };
 
 // function data2js(dataObj) {
@@ -75,12 +76,16 @@ export function saveLocalData4JS(dname, dset, dpath) {
   localData.push(prepAnyData(dpath, dname, dset));
 }
 
+export function copyToLib(srcpath, targetpath) {
+  libcopy.push([srcpath, path.join("/_js/lib/", targetpath)]);
+}
+
 export function saveLib(pth, cnt) {
   lib.push({ path: pth, content: cnt });
   return path.join("/_js/lib", pth);
 }
 
-export function saveJSAPIfiles(saveFn) {
+export function saveJSAPIfiles(saveFn, copyFn) {
   // global datasets
   data.forEach((d) =>
     saveFn(
@@ -97,6 +102,10 @@ export function saveJSAPIfiles(saveFn) {
   lib.forEach((l) => {
     let lp = path.join("/_js/lib", l.path);
     saveFn(lp, l.content);
+  });
+
+  libcopy.forEach((c) => {
+    typeof copyFn === "function" && copyFn(c[0], c[1], "js_api");
   });
   // client
 

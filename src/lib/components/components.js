@@ -138,7 +138,7 @@ export function initComponents(flist) {
     // environment
     // for the newborn
     let require = myRequire;
-    let console = { log: (...args) => log.info(n + ":", ...args) };
+    let console = { log: log.info, error: log.error, info: log.info };
     let module = { exports: {} };
     //
     eval(mDict[n].src);
@@ -149,7 +149,7 @@ export function initComponents(flist) {
       exported: new Set(Object.keys(module.exports)),
       requires: mDict[n].requires,
       order: ord, //queue.indexOf(n)
-      src: mDict[n].src,
+      // src: mDict[n].src,
     });
     ord++;
     log.info(n, "loaded.");
@@ -173,7 +173,7 @@ export function initComponents(flist) {
     Array.from(loaded.values()).map((e) => {
       let row = Object.assign({}, e);
       delete row.exports; // remove code
-      delete row.src;
+      // delete row.src;
       row.exported = Array.from(row.exported); // set->array
       return row;
     }),
@@ -181,7 +181,7 @@ export function initComponents(flist) {
   saveGlobalData4JS("components", "functions", lookup);
   // save modules
   loaded.values().forEach((v) => {
-    const src = wrapForWeb(v.src, v.name);
+    const src = wrapForWeb(mDict[v.name].src, v.name);
     let name = v.name;
     saveLib("modules/" + name, src);
   });

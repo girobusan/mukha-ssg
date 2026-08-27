@@ -4,7 +4,7 @@
 // async load of local datasets
 import { posix } from "path-browserify";
 
-(function() {
+(function () {
   if (window.Mukha) {
     return;
   } // dont
@@ -31,6 +31,7 @@ import { posix } from "path-browserify";
 
   var requested = {};
   var DataStore = {};
+  var Components = {};
   function dataFilePath(ns, name) {
     if (ns.startsWith("/")) {
       //local
@@ -48,6 +49,9 @@ import { posix } from "path-browserify";
     DataStore[ns][dname] = compacted ? uncompact(dt) : dt;
     if (requested[dpath]) requested[dpath](DataStore[ns][dname]);
   }
+  function registerComp(name, module) {}
+  function mukhaRequire(name) {}
+
   function getData(name, ns) {
     if (DataStore[ns] && DataStore[ns][name]) {
       return Promise.resolve(DataStore[ns][name]);
@@ -87,23 +91,23 @@ import { posix } from "path-browserify";
       });
     },
     permalink: myLocation,
-    getLocalData: function(name, ns) {
+    getLocalData: function (name, ns) {
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function(name, ns) {
+    getData: function (name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
-    retrieveLib: function(lpath) {
+    retrieveLib: function (lpath) {
       return window.Mukha.attachScript(
         relative(myLocation, posix.join("/_js/lib", lpath)),
       );
     },
-    registerComponent: function(name, exports) {
+    registerComponent: function (name, exports) {
       // registration
     },
-    require: function(name, callee) {
+    require: function (name, callee) {
       // for components
     },
   };
