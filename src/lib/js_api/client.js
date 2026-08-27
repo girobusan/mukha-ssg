@@ -95,6 +95,11 @@ import { posix } from "path-browserify";
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
+    retrieveLib: function(lpath) {
+      return window.Mukha.attachScript(
+        relative(myLocation, posix.join("/_js/lib", lpath)),
+      );
+    },
     registerComponent: function(name, exports) {
       // registration
     },

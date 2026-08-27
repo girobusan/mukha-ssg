@@ -1,3 +1,7 @@
+import { saveGlobalData4JS, saveLib } from "../js_api";
+import { wrapForWeb } from "./web_template.js";
+import { stringify2JSON } from "../util";
+//
 const preact = require("preact");
 const hooks = require("preact/hooks");
 const htm = require("htm/preact");
@@ -136,20 +140,21 @@ export function initComponents(flist) {
     let require = myRequire;
     let console = { log: (...args) => log.info(n + ":", ...args) };
     let module = { exports: {} };
-    console.log(n);
-    //
     //
     eval(mDict[n].src);
     loaded.set(n, {
       exports: module.exports,
+      js: true,
       name: n,
       exported: new Set(Object.keys(module.exports)),
       requires: mDict[n].requires,
       order: ord, //queue.indexOf(n)
+      src: mDict[n].src,
     });
     ord++;
     log.info(n, "loaded.");
   });
+  // console.log(loaded);
   //
   // build lookup dictionary of exported entities
   loaded.values().reduce((a, e) => {
@@ -160,6 +165,24 @@ export function initComponents(flist) {
   }, lookup);
   // modulesTable = null;
   // mDict = null; // helps gc? NO
-  // create table for saving to client
+  // create table and save for client
   // !!!
+  saveGlobalData4JS(
+    "components",
+    "modules",
+    Array.from(loaded.values()).map((e) => {
+      let row = Object.assign({}, e);
+      delete row.exports; // remove code
+      delete row.src;
+      row.exported = Array.from(row.exported); // set->array
+      return row;
+    }),
+  );
+  saveGlobalData4JS("components", "functions", lookup);
+  // save modules
+  loaded.values().forEach((v) => {
+    const src = wrapForWeb(v.src, v.name);
+    let name = v.name;
+    saveLib("modules/" + name, src);
+  });
 }

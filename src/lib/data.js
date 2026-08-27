@@ -15,7 +15,7 @@ import {
   sort,
   unpivot,
 } from "./data_transform";
-import { saveData4JS, saveGlobalData4JS } from "./js_api";
+import { saveGlobalData4JS } from "./js_api";
 import { getLogger } from "./logging";
 var log = getLogger("data");
 //

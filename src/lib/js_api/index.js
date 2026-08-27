@@ -27,7 +27,7 @@ function anyData2js(ns, dname, dt, compacted) {
 }
 
 function prepAnyData(ns, dname, dt) {
-  let r = testTable(dt, ns);
+  let r = testTable(dt, ns + "." + dname);
   r.ns = ns;
   r.name = dname;
   // console.log(r);
@@ -47,7 +47,7 @@ function testTable(d, dataid) {
 }
 
 // deprecated!
-export function saveData4JS(ns_and_name, dset) {
+export function _saveData4JS(ns_and_name, dset) {
   if (!dset) {
     log.warn("Attempt to save empty dataset:", ns_and_name);
     return;
@@ -59,6 +59,7 @@ export function saveData4JS(ns_and_name, dset) {
   data.push(prepAnyData(ns, dname, dset));
 }
 export function saveGlobalData4JS(ns, dname, dset) {
+  // console.log("saving", ns + "." + dname);
   if (!dset) {
     log.warn("Attempt to save empty dataset:", ns, dname);
     return;
