@@ -105,7 +105,10 @@ export function saveJSAPIfiles(saveFn, copyFn) {
   });
 
   libcopy.forEach((c) => {
-    typeof copyFn === "function" && copyFn(c[0], c[1], "js_api");
+    if (typeof copyFn === "function") {
+      console.log("do copy", c);
+      copyFn(c[0], c[1], "js_api");
+    }
   });
   // client
 

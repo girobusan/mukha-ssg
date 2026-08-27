@@ -1,4 +1,5 @@
-import { saveGlobalData4JS, saveLib } from "../js_api";
+const path = require("node:path").posix;
+import { copyToLib, saveGlobalData4JS, saveLib } from "../js_api";
 import { wrapForWeb } from "./web_template.js";
 import { stringify2JSON } from "../util";
 //
@@ -21,7 +22,7 @@ const internal = new Map([
 ]);
 const loaded = new Map();
 const lookup = {};
-const assets = {};
+const assets = [];
 //
 
 function myRequire(n) {
@@ -70,12 +71,18 @@ export function initComponents(flist) {
   let sortTable = [];
   //
   flist.forEach((f) => {
+    if (!f.name.match(/\.(m|c)?js$/)) {
+      assets.push(f);
+      log.info("Asset:", f.name);
+      return;
+    }
     let mSrc = f.getContent();
-    log.info("Module", f.name);
+    let modname = f.dir ? f.dir.substring(1) + "/" + f.name : f.name;
+    log.info("Module", modname);
     let mReq = findRequires(mSrc).map((e) => normalizeName(e));
     if (mReq) log.info("requires:", mReq);
-    modulesTable.push({ name: f.name, requires: mReq, src: mSrc });
-    sortTable.push({ name: f.name, requires: mReq });
+    modulesTable.push({ name: modname, requires: mReq, src: mSrc });
+    sortTable.push({ name: modname, requires: mReq });
   });
   // we know all requirements...
   // sort modules from top to bottom
@@ -183,6 +190,9 @@ export function initComponents(flist) {
   loaded.values().forEach((v) => {
     const src = wrapForWeb(mDict[v.name].src, v.name);
     let name = v.name;
-    saveLib("modules/" + name, src);
+    saveLib("components/" + name, src);
+  });
+  assets.forEach((a) => {
+    copyToLib(a.src, "components/" + path.join(a.dir, a.name));
   });
 }
