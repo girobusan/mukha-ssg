@@ -1,4 +1,7 @@
-import { findFunction } from "./components.js";
+import { findFunction, renderComponentToString } from "./components.js";
+import { getLogger } from "../logging.js";
+import { renderString } from "nunjucks";
+var log = getLogger("comps-tpl");
 //
 
 export function componentTag() {
@@ -32,11 +35,21 @@ export function componentTag() {
     const props = args[0];
     if (body) props.body = body();
     const FN = findFunction(comp_name);
-    if (FN) {
-      return FN(props);
-    } else {
+    if (!FN) {
+      log.warn("No component found:", comp_name);
+      return props.body || "";
+    }
+    let r = "";
+    try {
+      r = renderComponentToString(comp_name, props);
+      // console.log("Element rendered to string", comp_name);
+    } catch (e) {
+      // console.log(e);
+      log.debug(e);
+      log.info("Can not create element, trying raw output", comp_name);
+      r = FN(props);
     }
 
-    return comp_name + " is not here";
+    return r;
   };
 }

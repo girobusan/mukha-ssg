@@ -9,20 +9,20 @@ var log = getLogger("comps");
 import { findRequires, normalizeName } from "./comp_util";
 //
 // dicts
-const internal = {
-  preact: { exports: preact }, //module!!
-  "preact/hooks": { exports: hooks },
-  "preact/compat": { exports: compat },
-  "htm/preact": { exports: htm },
-};
-const loaded = {};
+const internal = new Map([
+  ["preact", { exports: preact }], //module!!
+  ["preact/hooks", { exports: hooks }],
+  ["preact/compat", { exports: compat }],
+  ["htm/preact", { exports: htm }],
+]);
+const loaded = new Map();
 const lookup = {};
 const assets = {};
 //
 
 function myRequire(n) {
   let name = normalizeName(n);
-  let M = internal[name] || loaded[name];
+  let M = internal.get(name) || loaded.get(name);
   if (!M) {
     log.error("Can not require", n);
     return;
@@ -37,16 +37,22 @@ export function findFunction(fn_name) {
     console.error("Can not find any module with exported", fn_name);
     return null;
   }
-  if (!loaded[module_name]) {
+  let M = loaded.get(module_name);
+  if (!M) {
     console.error("Can not find module", module_name, "with exported", fn_name);
     return null;
   }
-  return loaded[module_name].exports[fn_name];
+  return M.exports[fn_name];
 }
 //
 export function createElement(fn_name, props) {
+  const MUKHA_STRING_RENDER = true;
   let fn = findFunction(fn_name); // returns content of module.exports[fn_name]
   return preact.h(fn, props);
+}
+
+export function renderComponentToString(fn_name, props) {
+  return renderToString(createElement(fn_name, props));
 }
 //
 export function initComponents(flist) {
@@ -72,7 +78,7 @@ export function initComponents(flist) {
   // max passes:
   let pass = modulesTable.length;
   // queue of names
-  let queue = Object.keys(internal);
+  let queue = Array.from(internal.keys());
   //
   while (sortTable.length * pass > 0) {
     // console.log("pass", pass, sortTable.length);
@@ -90,7 +96,7 @@ export function initComponents(flist) {
     // remove "loaded"
     sortTable = sortTable.filter((e) => e.requires.length != 0);
   }
-  log.info("Sort passes:", modulesTable.length - pass);
+  // log.info("Sort passes:", modulesTable.length - pass);
   // if something is left
   if (sortTable.length > 0) {
     let not_found = sortTable.reduce((a, e) => {
@@ -107,40 +113,53 @@ export function initComponents(flist) {
     log.warn("Not found:", not_found.sort().join(", "));
     // if nothing is left, everything is ok (for now)
   } else {
-    log.info("Components load order established.");
+    log.info(
+      "Components load order established. Passes:",
+      modulesTable.length - pass,
+    );
     // log.info(queue.join(", "));
   }
+  sortTable = null;
 
   // load modules in order
+  // and save information
+  // //
   let mDict = modulesTable.reduce((a, e) => {
     a[e.name] = e;
     return a;
-  }, {});
+  }, {}); //
+  let ord = 1;
   queue.forEach((n) => {
-    if (internal[n]) return;
+    if (internal.has(n)) return;
     // environment
     // for the newborn
     let require = myRequire;
     let console = { log: (...args) => log.info(n + ":", ...args) };
     let module = { exports: {} };
+    console.log(n);
+    //
     //
     eval(mDict[n].src);
-    loaded[n] = {
+    loaded.set(n, {
       exports: module.exports,
       name: n,
       exported: new Set(Object.keys(module.exports)),
       requires: mDict[n].requires,
-    };
+      order: ord, //queue.indexOf(n)
+    });
+    ord++;
     log.info(n, "loaded.");
   });
   //
   // build lookup dictionary of exported entities
-  Object.values(loaded).reduce((a, e) => {
+  loaded.values().reduce((a, e) => {
     for (let E of e.exported) {
       a[E] = e.name;
     }
     return a;
   }, lookup);
+  // modulesTable = null;
+  // mDict = null; // helps gc? NO
   // create table for saving to client
   // !!!
 }
