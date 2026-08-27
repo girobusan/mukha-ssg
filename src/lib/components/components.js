@@ -77,7 +77,7 @@ export function initComponents(flist) {
       return;
     }
     let mSrc = f.getContent();
-    let modname = f.dir ? f.dir.substring(1) + "/" + f.name : f.name;
+    let modname = f.dir ? f.dir.replace(/^\//, "") + "/" + f.name : f.name;
     log.info("Module", modname);
     let mReq = findRequires(mSrc).map((e) => normalizeName(e));
     if (mReq) log.info("requires:", mReq);
