@@ -27,10 +27,10 @@ function myRequire(n) {
     log.error("Can not require", n);
     return;
   }
-  return M.module;
+  return M.exports;
 }
 //
-export function findModuleForFn(fn_name) {
+export function findFunction(fn_name) {
   // find component...
   let module_name = lookup[fn_name]; // name of the module
   if (!module_name) {
@@ -45,7 +45,7 @@ export function findModuleForFn(fn_name) {
 }
 //
 export function createElement(fn_name, props) {
-  let fn = findModuleForFn(fn_name); // returns content of module.exports[fn_name]
+  let fn = findFunction(fn_name); // returns content of module.exports[fn_name]
   return preact.h(fn, props);
 }
 //

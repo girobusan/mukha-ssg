@@ -1,16 +1,5 @@
-// single tag
-// {{ component Name prop1=2, prop2=3 }}
+import { findFunction } from "./components.js";
 //
-// double tag
-// {% component Name pop=1 %}
-// ...
-// {% endcomponent %}
-//
-//
-//
-export function componentSingle(...args) {
-  args.forEach((a) => console.log("Single tag", a));
-}
 
 export function componentTag() {
   this.tags = ["component", "componentWrap"];
@@ -25,8 +14,8 @@ export function componentTag() {
     let body = null;
     let hasClosingTag = false;
     // const currentPos = parser.peekToken();
-    if (my_tag !== "component") {
-      body = parser.parseUntilBlocks("endcomponent");
+    if (my_tag === "componentWrap") {
+      body = parser.parseUntilBlocks("endcomponentWrap");
       parser.advanceAfterBlockEnd();
     }
 
@@ -36,11 +25,18 @@ export function componentTag() {
   };
   this.run = function (context, ...args) {
     // context , ...args , body
-    let body =
-      typeof args[args.length - 1] === "function" ? args.pop() : () => "";
+    const body =
+      typeof args[args.length - 1] === "function" ? args.pop() : null;
     // context = {env , ctx, blocks , exported}
-    let comp_name = args[0];
+    const comp_name = args.shift();
+    const props = args[0];
+    if (body) props.body = body();
+    const FN = findFunction(comp_name);
+    if (FN) {
+      return FN(props);
+    } else {
+    }
 
-    return comp_name + ":";
+    return comp_name + " is not here";
   };
 }
