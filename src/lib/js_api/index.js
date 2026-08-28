@@ -8,7 +8,7 @@ const clientCode = require("../../../prebuild/js_api_client.js?raw");
 let data = [];
 let localData = [];
 let lib = [];
-let libcopy = [];
+let lib_to_copy = [];
 let siteData = { version: VERSION };
 
 // function data2js(dataObj) {
@@ -77,7 +77,7 @@ export function saveLocalData4JS(dname, dset, dpath) {
 }
 
 export function copyToLib(srcpath, targetpath) {
-  libcopy.push([srcpath, path.join("/_js/lib/", targetpath)]);
+  lib_to_copy.push([srcpath, path.join("/_js/lib/", targetpath)]);
 }
 
 export function saveLib(pth, cnt) {
@@ -104,7 +104,7 @@ export function saveJSAPIfiles(saveFn, copyFn) {
     saveFn(lp, l.content);
   });
 
-  libcopy.forEach((c) => {
+  lib_to_copy.forEach((c) => {
     if (typeof copyFn === "function") {
       // console.log("do copy", c);
       copyFn(c[0], c[1], "js_api");

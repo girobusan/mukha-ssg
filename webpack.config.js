@@ -63,11 +63,26 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
     watch: argv.mode != "production",
+    resolve: {
+      alias: {
+        // Force all modules to evaluate against the exact same root installation
+        preact: path.resolve(__dirname, "node_modules/preact"),
+        "preact/hooks": path.resolve(__dirname, "node_modules/preact/hooks"),
+
+        // If you are using preact/compat to act as React, ensure these are aliased too
+        react: path.resolve(__dirname, "node_modules/preact/compat"),
+        "react-dom": path.resolve(__dirname, "node_modules/preact/compat"),
+        "react/jsx-runtime": path.resolve(
+          __dirname,
+          "node_modules/preact/jsx-runtime",
+        ),
+      },
+    },
     optimization: {
       minimize: argv.mode === "production" ? true : false,
       minimizer: [

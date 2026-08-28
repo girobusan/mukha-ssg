@@ -2,22 +2,30 @@ const path = require("node:path").posix;
 import { copyToLib, saveGlobalData4JS, saveLib } from "../js_api";
 import { wrapForWeb } from "./web_template.js";
 import { stringify2JSON } from "../util";
+import { getLogger } from "../logging";
+var log = getLogger("comps");
+import { findRequires, normalizeName } from "./comp_util";
 //
 const preact = require("preact");
 const hooks = require("preact/hooks");
 const htm = require("htm/preact");
-const compat = require("preact/compat");
-import { renderToString } from "preact-render-to-string";
+preact.__test = "zopa";
+const { useState } = hooks;
+const { h, render } = preact;
+const { html } = htm;
+import { renderToString, renderToStaticMarkup } from "preact-render-to-string";
 
-import { getLogger } from "../logging";
-var log = getLogger("comps");
-import { findRequires, normalizeName } from "./comp_util";
 //
 // dicts
 const internal = new Map([
   ["preact", { exports: preact }], //module!!
   ["preact/hooks", { exports: hooks }],
-  ["preact/compat", { exports: compat }],
+  // [
+  //   "preact/hooks/bad",
+  //   {
+  //     exports: {
+  //       useState: (s) => [s, (s) => s],
+  //     }/ ],
   ["htm/preact", { exports: htm }],
 ]);
 const loaded = new Map();
@@ -26,12 +34,16 @@ const assets = [];
 //
 
 function myRequire(n) {
+  console.log("My require:", n);
   let name = normalizeName(n);
   let M = internal.get(name) || loaded.get(name);
   if (!M) {
     log.error("Can not require", n);
     return;
   }
+  console.log(M);
+
+  console.log("Return", Object.keys(M.exports));
   return M.exports;
 }
 //
@@ -47,17 +59,34 @@ export function findFunction(fn_name) {
     console.error("Can not find module", module_name, "with exported", fn_name);
     return null;
   }
-  return M.exports[fn_name];
+  const r = M.exports[fn_name];
+  // console.log("found function?" , )
+  return r;
 }
 //
 export function createElement(fn_name, props) {
   const MUKHA_STRING_RENDER = true;
   let fn = findFunction(fn_name); // returns content of module.exports[fn_name]
-  return preact.h(fn, props);
+  try {
+    return preact.h(fn, props);
+  } catch (e) {
+    log.error("Can not create element: ", e);
+  }
 }
 
 export function renderComponentToString(fn_name, props) {
-  return renderToString(createElement(fn_name, props));
+  // let __H = 1;
+  let element = preact.h(findFunction(fn_name), props);
+
+  try {
+    console.log("element", element);
+
+    return renderToString(element, { __H: true });
+  } catch (e) {
+    log.error("Can not render to string:", e);
+
+    // Проверяем состояние перед ошибк
+  }
 }
 //
 export function initComponents(flist) {
@@ -147,8 +176,15 @@ export function initComponents(flist) {
     let require = myRequire;
     let console = { log: log.info, error: log.error, info: log.info };
     let module = { exports: {} };
+    let testGlobal;
     //
+    console.log("before eval");
     eval(mDict[n].src);
+    // console.log(
+    //   "__H",
+    //   typeof globalThis.__H === "undefined" ? "__H undefined" : "__H defined",
+    // );
+    // console.log("Test global", testGlobal === globalThis);
     loaded.set(n, {
       exports: module.exports,
       js: true,
