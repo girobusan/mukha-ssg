@@ -46,7 +46,7 @@
   "devDependencies": {
     "acorn": "^8.18.0",
     "acorn-walk": "^8.3.5",
-    "babel-core": "^6.26.3",
+    "babel-core": "^4.7.16",
     "babel-loader": "^10.1.1",
     "babel-plugin-htm": "^3.0.0",
     "chokidar": "^3.6.0",
