@@ -14,7 +14,8 @@ const htm = require("htm/preact");
 const { useState } = hooks;
 const { h, render } = preact;
 const { html } = htm;
-
+// cache
+const rehydrationCache = new Map();
 //
 // dicts
 //
@@ -23,6 +24,7 @@ const internal = new Map([
   ["preact", { exports: preact }], //module!!
   ["preact/hooks", { exports: hooks }],
   ["htm/preact", { exports: htm }],
+  ["do-not-hydrate", false], //
 ]);
 // user modules
 const loaded = new Map();
@@ -34,6 +36,9 @@ const lookup = new Map();
 //
 
 function myRequire(n) {
+  if (n === "do-not-hydrate") {
+    return;
+  }
   let name = normalizeName(n);
   let M = internal.get(name) || loaded.get(name);
   if (!M) {
@@ -59,6 +64,20 @@ export function findFunction(fn_name) {
   // console.log("found function?" , )
   return r;
 }
+
+export function isRehydrated(fn_name) {
+  const cached = rehydrationCache.get(fn_name);
+  if (cached) return cached;
+  let result = true;
+  //
+  let module_name = lookup.get(fn_name);
+  let module = loaded.get(module_name);
+  if (module.requires.indexOf("do-not-hydrate") != -1) {
+    result = false;
+  } // name of the module
+  rehydrationCache.set(fn_name, result);
+  return result;
+}
 //
 export function createElement(fn_name, props) {
   const MUKHA_STRING_RENDER = true;
@@ -70,32 +89,42 @@ export function createElement(fn_name, props) {
   }
 }
 
-export function renderComponentToString(fn_name, props) {
+export function renderComponentToString(fn_name, props = {}) {
   // let __H = 1;
   let element = preact.h(findFunction(fn_name), props);
   let props_to_save;
   let props_id = "";
   let tag_open = "";
   let tag_close = "";
-  // let html = "";
+  let html = "";
+  //
 
-  try {
-    // save props
-    // wrap
+  if (isRehydrated(fn_name)) {
+    const props_map = new Map([
+      ["data-component-name", fn_name],
+      ["data-do-rehydrate", true],
+    ]);
+    // save props if any
     if (props && Object.keys(props).length > 0) {
-      props_to_save = stringify2JSON(props);
+      props_to_save = stringify2JSON(props); // TODO: save smallish props in place?
       props_id = longHash(props_to_save);
-      saveGlobalData4JS("components/props", props_id, props_to_save);
-    }
-    tag_open = `<span class="Mukha_hydration_required" data-hydrate="true" 
-data-component-name="${fn_name}" 
-data-props-id="${props_id}">`;
+      props_map.set("data-props-id", props_id);
+      saveGlobalData4JS("components/props", props_id, props);
+    } // end saving props
+    const prop_string = Array.from(props_map.entries())
+      .map((p) => `${p[0]}="${p[1]}"`)
+      .join(" ");
+    tag_open = `<span class="Mukha_hydration_required" ${prop_string}>`;
     tag_close = "</span>";
-
-    return tag_open + renderToString(element, { __H: true }) + tag_close;
+  } // end rehydration specific code
+  //
+  try {
+    html = renderToString(element);
   } catch (e) {
     log.error("Can not render to string:", e);
+    html = e;
   }
+  return tag_open + html + tag_close;
 }
 //
 // Components initialization
@@ -110,13 +139,15 @@ export function initComponents(flist) {
   loaded.clear();
   assets.clear();
   lookup.clear(); //  = {};
+  // clear cache
+  rehydrationCache.clear();
   //test
   const modulesTable = [];
   let sortTable = [];
   //
   flist.forEach((f) => {
     let modname = f.dir ? f.dir.replace(/^\//, "") + "/" + f.name : f.name;
-    if (!f.name.match(/\.(m|c)?js$/)) {
+    if (!f.name.match(/\.(m|c)?js$/i)) {
       assets.set(modname, {
         path: modname,
         src_path: f.src,
@@ -255,4 +286,10 @@ export function initComponents(flist) {
   assets.forEach((a) => {
     a.site_path = copyToLib(a.src_path, "components/" + a.path);
   });
+  // save assets info
+  saveGlobalData4JS(
+    "components",
+    "assets",
+    Object.fromEntries(assets.entries()),
+  );
 }

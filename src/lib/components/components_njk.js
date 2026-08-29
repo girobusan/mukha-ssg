@@ -1,4 +1,5 @@
 import { findFunction, renderComponentToString } from "./components.js";
+import { runtime } from "nunjucks";
 import { getLogger } from "../logging.js";
 import { renderString } from "nunjucks";
 var log = getLogger("comps-tpl");
@@ -6,7 +7,7 @@ var log = getLogger("comps-tpl");
 
 export function componentTag() {
   this.tags = ["component", "componentWrap"];
-  this.parse = function (parser, nodes) {
+  this.parse = function(parser, nodes) {
     // console.log(parser.tokens[0]);
     var tok = parser.nextToken();
     let my_tag = tok.value;
@@ -26,8 +27,9 @@ export function componentTag() {
     return new nodes.CallExtension(this, "run", args, body ? [body] : []);
     //
   };
-  this.run = function (context, ...args) {
+  this.run = function(context, ...args) {
     // context , ...args , body
+    let r;
     const body =
       typeof args[args.length - 1] === "function" ? args.pop() : null;
     // context = {env , ctx, blocks , exported}
@@ -37,19 +39,17 @@ export function componentTag() {
     const FN = findFunction(comp_name);
     if (!FN) {
       log.warn("No component found:", comp_name);
-      return props.body || "";
+      r = props.body || "";
     }
-    let r = "";
     try {
       r = renderComponentToString(comp_name, props);
-      // console.log("Element rendered to string", comp_name);
     } catch (e) {
       // console.log(e);
       log.debug(e);
-      log.info("Can not create element, trying raw output", comp_name);
-      r = FN(props);
+      log.info("Can not create element:", comp_name);
+      r = FN(props.body);
     }
 
-    return r;
+    return new runtime.SafeString(r);
   };
 }
