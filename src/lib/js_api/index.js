@@ -77,7 +77,9 @@ export function saveLocalData4JS(dname, dset, dpath) {
 }
 
 export function copyToLib(srcpath, targetpath) {
-  lib_to_copy.push([srcpath, path.join("/_js/lib/", targetpath)]);
+  let save_path = path.join("/_js/lib/", targetpath);
+  lib_to_copy.push([srcpath, save_path]);
+  return save_path;
 }
 
 export function saveLib(pth, cnt) {
