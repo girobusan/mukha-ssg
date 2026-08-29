@@ -3,6 +3,11 @@
 // ns system (system data; search)
 // async load of local datasets
 import { posix } from "path-browserify";
+import {
+  webRequire,
+  webInitComponents,
+  registerComponent,
+} from "./components_client";
 
 (function () {
   if (window.Mukha) {
@@ -49,9 +54,6 @@ import { posix } from "path-browserify";
     DataStore[ns][dname] = compacted ? uncompact(dt) : dt;
     if (requested[dpath]) requested[dpath](DataStore[ns][dname]);
   }
-  function registerComp(name, module) {}
-  function mukhaRequire(name) {}
-
   function getData(name, ns) {
     if (DataStore[ns] && DataStore[ns][name]) {
       return Promise.resolve(DataStore[ns][name]);
@@ -59,6 +61,27 @@ import { posix } from "path-browserify";
     let dataP = dataFilePath(ns, name);
     return requestData(dataP);
   }
+
+  function attachResource(url, tg = "script") {
+    console.info("jsapi: Attaching:", url);
+    const tag = tg === "script" ? "script" : "link";
+    const attr = tg === "script" ? "src" : "href";
+    const rel = tg === "script" ? false : "stylesheet";
+
+    return new Promise((res, rej) => {
+      let st = document.createElement(tag);
+      rel && st.setAttribute("rel", rel);
+      if ("onload" in st) {
+        st.addEventListener("load", res);
+        st.addEventListener("error", rej);
+      } else {
+        res(true);
+      }
+      document.body.appendChild(st);
+      st.setAttribute(attr, url);
+    });
+  }
+
   function requestData(jspath) {
     return new Promise((res, rej) => {
       let sc = document.createElement("script");
@@ -72,7 +95,9 @@ import { posix } from "path-browserify";
       };
     });
   }
-
+  //
+  //
+  // API
   window.Mukha = {
     // :TODO: redo
     registerData: (ns, name, dt, compact) => {
@@ -80,16 +105,7 @@ import { posix } from "path-browserify";
     },
     relpath: (f, t) => relative(f, t),
     relTo: (t) => relative(myLocation, t),
-    attachScript: (url) => {
-      console.info("jsapi: Attaching:", url);
-      return new Promise((res, rej) => {
-        let st = document.createElement("script");
-        st.addEventListener("load", res);
-        st.addEventListener("error", rej);
-        document.body.appendChild(st);
-        st.setAttribute("src", url);
-      });
-    },
+    attachScript: attachResource,
     permalink: myLocation,
     getLocalData: function (name, ns) {
       let nspace = ns ? ns : myLocation;
@@ -111,4 +127,9 @@ import { posix } from "path-browserify";
       // for components
     },
   };
+  //
+  // init components
+  console.info("last touches...");
+  webInitComponents(getData, attachResource, relative, myLocation);
+  //
 })();
