@@ -29,9 +29,13 @@ export async function webInitComponents(
     return { element: e };
   });
   if (elements.length === 0) return; // ?
+  //
   // populate system module
+  //
   internal.get("mukha-system").set("location", currentLoc);
+  //
   // load  all know modules data
+  //
   const modules = await getGlobalDataFn("modules", "components");
   console.log(modules);
   const functions = await getGlobalDataFn("functions", "components");
@@ -39,6 +43,7 @@ export async function webInitComponents(
   //
   // gather dehydrated
   // component functions
+  //
   const components = elements.map((e) => e.dataset["component-name"]);
 
   // load props

@@ -4,7 +4,7 @@ const path = require("path");
 var sha256 = require("js-sha256").sha256;
 var md5 = require("js-md5");
 // const Base62Str = require("./base62.js").default;
-import { Base62Str } from "./base62.js";
+import { Base62Str } from "./util/base62.js";
 const base62 = Base62Str.createInstance();
 
 // const bytes = [24, 122, 200, 0];
@@ -13,27 +13,27 @@ const base62 = Base62Str.createInstance();
 // console.log("Little endian:", bytesToUint32(bytes, true));  // 13165432
 
 // start... → util/base
-export function isLittleEndianHost() {
-  const buffer = new ArrayBuffer(4);
-  new Uint32Array(buffer)[0] = 0x01020304;
-  return new Uint8Array(buffer)[0] === 0x04;
-}
+// export function isLittleEndianHost() {
+//   const buffer = new ArrayBuffer(4);
+//   new Uint32Array(buffer)[0] = 0x01020304;
+//   return new Uint8Array(buffer)[0] === 0x04;
+// }
 
-export function bytesToUint32(bytes, littleEndian = false) {
-  if (bytes.length !== 4) {
-    throw new Error("4 bytes required");
-  }
-
-  const buffer = new ArrayBuffer(4);
-  const view = new DataView(buffer);
-
-  bytes.forEach((b, i) => {
-    new Uint8Array(buffer)[i] = b;
-  });
-
-  return view.getUint32(0, littleEndian);
-}
-
+// export function bytesToUint32(bytes, littleEndian = false) {
+//   if (bytes.length !== 4) {
+//     throw new Error("4 bytes required");
+//   }
+//
+//   const buffer = new ArrayBuffer(4);
+//   const view = new DataView(buffer);
+//
+//   bytes.forEach((b, i) => {
+//     new Uint8Array(buffer)[i] = b;
+//   });
+//
+//   return view.getUint32(0, littleEndian);
+// }
+// -> base
 export const simpleMemo = (f) => {
   let memo = {};
   return (a) => {

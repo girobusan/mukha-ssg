@@ -1,4 +1,4 @@
-import { unPara } from "./util";
+import { unPara } from "./util/text";
 
 export function tableFilter(data, columns, titles) {
   if (data.length === 0) {

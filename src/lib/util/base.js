@@ -26,7 +26,21 @@ export const simpleMemo = (f) => {
     return memo[a];
   };
 };
-
+/**
+ * Creates an array of numbers in a range starting from the given start value.
+ *
+ * @param {number} start - The starting value (inclusive).
+ * @param {number} length - The number of elements to generate.
+ * @returns {number[]} An array of numbers from `start` to `start + length - 1`.
+ *
+ * @example
+ * // Returns [5, 6, 7, 8, 9]
+ * rangeArray(5, 5);
+ *
+ * @example
+ * // Returns [0, 1, 2]
+ * rangeArray(0, 3);
+ */
 export function rangeArray(start, length) {
   let r = [];
   for (let i = 0; i < length; i++) {

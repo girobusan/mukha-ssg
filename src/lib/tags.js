@@ -1,5 +1,6 @@
 import path from "path";
-import { translit, makePageLikeObj } from "./util";
+import { makePageLikeObj } from "./util/mukha_util.js";
+import { translit } from "./util/text";
 import { makeLister } from "./list";
 
 import { getLogger } from "./logging";

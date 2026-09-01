@@ -4,15 +4,12 @@ import { makeLister, LISTER_TAG } from "./list";
 import { tableFilter, shorten, un_para, add_para } from "./template_additions";
 import { componentTag, componentSingle } from "./components/components_njk";
 import { md2html } from "./md_parser";
-import {
-  addNumber,
-  cloneFile,
-  niceDate,
-  rangeArray,
-  getFirstPara,
-  unPara,
-  retrieveByStr,
-} from "./util";
+//
+import { rangeArray } from "./util/base";
+import { retrieveByStr } from "./util/data_util";
+import { cloneFile } from "./util/mukha_util";
+import { addNumber, niceDate, getFirstPara } from "./util/text";
+//
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
 import { indexAll } from "./search";

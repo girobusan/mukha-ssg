@@ -1,6 +1,6 @@
 const Papa = require("papaparse");
 const yaml = require("js-yaml");
-import { retrieveByStr, writeObjByKeys, isTable } from "./util";
+import { retrieveByStr, writeObjByKeys, isTable } from "./util/data_util";
 import {
   generateFromCol,
   generateFromRows,

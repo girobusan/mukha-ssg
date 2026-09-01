@@ -98,7 +98,6 @@ export function createElement(fn_name, props) {
 }
 
 const componentIDs = {};
-
 export function renderComponentToString(fn_name, props = {}, context) {
   // let __H = 1;
   let element = preact.h(findFunction(fn_name), props);
@@ -121,7 +120,7 @@ export function renderComponentToString(fn_name, props = {}, context) {
     ]);
     // save props if any
     if (props && Object.keys(props).length > 0) {
-      props_to_save = stringify2JSON(props); // TODO: save smallish props in place?
+      props_to_save = stringify2JSON(props);
       if (props_to_save.length < 120) {
         props_map.set("data-props-encoded", encodeURI(props_to_save));
       } else {

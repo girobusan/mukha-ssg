@@ -7,6 +7,27 @@ export function lowercaseKeys(obj) {
 }
 
 // will deprecate///
+/**
+ * Writes a value to a nested object using an array of keys.
+ * If the key path doesn't exist, intermediate objects are created.
+ *
+ * @param {Object} obj - The target object to write to.
+ * @param {string[]} keysArray - An array of keys representing the path to the parent object.
+ * @param {string} [name] - The final key to set the value on. If omitted, the last key from keysArray is used.
+ * @param {*} value - The value to assign.
+ * @returns {Object} The original object with the new value assigned.
+ * @throws {string} Throws an error if both name and keysArray are empty.
+ *
+ * @example
+ * const obj = {};
+ * writeObjByKeys(obj, ['user', 'profile'], 'age', 25);
+ * // obj becomes { user: { profile: { age: 25 } } }
+ *
+ * @example
+ * const obj = {};
+ * writeObjByKeys(obj, ['user', 'profile', 'age'], null, 25);
+ * // obj becomes { user: { profile: { age: 25 } } }
+ */
 export function writeObjByKeys(obj, keysArray, name, value) {
   if (!name && keysArray.length == 0) {
     throw "Can not write to object";
@@ -18,14 +39,40 @@ export function writeObjByKeys(obj, keysArray, name, value) {
     obj[name] = value;
     return obj;
   }
-  let cursor = keysArray.reduce((a, e) => {
+  // let cursor =
+  keysArray.reduce((a, e) => {
     if (!a[e]) {
       a[e] = {};
     }
     return a[e];
-  }, obj);
-  cursor[name] = value;
+  }, obj)[name] = value;
+  // cursor[name] = value;
   return obj;
+}
+/**
+ * Writes a value to a nested object using a dot-separated string path.
+ * This is a convenience wrapper around writeObjByKeys.
+ *
+ * @param {string} key - The final key to set the value on.
+ * @param {*} val - The value to assign.
+ * @param {string} str - The dot-separated path string (e.g., "user.profile.age").
+ * @param {Object} obj - The target object to write to.
+ * @param {string} [sep="."] - The separator used in the path string.
+ * @returns {Object} The original object with the new value assigned.
+ *
+ * @example
+ * const obj = {};
+ * writeByString('age', 25, 'user.profile.age', obj);
+ * // obj becomes { user: { profile: { age: 25 } } }
+ *
+ * @example
+ * const obj = {};
+ * writeByString('name', 'John', 'user/profile/name', obj, '/');
+ * // obj becomes { user: { profile: { name: 'John' } } }
+ */
+export function writeByString(key, val, str, obj, sep = ".") {
+  const keys_array = str.split(sep).filter(Boolean);
+  return writeObjByKeys(obj, keys_array, key, val);
 }
 
 /**

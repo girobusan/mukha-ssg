@@ -1,7 +1,7 @@
 import { findFunction, renderComponentToString } from "./components.js";
 import { runtime } from "nunjucks";
 import { getLogger } from "../logging.js";
-import { renderString } from "nunjucks";
+// import { renderString } from "nunjucks";
 var log = getLogger("comps-tpl");
 //
 
@@ -11,15 +11,16 @@ export function componentTag() {
     // console.log(parser.tokens[0]);
     var tok = parser.nextToken();
     let my_tag = tok.value;
+    let my_closing_tag = "end" + tok.value;
     //
     const args = parser.parseSignature(null, true);
     parser.advanceAfterBlockEnd(tok.value);
     //
     let body = null;
-    let hasClosingTag = false;
+    // let hasClosingTag = false;
     // const currentPos = parser.peekToken();
     if (my_tag === "componentWrap") {
-      body = parser.parseUntilBlocks("endcomponentWrap");
+      body = parser.parseUntilBlocks(my_closing_tag);
       parser.advanceAfterBlockEnd();
     }
 
