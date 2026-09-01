@@ -12,6 +12,7 @@ const base62 = Base62Str.createInstance();
 // console.log("Big endian:", bytesToUint32(bytes));           // 413944704
 // console.log("Little endian:", bytesToUint32(bytes, true));  // 13165432
 
+// start... → util/base
 export function isLittleEndianHost() {
   const buffer = new ArrayBuffer(4);
   new Uint32Array(buffer)[0] = 0x01020304;
@@ -41,6 +42,9 @@ export const simpleMemo = (f) => {
   };
 };
 
+// ↑ → util/base
+
+//->util/hashes
 const makeHashFn = (HF) => (t) =>
   String.fromCharCode.apply(null, base62.encode(HF(t)));
 
@@ -73,6 +77,7 @@ export function lowercaseKeys(obj) {
   return r;
 }
 
+//→ mukha
 export function makePageLikeObj(meta, content, path, html, prehtml) {
   return {
     meta: meta,
@@ -86,14 +91,14 @@ export function makePageLikeObj(meta, content, path, html, prehtml) {
     },
   };
 }
-
+//→ mukha
 export function cloneFile(f) {
   let clone = Object.assign({}, f);
   clone.meta = Object.assign({}, f.meta);
   clone.file = Object.assign({}, f.file);
   return clone;
 }
-
+//→ base
 export function rangeArray(start, length) {
   let r = [];
   for (let i = 0; i < length; i++) {
@@ -101,7 +106,7 @@ export function rangeArray(start, length) {
   }
   return r;
 }
-
+//→ text
 export function niceDate(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -112,6 +117,7 @@ export function niceDate(date) {
   return `${y}.${m}.${d} ${h}:${min}`;
 }
 
+//→ text
 export function fitToWidth(text, width) {
   width = width || 80;
   const words = text.split(" ");
@@ -248,7 +254,7 @@ export function uncompactTable(tobj) {
  * @param {Object} obj Object to stringiry
  * @returns {String} JSON representation
  */
-
+// → base
 export function stringify2JSON(obj) {
   const seen = new WeakSet();
   return JSON.stringify(obj, (_, value) => {
@@ -269,6 +275,7 @@ export function absPath(p) {
   return path.isAbsolute(p) ? p : path.resolve(process.cwd(), p);
 }
 
+//-> text
 export function stripHTML(str) {
   if (!str || str.length <= 2) return str;
   let txt = str;
@@ -292,13 +299,14 @@ export function stripHTML(str) {
   return txt.trim();
 }
 
+//→ text
 const cleanNonTextTags = (text) => {
   return text
     .replace(/<img\b[^>]*\/?>/gi, "")
     .replace(/<!--[\s\S]*?-->/gs, "")
     .replace(/<(picture|video|audio|small|big)\b[^>]*>[\s\S]*?<\/\1>/gis, "");
 };
-
+//→ text
 export function unPara(html) {
   return html
     .trim()

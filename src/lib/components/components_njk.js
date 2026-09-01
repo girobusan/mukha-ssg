@@ -7,7 +7,7 @@ var log = getLogger("comps-tpl");
 
 export function componentTag() {
   this.tags = ["component", "componentWrap"];
-  this.parse = function(parser, nodes) {
+  this.parse = function (parser, nodes) {
     // console.log(parser.tokens[0]);
     var tok = parser.nextToken();
     let my_tag = tok.value;
@@ -27,8 +27,10 @@ export function componentTag() {
     return new nodes.CallExtension(this, "run", args, body ? [body] : []);
     //
   };
-  this.run = function(context, ...args) {
+  this.run = function (context, ...args) {
     // context , ...args , body
+    console.log("context", Object.keys(context));
+    console.log("context.ctx", Object.keys(context.ctx));
     let r;
     const body =
       typeof args[args.length - 1] === "function" ? args.pop() : null;
@@ -42,7 +44,7 @@ export function componentTag() {
       r = props.body || "";
     }
     try {
-      r = renderComponentToString(comp_name, props);
+      r = renderComponentToString(comp_name, props, context);
     } catch (e) {
       // console.log(e);
       log.debug(e);

@@ -1,19 +1,26 @@
 const path = require("node:path").posix;
 import { renderToString } from "preact-render-to-string";
-import { copyToLib, saveGlobalData4JS, saveLib } from "../js_api";
+import {
+  copyToLib,
+  saveGlobalData4JS,
+  saveLocalData4JS,
+  saveLib,
+} from "../js_api";
 import { findRequires, normalizeName } from "./comp_util";
 import { wrapForWeb } from "./web_template.js";
-import { longHash, stringify2JSON } from "../util.js";
+import { stringify2JSON } from "../util/base.js";
+import { longHash, shortHash } from "../util/hashes.js";
 import { getLogger } from "../logging";
 var log = getLogger("comps");
 //
 const preact = require("preact");
 const hooks = require("preact/hooks");
 const htm = require("htm/preact");
-//
+/*
 const { useState } = hooks;
 const { h, render } = preact;
 const { html } = htm;
+*/
 // cache
 const rehydrationCache = new Map();
 //
@@ -25,6 +32,7 @@ const internal = new Map([
   ["preact/hooks", { exports: hooks }],
   ["htm/preact", { exports: htm }],
   ["do-not-hydrate", false], //
+  ["mukha-system", { exports: { static_render: true, test: "nope" } }],
 ]);
 // user modules
 const loaded = new Map();
@@ -89,7 +97,9 @@ export function createElement(fn_name, props) {
   }
 }
 
-export function renderComponentToString(fn_name, props = {}) {
+const componentIDs = {};
+
+export function renderComponentToString(fn_name, props = {}, context) {
   // let __H = 1;
   let element = preact.h(findFunction(fn_name), props);
   let props_to_save;
@@ -98,18 +108,28 @@ export function renderComponentToString(fn_name, props = {}) {
   let tag_close = "";
   let html = "";
   //
+  const c_page = context.ctx.page.permalinkl;
+  // increment
+  const component_id = componentIDs[c_page] ? componentIDs[c_page] + 1 : 1;
+  componentIDs[c_page] = component_id;
 
   if (isRehydrated(fn_name)) {
     const props_map = new Map([
       ["data-component-name", fn_name],
+      ["data-component-id", component_id],
       ["data-do-rehydrate", true],
     ]);
     // save props if any
     if (props && Object.keys(props).length > 0) {
       props_to_save = stringify2JSON(props); // TODO: save smallish props in place?
-      props_id = longHash(props_to_save);
-      props_map.set("data-props-id", props_id);
-      saveGlobalData4JS("components/props", props_id, props);
+      if (props_to_save.length < 120) {
+        props_map.set("data-props-encoded", encodeURI(props_to_save));
+      } else {
+        props_id = longHash(props_to_save);
+        props_map.set("data-props-id", props_id);
+
+        saveGlobalData4JS("components/props", props_id, props);
+      }
     } // end saving props
     const prop_string = Array.from(props_map.entries())
       .map((p) => `${p[0]}="${p[1]}"`)
@@ -119,6 +139,21 @@ export function renderComponentToString(fn_name, props = {}) {
   } // end rehydration specific code
   //
   try {
+    // console.log("render to string NOW", component_id);
+    // tanpering with system module
+    let sys = internal.get("mukha-system").exports;
+    sys.page = context.ctx.page; // won't be awailable on frontentd ANYway
+    sys.cid = component_id; // won't work on frontend THIS way
+    sys.location = context.ctx.page.permalink;
+    sys.data = {
+      // save local data for this particular component
+      saveLocal: (name, data) => {
+        saveLocalData4JS(name, data, sys.location + "/" + "c" + component_id);
+      },
+      // loadLocal: (name)=>{ } is not available here
+      // load global data
+    };
+    //
     html = renderToString(element);
   } catch (e) {
     log.error("Can not render to string:", e);

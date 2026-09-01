@@ -6,7 +6,7 @@ import { posix } from "path-browserify";
 import {
   webRequire,
   webInitComponents,
-  registerComponent,
+  registerModule,
 } from "./components_client";
 
 (function () {
@@ -120,8 +120,9 @@ import {
         relative(myLocation, posix.join("/_js/lib", lpath)),
       );
     },
-    registerComponent: function (name, exports) {
+    registerModule: function (name, exports) {
       // registration
+      registerModule(name, exports);
     },
     require: function (name, callee) {
       // for components
@@ -129,7 +130,6 @@ import {
   };
   //
   // init components
-  console.info("last touches...");
   webInitComponents(getData, attachResource, relative, myLocation);
   //
 })();

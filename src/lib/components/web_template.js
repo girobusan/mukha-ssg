@@ -9,7 +9,7 @@ export function wrapForWeb(code, name) {
 
 // remove later:
   window.modules["${name}"] = module.exports;
-  window.Mukha.registerComponent("${name}" , module.exports)
+  window.Mukha.registerModule("${name}" , module.exports)
 })()
 `;
 }
