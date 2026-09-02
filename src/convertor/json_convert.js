@@ -1,5 +1,5 @@
 import { dump } from "js-yaml";
-import { fitToWidth } from "../lib/util.js";
+import { fitToWidth } from "../lib/util/text.js";
 console.log(fitToWidth("Fit to width"));
 
 function boolList(list, obj) {

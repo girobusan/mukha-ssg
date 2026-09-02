@@ -10,7 +10,7 @@ import { createMemoryRenderer } from "./memory_render";
 import { startWatcher } from "./watcher";
 import { delFile, newPage, newDir } from "./fileops";
 import { getLogger } from "../../lib/logging";
-import { absPath } from "../../lib/util";
+import { absPath } from "../../lib/util/path_sys.js";
 import { injectWS } from "./injects";
 var log = getLogger("devserver");
 
@@ -89,11 +89,11 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       res.end(
         extname === ".html"
           ? injectWS(
-              fileObj.content,
-              myPort,
-              config.edit_cmd ? fileObj.page.file.src : false,
-              config.edit_cmd ? fileObj.page.file.path : false,
-            )
+            fileObj.content,
+            myPort,
+            config.edit_cmd ? fileObj.page.file.src : false,
+            config.edit_cmd ? fileObj.page.file.path : false,
+          )
           : fileObj.content,
       );
     }

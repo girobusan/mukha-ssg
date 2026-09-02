@@ -1,5 +1,6 @@
-import { translit, shortHash, longHash } from "./util";
-import { makePageLikeObj } from "./util";
+import { shortHash, longHash } from "./util/hashes";
+import { translit } from "./util/text";
+import { makePageLikeObj } from "./util/mukha";
 import { numSort, strSort } from "./list";
 import { getLogger } from "./logging";
 var log = getLogger("data-transform");

@@ -8,7 +8,7 @@ var log = getLogger("main");
 import colors from "yoctocolors";
 import { execHooks } from "./lib/hooks";
 import { makeSiteAt } from "./lib/make_site";
-import { checkSafeEditor } from "./lib/util";
+import { checkSafeEditor } from "./lib/util/mukha";
 
 const yaml = require("js-yaml");
 //
@@ -18,6 +18,7 @@ process.on("uncaughtException", (error) => {
 });
 //
 // parse input params
+//
 
 const options = {
   input: { type: "string", short: "i" },
@@ -86,6 +87,7 @@ console.log(Conf.nocolor ? baner : colors.blue(baner));
 console.log(Conf.nocolor ? line : colors.blue(line));
 //
 
+console.log("yey");
 if (Conf.edit_cmd) {
   let [test, msg] = checkSafeEditor(Conf.edit_cmd);
   if (!test) {
@@ -99,7 +101,6 @@ if (Conf.edit_cmd) {
 
 // `before`
 if (!params.values.safe) execHooks("before", input_dir, "Before hooks");
-
 if (params.values.watch) {
   let port = +params.values.port;
   port = !Number.isNaN(port) && (port > 1024 || port == 0) ? port : 4242;

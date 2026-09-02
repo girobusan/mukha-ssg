@@ -1,9 +1,10 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-import { niceDate, absPath } from "../../lib/util";
+import { niceDate } from "../../lib/util/text.js";
 import { getLogger } from "../../lib/logging";
-import { sanitizeFileName } from "../../lib/util";
+import { absPath } from "../../lib/util/path_sys.js";
+import { sanitizeFileName } from "../../lib/util/mukha.js";
 var log = getLogger("file ops");
 
 export function delFile(fp, in_dir) {

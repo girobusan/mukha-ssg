@@ -1,4 +1,5 @@
-import { isTable, compactTable, stringify2JSON } from "../util";
+import { isTable, compactTable } from "../util/data";
+import { stringify2JSON } from "../util/base";
 import { getLogger } from "../logging";
 var log = getLogger("js API");
 var path = require("path").posix;

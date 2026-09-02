@@ -9,7 +9,7 @@
  + IMAGE           
 */
 
-import { lowercaseKeys } from "./util/data_util";
+import { lowercaseKeys } from "./util/data";
 import { md } from "./markdown";
 
 function media(type, src, in_attrs) {

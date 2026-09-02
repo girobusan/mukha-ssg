@@ -7,14 +7,14 @@ const internal = new Map([
   ["preact/hooks", { exports: hooks, order: 0 }],
   ["htm/preact", { exports: htm, order: 0 }],
   ["mukha-system", { exports: { static_render: false } }],
-  ["do-not-hydrate", { exports: { msg: "How did you get here?" }, order: 256 }], //
+  ["do-not-hydrate", { exports: { msg: "How did you get here?" }, order: 0 }], //
 ]);
 
 const loaded = new Set();
 
-export function webRequire(n) {}
+export function webRequire(n) { }
 
-export function registerModule(c) {}
+export function registerModule(c) { }
 
 export async function webInitComponents(
   getGlobalDataFn,
@@ -32,19 +32,25 @@ export async function webInitComponents(
   //
   // populate system module
   //
-  internal.get("mukha-system").set("location", currentLoc);
+  internal.get("mukha-system")["location"] = currentLoc;
   //
   // load  all know modules data
   //
   const modules = await getGlobalDataFn("modules", "components");
+  const modDict = modules.reduce((a, e) => {
+    a[e.name] = e;
+    return a;
+  }, {});
   console.log(modules);
   const functions = await getGlobalDataFn("functions", "components");
   const assets = await getGlobalDataFn("assets", "components");
   //
   // gather dehydrated
   // component functions
-  //
-  const components = elements.map((e) => e.dataset["component-name"]);
+  // dataset
+  const components = elements.map((e) => {
+    return e.element.dataset.componentName;
+  });
 
   // load props
   //
@@ -73,13 +79,21 @@ export async function webInitComponents(
   );
   // gather deps
   while (true) {
-    let startSize = userModulesSet.size();
+    let startSize = userModulesSet.size;
     for (let M of userModulesSet) {
+      if (internal.has(M)) break;
       // add all deps of M to set
+      const req = modDict[M].requires || [];
+      console.log(M, "needs", req);
+
+      req.forEach((e) => userModulesSet.add(e));
       //
     }
+    console.log("size after:", userModulesSet.size);
+
     if (userModulesSet.size === startSize) break;
   }
+  console.log("Load for this page", userModulesSet);
   // hydrate
   //
 }
