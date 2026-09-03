@@ -9,7 +9,7 @@ import {
   registerModule,
 } from "./components_client";
 
-(function () {
+(function() {
   if (window.Mukha) {
     return;
   } // dont
@@ -99,7 +99,7 @@ import {
   //
   // API
   window.Mukha = {
-    // :TODO: redo
+    // :TODO: redo?
     registerData: (ns, name, dt, compact) => {
       return registerData(ns, name, dt, compact);
     },
@@ -107,24 +107,24 @@ import {
     relTo: (t) => relative(myLocation, t),
     attachScript: attachResource,
     permalink: myLocation,
-    getLocalData: function (name, ns) {
+    getLocalData: function(name, ns) {
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function (name, ns) {
+    getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
-    retrieveLib: function (lpath) {
+    retrieveLib: function(lpath) {
       return window.Mukha.attachScript(
         relative(myLocation, posix.join("/_js/lib", lpath)),
       );
     },
-    registerModule: function (name, exports) {
+    registerModule: function(name, exports) {
       // registration
       registerModule(name, exports);
     },
-    require: function (name, callee) {
+    require: function(name, callee) {
       // for components
     },
   };

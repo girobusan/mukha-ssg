@@ -56,12 +56,12 @@ const commonSettings = {
   },
 };
 
-module.exports = function (_, argv) {
+module.exports = function(_, argv) {
   // let builddir = argv.mode == "production" ? "prebuild" : "";
-  let builddir = "prebuild";
+  let builddir = "src/lib/js_api/prebuild";
 
   const browserPart = {
-    watch: false, //argv.mode != "production",
+    watch: argv.mode != "production",
     resolve: {
       alias: {
         // Force all modules to evaluate against the exact same root installation

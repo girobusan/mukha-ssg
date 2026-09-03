@@ -26,7 +26,14 @@ export async function webInitComponents(
   const elements = Array.from(
     document.querySelectorAll(".Mukha_hydration_required"),
   ).map((e) => {
-    return { element: e };
+    return {
+      element: e,
+      component: e.dataset.componentName,
+      cid: e.dataset.componentId,
+      propsEnc: e.dataset.propsEncoded,
+      propsID: e.dataset.propsId,
+      props: {},
+    };
   });
   if (elements.length === 0) {
     console.info("No components used.");
@@ -51,52 +58,54 @@ export async function webInitComponents(
   // gather dehydrated
   // component functions
   // dataset
-  const components = elements.map((e) => {
-    return e.element.dataset.componentName;
-  });
 
   // load props
   //
-  const props = new Map(); // pid || enc => object
-  elements.forEach((el) => {
-    const pid = el.element.dataset["props-id"];
-    const enc = el.element.dataset["props-encoded"];
-    if (!pid && !enc) {
-      return; // no props at all?
+  elements.forEach((e) => {
+    if (e.propsEnc) {
+      e.props = JSON.parse(decodeURI(e.propsEnc));
     }
-    enc && props.set(enc, JSON.parse(decodeURI(enc)));
-    pid && props.set(pid, getGlobalDataFn(pid, "component/props"));
+    if (e.propsID) {
+      e.props = getGlobalDataFn(e.propsID, "component/props");
+    }
   });
-  await Promise.all(props.values());
+  await Promise.all(elements.map((e) => e.props));
 
   // load components and requirements
   // which modules do we have to load first
   const userModulesSet = new Set(
-    components
+    elements
       .map((e) => {
-        const M = functions[e];
-        if (!M) console.log("Module for component not found:", e);
+        const M = functions[e.component];
+        if (!M) console.log("Module for component not found:", e.component);
         return M;
       })
       .filter((f) => f),
   );
   // gather deps
-  while (true) {
-    let startSize = userModulesSet.size;
+  let previousSize;
+  let iter = 1024; // Max iteration count
+  do {
+    previousSize = userModulesSet.size;
     for (let M of userModulesSet) {
-      if (internal.has(M)) break;
+      if (internal.has(M)) continue;
       // add all deps of M to set
       const req = modDict[M].requires || [];
       console.log(M, "needs", req);
 
-      req.forEach((e) => userModulesSet.add(e));
+      req.forEach((dep) => userModulesSet.add(dep));
       //
     }
+    iter--;
+    iter === 0 && console.error("Iteration count exceed, giving up.");
     console.log("size after:", userModulesSet.size);
+  } while (userModulesSet.size !== previousSize && iter > 0);
+  //
+  let ordered = Array.from(userModulesSet)
+    .filter((e) => internal.has(e))
+    .sort((a, b) => modDict[a].order - modDict[b].order);
 
-    if (userModulesSet.size === startSize) break;
-  }
-  console.log("Load for this page", userModulesSet);
+  console.log("Load for this page", ordered);
   // hydrate
   //
 }
