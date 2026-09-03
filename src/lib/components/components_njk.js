@@ -34,11 +34,13 @@ export function componentTag() {
     console.log("context.ctx", Object.keys(context.ctx));
     let r;
     const body =
+      // last arguments, if it is function
       typeof args[args.length - 1] === "function" ? args.pop() : null;
-    // context = {env , ctx, blocks , exported}
+    // first positional argument
     const comp_name = args.shift();
-    // const props = args[0] || {};
+    // argument with special property
     const props = args.filter((e) => e.__keywords).shift() || {};
+    // other positional arguments?
     if (props.__keywords) {
       delete props.__keywords;
     }
