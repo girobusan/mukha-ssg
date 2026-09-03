@@ -97,9 +97,9 @@ export async function webInitComponents(
       //
     }
     iter--;
-    iter === 0 && console.error("Iteration count exceed, giving up.");
+    iter === 0 && console.error("Iteration count exceed");
     console.log("size after:", userModulesSet.size);
-  } while (userModulesSet.size !== previousSize && iter > 0);
+  } while (userModulesSet.size !== previousSize); // && iter > 0);
   //
   let ordered = Array.from(userModulesSet)
     .filter((e) => internal.has(e))
