@@ -63,7 +63,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function (_, argv) {
+module.exports = function(_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -109,7 +109,7 @@ module.exports = function (_, argv) {
     devtool: argv.mode != "production" ? "inline-source-map" : false,
 
     output: {
-      //   filename: '[name].js',
+      filename: "[name].js",
       path: path.resolve(__dirname, builddir, ""),
     },
 
@@ -166,6 +166,7 @@ module.exports = function (_, argv) {
     output: {
       filename: "[name].js",
       path: path.resolve(__dirname, builddir, ""),
+      // path: path.resolve(__dirname, "dist", ""),
     },
 
     plugins: [

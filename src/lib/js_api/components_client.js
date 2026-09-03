@@ -22,13 +22,16 @@ export async function webInitComponents(
   relative,
   currentLoc,
 ) {
-  console.info("Checking for web components...");
+  console.info("Checking for components...");
   const elements = Array.from(
     document.querySelectorAll(".Mukha_hydration_required"),
   ).map((e) => {
     return { element: e };
   });
-  if (elements.length === 0) return; // ?
+  if (elements.length === 0) {
+    console.info("No components used.");
+    return;
+  }
   //
   // populate system module
   //
