@@ -7,7 +7,7 @@ var log = getLogger("comps-tpl");
 
 export function componentTag() {
   this.tags = ["component", "componentWrap"];
-  this.parse = function (parser, nodes) {
+  this.parse = function(parser, nodes) {
     // console.log(parser.tokens[0]);
     var tok = parser.nextToken();
     let my_tag = tok.value;
@@ -28,7 +28,7 @@ export function componentTag() {
     return new nodes.CallExtension(this, "run", args, body ? [body] : []);
     //
   };
-  this.run = function (context, ...args) {
+  this.run = function(context, ...args) {
     // context , ...args , body
     console.log("context", Object.keys(context));
     console.log("context.ctx", Object.keys(context.ctx));
@@ -37,7 +37,11 @@ export function componentTag() {
       typeof args[args.length - 1] === "function" ? args.pop() : null;
     // context = {env , ctx, blocks , exported}
     const comp_name = args.shift();
-    const props = args[0];
+    // const props = args[0] || {};
+    const props = args.filter((e) => e.__keywords).shift() || {};
+    if (props.__keywords) {
+      delete props.__keywords;
+    }
     if (body) props.body = body();
     const FN = findFunction(comp_name);
     if (!FN) {
