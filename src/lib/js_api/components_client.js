@@ -10,9 +10,22 @@ const internal = new Map([
   ["do-not-hydrate", { exports: { msg: "How did you get here?" }, order: 0 }], //
 ]);
 
-const loaded = new Set();
+const loaded = new Map();
+const assets = new Map();
 
-export function webRequire(n) { }
+export function webRequire(n) {
+  // is regular module
+  let M = internal.get(n) || loaded.get(n);
+  if (M) {
+    return M.exports;
+  }
+  M = assets.get(n);
+  if (!M) {
+    console.error("Module not loaded:", n);
+    return null;
+  }
+  //load asset
+}
 
 export function registerModule(c) { }
 
@@ -91,7 +104,7 @@ export async function webInitComponents(
       if (internal.has(M)) continue;
       // add all deps of M to set
       const req = modDict[M].requires || [];
-      console.log(M, "needs", req);
+      // console.log(M, "needs", req);
 
       req.forEach((dep) => userModulesSet.add(dep));
       //
@@ -101,12 +114,14 @@ export async function webInitComponents(
       console.error("Max iteration count exceed.");
       break;
     }
-    console.log("size after:", userModulesSet.size);
   } while (userModulesSet.size !== previousSize); // && iter > 0);
   //
   let ordered = Array.from(userModulesSet)
-    .filter((e) => internal.has(e))
-    .sort((a, b) => modDict[a].order - modDict[b].order);
+    .filter((e) => !internal.has(e))
+    .sort((a, b) => {
+      console.log(a);
+      return modDict[a].order - modDict[b].order;
+    });
 
   console.log("Load for this page", ordered);
   // hydrate

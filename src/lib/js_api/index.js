@@ -4,7 +4,7 @@ import { getLogger } from "../logging";
 var log = getLogger("js API");
 var path = require("path").posix;
 
-const clientCode = require("./prebuild/js_api_client.js");
+const clientCode = require("./prebuild/js_api_client.js?raw");
 
 let data = [];
 let localData = [];

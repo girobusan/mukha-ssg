@@ -1,4 +1,5 @@
 const path = require("node:path").posix;
+const vm = require("node:vm");
 import { renderToString } from "preact-render-to-string";
 import {
   copyToLib,
@@ -265,17 +266,24 @@ export function initComponents(flist) {
     .forEach((n) => {
       // environment
       // for the newborn
-      let require = myRequire;
-      let console = { log: log.info, error: log.error, info: log.info };
-      let module = { exports: {} };
+      let env = {
+        require: myRequire,
+        console: { log: log.info, error: log.error, info: log.info },
+        module: { exports: {} },
+      };
+
       //
-      eval(tmp_modules_dict[n].src); // TODO: use vm here
+      try {
+        vm.runInContext(tmp_modules_dict[n].src, vm.createContext(env));
+      } catch (e) {
+        log.error("Can not load module", e);
+      }
       //
       loaded.set(n, {
-        exports: module.exports,
+        exports: env.module.exports,
         js: true,
         name: n,
-        exported: new Set(Object.keys(module.exports)),
+        exported: new Set(Object.keys(env.module.exports)),
         requires: tmp_modules_dict[n].requires,
         order: ord, //queue.indexOf(n)
         // src: mDict[n].src,
