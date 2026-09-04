@@ -275,21 +275,22 @@ export function initComponents(flist) {
       //
       try {
         vm.runInContext(tmp_modules_dict[n].src, vm.createContext(env));
+
+        loaded.set(n, {
+          exports: env.module.exports,
+          js: true,
+          name: n,
+          exported: new Set(Object.keys(env.module.exports)),
+          requires: tmp_modules_dict[n].requires,
+          order: ord, //queue.indexOf(n)
+          // src: mDict[n].src,
+        });
+        log.info(n, "loaded.");
       } catch (e) {
-        log.error("Can not load module", e);
+        log.error("Can not load module", n, e);
       }
       //
-      loaded.set(n, {
-        exports: env.module.exports,
-        js: true,
-        name: n,
-        exported: new Set(Object.keys(env.module.exports)),
-        requires: tmp_modules_dict[n].requires,
-        order: ord, //queue.indexOf(n)
-        // src: mDict[n].src,
-      });
       ord++;
-      log.info(n, "loaded.");
     });
   // console.log(loaded);
   //

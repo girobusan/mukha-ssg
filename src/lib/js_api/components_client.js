@@ -27,7 +27,24 @@ export function webRequire(n) {
   //load asset
 }
 
-export function registerModule(c) { }
+let moduleEvts = {};
+function loadModule(n) {
+  if (!moduleEvts[n]) moduleEvts[n] = [];
+  //
+  return new Promise((res, rej) => {
+    moduleEvts[n].push(res);
+    window.Mukha.retrieveLib("components/" + n).catch((e) => rej(e));
+  });
+}
+
+export function registerModule(name, exports) {
+  console.log("Register module", name);
+  if (moduleEvts[name]) {
+    moduleEvts[name].forEach((e) => {
+      e(exports);
+    });
+  }
+}
 
 export async function webInitComponents(
   getGlobalDataFn,
@@ -124,6 +141,11 @@ export async function webInitComponents(
     });
 
   console.log("Load for this page", ordered);
+  // actually, load
+  await Promise.all(ordered.map((e) => loadModule(e)))
+    .then((r) => console.log("loaded all", r))
+    .catch((e) => console.log("not loaded at all", e));
+
   // hydrate
   //
 }

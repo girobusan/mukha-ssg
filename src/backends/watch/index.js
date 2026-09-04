@@ -15,7 +15,7 @@ import { injectWS } from "./injects";
 var log = getLogger("devserver");
 
 const basePath = "";
-const watchPaths = ["config", "assets", "src", "data"];
+const watchPaths = ["config", "assets", "src", "data", "components"];
 //
 function safePath(baseDir, requestedPath, absolute = true) {
   const absoluteRequested = path.resolve(baseDir, requestedPath);
@@ -89,11 +89,11 @@ function createServer(port, in_dir, out_dir, config, cleanup) {
       res.end(
         extname === ".html"
           ? injectWS(
-            fileObj.content,
-            myPort,
-            config.edit_cmd ? fileObj.page.file.src : false,
-            config.edit_cmd ? fileObj.page.file.path : false,
-          )
+              fileObj.content,
+              myPort,
+              config.edit_cmd ? fileObj.page.file.src : false,
+              config.edit_cmd ? fileObj.page.file.path : false,
+            )
           : fileObj.content,
       );
     }
