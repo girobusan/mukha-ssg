@@ -2,6 +2,8 @@ const preact = require("preact");
 const hooks = require("preact/hooks");
 const htm = require("htm/preact");
 
+// const MAPI = window.Mukha;
+
 const internal = new Map([
   ["preact", { exports: preact, order: 0 }], //module!!
   ["preact/hooks", { exports: hooks, order: 0 }],
@@ -38,17 +40,21 @@ function loadModule(n) {
 }
 
 export function registerModule(name, exports) {
-  console.log("Register module", name);
+  console.log("Registering module", name);
+  loaded.set(name, { exports: exports });
   if (moduleEvts[name]) {
-    moduleEvts[name].forEach((e) => {
-      e(exports);
+    moduleEvts[name].forEach((evt) => {
+      evt(exports);
     });
+  } else {
+    console.log("No notifications sent");
   }
 }
 
 export async function webInitComponents(
   getGlobalDataFn,
   attachResourceFn,
+  retrieveLibFn,
   relative,
   currentLoc,
 ) {

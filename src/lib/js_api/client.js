@@ -82,6 +82,10 @@ import {
     });
   }
 
+  function retrieveLib(lpath) {
+    return attachResource(relative(myLocation, posix.join("/_js/lib", lpath)));
+  }
+
   function requestData(jspath) {
     return new Promise((res, rej) => {
       let sc = document.createElement("script");
@@ -100,13 +104,11 @@ import {
   // API
   window.Mukha = {
     // :TODO: redo?
-    registerData: (ns, name, dt, compact) => {
-      return registerData(ns, name, dt, compact);
-    },
-    relpath: (f, t) => relative(f, t),
+    permalink: myLocation,
+    registerData: registerData,
+    relpath: relative,
     relTo: (t) => relative(myLocation, t),
     attachScript: attachResource,
-    permalink: myLocation,
     getLocalData: function (name, ns) {
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
@@ -115,23 +117,12 @@ import {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
-    retrieveLib: function (lpath) {
-      return window.Mukha.attachScript(
-        relative(myLocation, posix.join("/_js/lib", lpath)),
-      );
-    },
-    registerModule: function (name, exports) {
-      console.log("register module called", module, exports);
-      // registration
-      registerModule(name, exports);
-    },
-    require: function (name, callee) {
-      // for components
-      return webRequire(name, callee);
-    },
+    retrieveLib: retrieveLib,
+    registerModule: registerModule,
+    require: webRequire,
   };
   //
   // init components
-  webInitComponents(getData, attachResource, relative, myLocation);
+  webInitComponents(getData, attachResource, retrieveLib, relative, myLocation);
   //
 })();
