@@ -33,7 +33,10 @@ const internal = new Map([
   ["preact/hooks", { exports: hooks }],
   ["htm/preact", { exports: htm }],
   ["do-not-hydrate", false], //
-  ["mukha-system", { exports: { static_render: true, test: "nope" } }],
+  [
+    "mukha-system",
+    { exports: { mosule_state: "loading", static_render: true, test: "nope" } },
+  ],
 ]);
 // user modules
 const loaded = new Map();
@@ -45,26 +48,29 @@ const lookup = new Map();
 //
 //
 function resolveModule(callee, pathname) {
-  console.log("resolve", callee, pathname);
   // return pathname;
   //
   let r = pathname;
   if (pathname.startsWith(".")) {
     r = path.resolve("/" + path.dirname(callee), pathname);
   }
-  console.log("return", r);
+  log.debug(callee, "→", pathname, "resolved to", r);
   return r;
 }
 
-function myRequire(n) {
-  if (n === "do-not-hydrate") {
+function myRequire(n, callee) {
+  let moduleName = n;
+  if (moduleName === "do-not-hydrate") {
     return;
   }
-  let name = normalizeName(n);
-  let M = internal.get(name) || loaded.get(name);
+  // let name = normalizeName(moduleName);
+  if (callee) {
+    moduleName = resolveModule(callee, n);
+  }
+  let M = internal.get(moduleName) || loaded.get(moduleName);
   if (!M) {
     // TODO: more checks, maybe, return SITE path instead
-    return assets.has(n) ? assets.get(n).path : null;
+    return assets.has(moduleName) ? assets.get(moduleName).path : null;
   }
   return M.exports;
 }
@@ -112,6 +118,7 @@ export function createElement(fn_name, props) {
 
 const componentIDs = {};
 export function renderComponentToString(fn_name, props = {}, context) {
+  internal.get("mukha-system").module_state = "static";
   // let __H = 1;
   let element = preact.h(findFunction(fn_name), props);
   let props_to_save;
@@ -273,6 +280,10 @@ export function initComponents(flist) {
   }, {}); //
   //
   let ord = 1;
+  const makeLog =
+    (n, what) =>
+      (...args) =>
+        log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .forEach((n) => {
@@ -280,7 +291,11 @@ export function initComponents(flist) {
       // for the newborn
       let env = {
         require: myRequire,
-        console: { log: log.info, error: log.error, info: log.info },
+        console: {
+          log: makeLog(n, "info"),
+          error: makeLog(n, "error"),
+          info: makeLog(n, "info"),
+        },
         module: { exports: {} },
       };
 

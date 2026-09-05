@@ -8,7 +8,10 @@ const internal = new Map([
   ["preact", { exports: preact, order: 0 }], //module!!
   ["preact/hooks", { exports: hooks, order: 0 }],
   ["htm/preact", { exports: htm, order: 0 }],
-  ["mukha-system", { exports: { static_render: false } }],
+  [
+    "mukha-system",
+    { exports: { module_state: "frontend", static_render: false } },
+  ],
   ["do-not-hydrate", { exports: { msg: "How did you get here?" }, order: 0 }], //
 ]);
 
