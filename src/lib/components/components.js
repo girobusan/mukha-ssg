@@ -43,6 +43,18 @@ const assets = new Map();
 // function name -> name of module, which exports it
 const lookup = new Map();
 //
+//
+function resolveModule(callee, pathname) {
+  console.log("resolve", callee, pathname);
+  // return pathname;
+  //
+  let r = pathname;
+  if (pathname.startsWith(".")) {
+    r = path.resolve("/" + path.dirname(callee), pathname);
+  }
+  console.log("return", r);
+  return r;
+}
 
 function myRequire(n) {
   if (n === "do-not-hydrate") {
@@ -195,7 +207,7 @@ export function initComponents(flist) {
     const module_src = f.getContent();
     log.info("Module", modname);
     const module_requires = findRequires(module_src).map((e) =>
-      normalizeName(e),
+      resolveModule(modname, e),
     );
     if (module_requires) log.info("requires:", module_requires);
     modulesTable.push({
