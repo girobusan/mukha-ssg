@@ -182,7 +182,7 @@ export async function webInitComponents(
   console.log("Load for this page", ordered);
   // actually, load
   for (let i = 0; i < ordered.length; i++) {
-    console.log(i + 1, ordered[i]);
+    console.log(i + 1, "—", ordered[i]);
     await loadModule(ordered[i]);
   }
 
@@ -198,7 +198,7 @@ export async function webInitComponents(
     console.log(componentFn);
     let props = {};
     if (e.propsEnc) {
-      props = decodeURI(e.propsEnc);
+      props = JSON.parse(decodeURI(e.propsEnc));
     }
     if (e.propsID) {
       // load props from filr

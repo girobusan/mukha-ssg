@@ -184,11 +184,10 @@ export function renderComponentToString(fn_name, props = {}, context) {
 // Components initialization
 //
 export function initComponents(flist) {
-  log.info("Init components...");
   if (!flist || flist.length == 0) {
-    log.info("Components wasnt used.");
     return;
   }
+  log.info("Init components...");
   //clear all components data
   loaded.clear();
   assets.clear();
