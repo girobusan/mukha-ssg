@@ -52,7 +52,7 @@ function resolveModule(callee, pathname) {
   //
   let r = pathname;
   if (pathname.startsWith(".")) {
-    r = path.resolve("/" + path.dirname(callee), pathname);
+    r = path.resolve("/" + path.dirname(callee), pathname).replace(/^\//, "");
   }
   log.debug(callee, "→", pathname, "resolved to", r);
   return r;
@@ -153,8 +153,8 @@ export function renderComponentToString(fn_name, props = {}, context) {
     const prop_string = Array.from(props_map.entries())
       .map((p) => `${p[0]}="${p[1]}"`)
       .join(" ");
-    tag_open = `<span class="Mukha_hydration_required" ${prop_string}>`;
-    tag_close = "</span>";
+    tag_open = `<div class="Mukha_hydration_required" ${prop_string}>`;
+    tag_close = "</div>";
   } // end rehydration specific code
   //
   try {
@@ -230,7 +230,8 @@ export function initComponents(flist) {
   // count passes:
   let pass = 0;
   // queue of names
-  const queue = Array.from(internal.keys());
+  const queue = Array.from(internal.keys()).concat(Array.from(assets.keys()));
+  console.log("Start queue", queue);
   //
   while (sortTable.length > 0) {
     pass++;
@@ -240,7 +241,9 @@ export function initComponents(flist) {
       e.requires = e.requires.filter((s) => {
         return queue.indexOf(s) == -1;
       });
-      if (e.requires.length == 0) {
+      console.log(e);
+      if (!e.requires || e.requires.length == 0) {
+        console.log("PUSHING!!!");
         queue.push(e.name);
       }
     });
@@ -286,13 +289,15 @@ export function initComponents(flist) {
         log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
+    .filter((n) => !assets.has(n))
     .forEach((n) => {
       // environment
       // for the newborn
       let env = {
-        require: myRequire,
+        require: (arg) => myRequire(arg, n),
+        mrequire: (arg) => myRequire(arg, n),
         console: {
-          log: makeLog(n, "info"),
+          log: makeLog(n, "debug"),
           error: makeLog(n, "error"),
           info: makeLog(n, "info"),
         },

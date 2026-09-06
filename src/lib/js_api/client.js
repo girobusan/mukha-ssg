@@ -2,14 +2,14 @@
 // ns global (from data module)
 // ns system (system data; search)
 // async load of local datasets
-import { posix } from "path-browserify";
+import { posix as path } from "path-browserify";
 import {
   webRequire,
   webInitComponents,
   registerModule,
 } from "./components_client";
 
-(function () {
+(function() {
   if (window.Mukha) {
     return;
   } // dont
@@ -19,7 +19,7 @@ import {
   console.info("Mukha JS API client", VERSION, "at", myLocation);
   //
   function relative(from, to) {
-    return posix.relative(posix.dirname(from), to);
+    return path.relative(path.dirname(from), to);
   }
   function uncompact(tobj) {
     const tout = [];
@@ -62,8 +62,39 @@ import {
     return requestData(dataP);
   }
 
-  function attachResource(url, tg = "script") {
-    console.info("jsapi: Attaching:", url);
+  let attached = new Set();
+
+  function attachResource(url, atag) {
+    let tg = atag || "script";
+    console.info("jsapi: Attaching:", url, "as", tg);
+    let relp;
+    let absp;
+    // is local?
+    if (url.startsWith("/")) {
+      absp = url;
+      relp = relative(myLocation, absp);
+    }
+    // is relative?
+    else if (url.startsWith(".")) {
+      relp = url;
+      absp = path.resolve(myLocation, relp);
+    }
+    // it's not local at all
+    else if (url.match(/^(https:|http:|ftp:|ssh:)/)) {
+      relp = url;
+      absp = url;
+      // assuming relative!
+    } else {
+      relp = url;
+      absp = path.resolve(myLocation, relp);
+    }
+
+    if (attached.has(absp)) {
+      console.log("Already attached:", absp);
+      return Promise.resolve(true);
+    }
+    attached.add(absp);
+
     const tag = tg === "script" ? "script" : "link";
     const attr = tg === "script" ? "src" : "href";
     const rel = tg === "script" ? false : "stylesheet";
@@ -78,12 +109,12 @@ import {
         res(true);
       }
       document.body.appendChild(st);
-      st.setAttribute(attr, url);
+      st.setAttribute(attr, relp);
     });
   }
 
   function retrieveLib(lpath) {
-    return attachResource(relative(myLocation, posix.join("/_js/lib", lpath)));
+    return attachResource(relative(myLocation, path.join("/_js/lib", lpath)));
   }
 
   function requestData(jspath) {
@@ -108,12 +139,15 @@ import {
     registerData: registerData,
     relpath: relative,
     relTo: (t) => relative(myLocation, t),
-    attachScript: attachResource,
-    getLocalData: function (name, ns) {
+    attachScript: (...args) => {
+      console.log("callingAS with", args);
+      return attachResource(...args);
+    },
+    getLocalData: function(name, ns) {
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function (name, ns) {
+    getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
