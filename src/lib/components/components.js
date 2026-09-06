@@ -153,7 +153,7 @@ export function renderComponentToString(fn_name, props = {}, context) {
     const prop_string = Array.from(props_map.entries())
       .map((p) => `${p[0]}="${p[1]}"`)
       .join(" ");
-    tag_open = `<div class="Mukha_hydration_required" ${prop_string}>`;
+    tag_open = `<div style="" class="Mukha_hydration_required" ${prop_string}>`;
     tag_close = "</div>";
   } // end rehydration specific code
   //
@@ -332,7 +332,7 @@ export function initComponents(flist) {
     }
     return a;
   }, lookup);
-  // modulesTable = null;
+  // modulesable = null;
   // mDict = null;
   //
   // create table and save for client
