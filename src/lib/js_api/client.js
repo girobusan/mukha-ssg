@@ -3,6 +3,7 @@
 // ns system (system data; search)
 // async load of local datasets
 import { posix as path } from "path-browserify";
+import { banertype, wlog } from "./wlog";
 import {
   webRequire,
   webInitComponents,
@@ -16,7 +17,8 @@ import {
   const siteData = "@DATA@";
 
   const myLocation = document.currentScript.dataset.location;
-  console.info("Mukha JS API client", VERSION, "at", myLocation);
+  banertype("Mukha JS API client", VERSION);
+  banertype("at", myLocation);
   //
   function relative(from, to) {
     return path.relative(path.dirname(from), to);
@@ -66,7 +68,7 @@ import {
 
   function attachResource(url, atag) {
     let tg = atag || "script";
-    console.info("jsapi: Attaching:", url, "as", tg);
+    wlog.debug("jsapi: Attaching:", url, "as", tg);
     let relp;
     let absp;
     // is local?
@@ -90,7 +92,7 @@ import {
     }
 
     if (attached.has(absp)) {
-      console.log("Already attached:", absp);
+      wlog.warn("Already attached:", absp);
       return Promise.resolve(true);
     }
     attached.add(absp);
@@ -118,6 +120,7 @@ import {
   }
 
   function requestData(jspath) {
+    //TODO: rewrite
     return new Promise((res, rej) => {
       let sc = document.createElement("script");
       sc.addEventListener("error", () => rej("no data"));
@@ -140,7 +143,6 @@ import {
     relpath: relative,
     relTo: (t) => relative(myLocation, t),
     attachScript: (...args) => {
-      console.log("callingAS with", args);
       return attachResource(...args);
     },
     getLocalData: function(name, ns) {

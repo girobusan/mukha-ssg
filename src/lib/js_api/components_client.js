@@ -2,6 +2,7 @@ const preact = require("preact");
 const hooks = require("preact/hooks");
 const htm = require("htm/preact");
 import { posix as path } from "path-browserify";
+import { wlog } from "./wlog";
 
 // const MAPI = window.Mukha;
 
@@ -25,7 +26,7 @@ function resolveModule(callee, pathname) {
   if (pathname.startsWith(".")) {
     r = path.resolve("/" + path.dirname(callee), pathname).replace(/^\//, "");
   }
-  console.log(callee, "→", pathname, "resolved to", r);
+  wlog.debug(callee, "→", pathname, "resolved to", r);
   return r;
 }
 
@@ -44,7 +45,7 @@ export function webRequire(n, callee) {
   // not anything known
   if (!M) {
     console.log(assets);
-    console.error("Module not loaded:", moduleName);
+    wlog.error("Module not loaded:", moduleName);
     return null;
   }
   //load asset
@@ -66,14 +67,18 @@ function loadModule(n) {
 }
 
 export function registerModule(name, exports) {
-  console.log("Registering module", name);
-  loaded.set(name, { exports: exports });
+  wlog.debug("Registering module", name);
+  if (loaded.has(name)) {
+    wlog.warn("Already here.");
+  } else {
+    loaded.set(name, { exports: exports });
+  }
   if (moduleEvts[name]) {
     moduleEvts[name].forEach((evt) => {
-      evt(exports);
+      evt(loaded.get(name).exports);
     });
   } else {
-    console.log("No notifications sent");
+    wlog.debug("No notifications sent");
   }
 }
 
@@ -84,7 +89,6 @@ export async function webInitComponents(
   relative,
   currentLoc,
 ) {
-  console.info("Checking for components...");
   const elements = Array.from(
     document.querySelectorAll(".Mukha_hydration_required"),
   ).map((e) => {
@@ -98,9 +102,9 @@ export async function webInitComponents(
     };
   });
   if (elements.length === 0) {
-    console.info("No components used.");
     return;
   }
+  console.info("Checking for components...");
   //
   // populate system module
   //
@@ -137,6 +141,7 @@ export async function webInitComponents(
 
   // load components and requirements
   // which modules do we have to load first
+  // gather deps
   const userModulesSet = new Set(
     elements
       .map((e) => {
@@ -146,7 +151,6 @@ export async function webInitComponents(
       })
       .filter((f) => f),
   );
-  // gather deps
   let previousSize;
   let iter = 1024; // Max iteration count
   do {
@@ -154,7 +158,7 @@ export async function webInitComponents(
     for (let M of userModulesSet) {
       if (internal.has(M)) continue;
       // add all deps of M to set
-      console.log(M);
+      // console.log(M);
       let req = [];
       if (modDict[M] && modDict[M].requires) {
         // not asset nor internal
@@ -167,7 +171,7 @@ export async function webInitComponents(
     }
     iter--;
     if (iter === 0) {
-      console.error("Max iteration count exceed.");
+      wlog.error("Max iteration count exceed.");
       break;
     }
   } while (userModulesSet.size !== previousSize); // && iter > 0);
@@ -179,23 +183,20 @@ export async function webInitComponents(
       return (modDict[a]?.order || 0) - (modDict[b]?.order || 0);
     });
 
-  console.log("Load for this page", ordered);
+  wlog.debug("Load for this page", ordered);
   // actually, load
   for (let i = 0; i < ordered.length; i++) {
-    console.log(i + 1, "—", ordered[i]);
+    console.log("loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
     await loadModule(ordered[i]);
   }
 
   // hydrate all!
   elements.forEach(async (e) => {
-    console.log("Hydrating", e);
+    console.log("Hydrating:", e);
     const node = e.element;
-    console.log(node);
     // const component = [e.component];
     let module = loaded.get(functions[e.component]);
-    console.log(module);
     let componentFn = module.exports[e.component];
-    console.log(componentFn);
     let props = {};
     if (e.propsEnc) {
       props = JSON.parse(decodeURI(e.propsEnc));
