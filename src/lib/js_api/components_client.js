@@ -147,7 +147,7 @@ export async function webInitComponents(
       .map((e) => {
         const M = functions[e.component];
         if (!M) console.log("Module for component not found:", e.component);
-        return M;
+        return null; // do not bother
       })
       .filter((f) => f),
   );
