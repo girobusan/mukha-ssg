@@ -237,6 +237,10 @@ function runRenderTasks() {
   return pages;
 }
 
+export function getGlobalData(name) {
+  return retrieveByStr(name, datasets);
+}
+
 export function initData(fileList, initialData) {
   if (initialData) {
     datasets = initialData;

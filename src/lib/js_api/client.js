@@ -36,7 +36,6 @@ import {
     return tout;
   }
 
-  var requested = {};
   var DataStore = {};
   var Components = {};
   function dataFilePath(ns, name) {
@@ -46,6 +45,7 @@ import {
     }
     return "/_js/data/global/" + ns + "/" + name.replace(/\./g, "/") + ".js";
   }
+  //
   function registerData(ns, dname, dt, compacted) {
     let dpath = dataFilePath(ns, dname);
     //save data!
@@ -56,11 +56,13 @@ import {
     DataStore[ns][dname] = compacted ? uncompact(dt) : dt;
     if (requested[dpath]) requested[dpath](DataStore[ns][dname]);
   }
+  //
   function getData(name, ns) {
     if (DataStore[ns] && DataStore[ns][name]) {
       return Promise.resolve(DataStore[ns][name]);
     }
     let dataP = dataFilePath(ns, name);
+    console.log("requesting data");
     return requestData(dataP);
   }
 
@@ -100,17 +102,16 @@ import {
     const tag = tg === "script" ? "script" : "link";
     const attr = tg === "script" ? "src" : "href";
     const rel = tg === "script" ? false : "stylesheet";
-
     return new Promise((res, rej) => {
       let st = document.createElement(tag);
       rel && st.setAttribute("rel", rel);
       if ("onload" in st) {
-        st.addEventListener("load", res);
-        st.addEventListener("error", rej);
+        st.addEventListener("load", () => res("LOADED"));
+        st.addEventListener("error", () => rej("NOT LOADED"));
       } else {
         res(true);
       }
-      document.body.appendChild(st);
+      document.head.appendChild(st);
       st.setAttribute(attr, relp);
     });
   }
@@ -119,16 +120,19 @@ import {
     return attachResource(relative(myLocation, path.join("/_js/lib", lpath)));
   }
 
+  let requested = {};
   function requestData(jspath) {
     //TODO: rewrite
+    console.log("sending request", jspath);
     return new Promise((res, rej) => {
-      let sc = document.createElement("script");
-      sc.addEventListener("error", () => rej("no data"));
-      document.body.appendChild(sc);
-      sc.src = relative(myLocation, jspath);
+      attachResource(jspath).catch((e) => {
+        wlog.error("Can not load data from", sc, e);
+        rej("Can not attach");
+      });
       requested[jspath] = (d) => {
         // save data => register funtion
         delete requested[jspath];
+        console.log("data recieved", d);
         res(d);
       };
     });
@@ -146,6 +150,7 @@ import {
       return attachResource(...args);
     },
     getLocalData: function(name, ns) {
+      // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },

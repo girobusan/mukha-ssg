@@ -26,10 +26,6 @@ export function findRequires(code) {
 }
 
 export function normalizeName(n, from) {
-  // path.resolve( "/" + from/module/path , n); ?
   let r = path.normalize(n); // it's always path
-  // if (r.startsWith("./")) {
-  //   r = r.substring(2);
-  // }
   return r;
 }

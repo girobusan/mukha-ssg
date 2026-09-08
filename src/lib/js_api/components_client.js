@@ -12,7 +12,13 @@ const internal = new Map([
   ["htm/preact", { exports: htm, order: 0 }],
   [
     "mukha-system",
-    { exports: { module_state: "frontend", static_render: false } },
+    {
+      exports: {
+        module_state: "frontend",
+        static_render: false,
+        getGlobalData: (...args) => window.Mukha.getGlobalData(...args),
+      },
+    },
   ],
   ["do-not-hydrate", { exports: { msg: "How did you get here?" }, order: 0 }], //
 ]);
@@ -112,7 +118,9 @@ export async function webInitComponents(
   //
   // load  all know modules data
   //
-  const modules = await getGlobalDataFn("modules", "components");
+  const modules = await getGlobalDataFn("modules", "components").catch((e) => {
+    console.log("Error when loading modules table", e);
+  });
   var modDict = modules.reduce((a, e) => {
     a[e.name] = e;
     return a;
@@ -147,9 +155,8 @@ export async function webInitComponents(
       .map((e) => {
         const M = functions[e.component];
         if (!M) {
-          console.log("Module for component not found:", e.component);
-          return null; // do not bother
-          } 
+          wlog.warn("Module for component not found:", e.component);
+        }
         return M;
       })
       .filter((f) => f),
@@ -189,13 +196,13 @@ export async function webInitComponents(
   wlog.debug("Load for this page", ordered);
   // actually, load
   for (let i = 0; i < ordered.length; i++) {
-    console.log("loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
+    wlog.debug("loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
     await loadModule(ordered[i]);
   }
 
   // hydrate all!
   elements.forEach(async (e) => {
-    console.log("Hydrating:", e);
+    wlog.debug("Hydrating:", e);
     const node = e.element;
     // const component = [e.component];
     let module = loaded.get(functions[e.component]);
@@ -205,6 +212,7 @@ export async function webInitComponents(
       props = JSON.parse(decodeURI(e.propsEnc));
     }
     if (e.propsID) {
+      // REVIEW:
       // load props from filr
       props = await window.Mukha.getData(e.propsID, "components/props");
     }

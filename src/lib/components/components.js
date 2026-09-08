@@ -7,6 +7,7 @@ import {
   saveLocalData4JS,
   saveLib,
 } from "../js_api";
+import { getGlobalData } from "../data.js";
 import { findRequires, normalizeName } from "./comp_util";
 import { wrapForWeb } from "./web_template.js";
 import { stringify2JSON } from "../util/base.js";
@@ -35,7 +36,14 @@ const internal = new Map([
   ["do-not-hydrate", false], //
   [
     "mukha-system",
-    { exports: { mosule_state: "loading", static_render: true, test: "nope" } },
+    {
+      exports: {
+        module_state: "loading",
+        static_render: true,
+        getGlobalData: (...args) => Promise.resolve(getGlobalData(...args)),
+        test: "nope",
+      },
+    },
   ],
 ]);
 // user modules
@@ -70,7 +78,7 @@ function myRequire(n, callee) {
   let M = internal.get(moduleName) || loaded.get(moduleName);
   if (!M) {
     // TODO: more checks, maybe, return SITE path instead
-    return assets.has(moduleName) ? assets.get(moduleName).path : null;
+    return assets.has(moduleName) ? assets.get(moduleName).site_path : null;
   }
   return M.exports;
 }
@@ -223,8 +231,15 @@ export function initComponents(flist) {
     });
     sortTable.push({ name: modname, requires: module_requires });
   });
-  // we know all requirements...
-  // sort modules from top to bottom
+  //
+  // Assets must be prepared BEFORE modules
+  //
+  assets.forEach((a) => {
+    a.site_path = copyToLib(a.src_path, "components/" + a.path);
+  });
+  //
+  // we know all requirements.
+  // now sort modules from top to bottom
   //
   // count passes:
   let pass = 0;
@@ -242,7 +257,6 @@ export function initComponents(flist) {
       });
       console.log(e);
       if (!e.requires || e.requires.length == 0) {
-        console.log("PUSHING!!!");
         queue.push(e.name);
       }
     });
@@ -356,9 +370,6 @@ export function initComponents(flist) {
     const src = wrapForWeb(tmp_modules_dict[l.name].src, l.name);
     let name = l.name;
     saveLib("components/" + name, src);
-  });
-  assets.forEach((a) => {
-    a.site_path = copyToLib(a.src_path, "components/" + a.path);
   });
   // save assets info
   saveGlobalData4JS(
