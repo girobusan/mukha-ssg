@@ -41,7 +41,8 @@ const internal = new Map([
         module_state: "loading",
         static_render: true,
         getGlobalData: (...args) => Promise.resolve(getGlobalData(...args)),
-        test: "nope",
+        // awailable only in static render
+        getGlobalDataSync: getGlobalData,
       },
     },
   ],

@@ -16,7 +16,7 @@ const internal = new Map([
       exports: {
         module_state: "frontend",
         static_render: false,
-        getGlobalData: (...args) => window.Mukha.getGlobalData(...args),
+        getGlobalData: (...args) => window.Mukha.getData(...args),
       },
     },
   ],
