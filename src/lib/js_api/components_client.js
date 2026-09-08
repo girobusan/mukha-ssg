@@ -146,8 +146,11 @@ export async function webInitComponents(
     elements
       .map((e) => {
         const M = functions[e.component];
-        if (!M) console.log("Module for component not found:", e.component);
-        return null; // do not bother
+        if (!M) {
+          console.log("Module for component not found:", e.component);
+          return null; // do not bother
+          } 
+        return M;
       })
       .filter((f) => f),
   );
