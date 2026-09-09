@@ -150,7 +150,7 @@ export function renderComponentToString(fn_name, props = {}, context) {
     // save props if any
     if (props && Object.keys(props).length > 0) {
       props_to_save = stringify2JSON(props);
-      if (props_to_save.length < 120) {
+      if (props_to_save.length < 300) {
         props_map.set("data-props-encoded", encodeURI(props_to_save));
       } else {
         props_id = longHash(props_to_save);
@@ -256,12 +256,11 @@ export function initComponents(flist) {
       e.requires = e.requires.filter((s) => {
         return queue.indexOf(s) == -1;
       });
-      console.log(e);
       if (!e.requires || e.requires.length == 0) {
         queue.push(e.name);
       }
     });
-    sortTable = sortTable.filter((e) => e.requires.length != 0);
+    sortTable = sortTable.filter((e) => !e.requires || e.requires.length != 0);
     if (queue.length === queueAtStart) {
       break;
     }
@@ -269,7 +268,7 @@ export function initComponents(flist) {
   // if something is left
   if (sortTable.length > 0) {
     let not_found = sortTable.reduce((a, e) => {
-      return a.concat(e.requires);
+      return a.concat(e.requires || []);
     }, []);
     log.warn("Some components are not loaded:");
     log.warn(
@@ -299,8 +298,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-      (...args) =>
-        log[what](n + ":", ...args);
+    (...args) =>
+      log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))
@@ -343,12 +342,21 @@ export function initComponents(flist) {
   // populate lookup dictionary of exported entities
   loaded.values().reduce((a, e) => {
     for (let E of e.exported) {
+      if (a.has(E)) {
+        if (E.match(/^[A-Z]/)) {
+          log.warn("Globally duplicated name:", E);
+          log.warn("This function can not be used as a component.");
+        } else {
+          log.info("Function name duplicated:", E);
+          log.info("It's fine, as long as it's not used as a root component.");
+          // REVIEW: maybe, just drop or mark duplicates?
+          // Or add namespaces to template tag.
+        }
+      }
       a.set(E, e.name);
     }
     return a;
   }, lookup);
-  // modulesable = null;
-  // mDict = null;
   //
   // create table and save for client
   saveGlobalData4JS(

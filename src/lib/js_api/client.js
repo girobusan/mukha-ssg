@@ -10,7 +10,7 @@ import {
   registerModule,
 } from "./components_client";
 
-(function() {
+(function () {
   if (window.Mukha) {
     return;
   } // dont
@@ -149,12 +149,12 @@ import {
     attachScript: (...args) => {
       return attachResource(...args);
     },
-    getLocalData: function(name, ns) {
+    getLocalData: function (name, ns) {
       // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function(name, ns) {
+    getData: function (name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
@@ -162,6 +162,7 @@ import {
     registerModule: registerModule,
     require: webRequire,
   };
+  window._M = window.Mukha;
   //
   // init components
   webInitComponents(getData, attachResource, retrieveLib, relative, myLocation);
