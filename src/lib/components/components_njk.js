@@ -29,9 +29,17 @@ export function componentTag() {
     //
   };
   this.run = function(context, ...args) {
-    // context , ...args , body
-    console.log("context", Object.keys(context));
-    console.log("context.ctx", Object.keys(context.ctx));
+    /*
+context [ 'env', 'ctx', 'blocks', 'exported' ]
+context.ctx [
+  'config', 'datasets',
+  'data',   'splitToPages',
+  'meta',   'path',
+  'list',   'file',
+  'page',   'saveData',
+  'util'
+]
+     */
     let r;
     const body =
       // last arguments, if it is function

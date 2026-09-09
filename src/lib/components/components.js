@@ -246,7 +246,8 @@ export function initComponents(flist) {
   let pass = 0;
   // queue of names
   const queue = Array.from(internal.keys()).concat(Array.from(assets.keys()));
-  console.log("Start queue", queue);
+  log.debug("Queue at start:");
+  queue.forEach((q, i) => log.debug("", i + 1, q));
   //
   while (sortTable.length > 0) {
     pass++;
@@ -298,8 +299,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-    (...args) =>
-      log[what](n + ":", ...args);
+      (...args) =>
+        log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))
