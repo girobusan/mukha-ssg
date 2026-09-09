@@ -5,23 +5,16 @@ var log = getLogger("js API");
 var path = require("path").posix;
 
 const clientCode = require("./prebuild/js_api_client.js?raw");
+let logLevel = 4;
+export function setJSLogLevel(n) {
+  logLevel = n;
+}
 
 let data = [];
 let localData = [];
 let lib = [];
 let lib_to_copy = [];
 let siteData = { version: VERSION };
-
-// function data2js(dataObj) {
-//   const json = stringify2JSON(dataObj.data);
-//   return `window.Mukha.registerData("${dataObj.nsname}" , ${json} , ${dataObj.compacted} )`;
-// }
-//
-// function localData2js(dataObj) {
-//   const json = stringify2JSON(dataObj.data);
-//   return `window.Mukha.registerLocalData ("${dataObj.path}" , "${dataObj.name}" ,
-// ${json} , ${dataObj.compacted} )`;
-// }
 
 function anyData2js(ns, dname, dt, compacted) {
   const json = stringify2JSON(dt);
@@ -48,18 +41,6 @@ function testTable(d, dataid) {
   return r;
 }
 
-// deprecated!
-export function _saveData4JS(ns_and_name, dset) {
-  if (!dset) {
-    log.warn("Attempt to save empty dataset:", ns_and_name);
-    return;
-  }
-  let parts = ns_and_name.split(".");
-  let ns, dname;
-  ns = parts.length === 1 ? "datasets" : parts[0];
-  dname = parts.length === 1 ? parts[0] : parts.slice(1).join(".");
-  data.push(prepAnyData(ns, dname, dset));
-}
 export function saveGlobalData4JS(ns, dname, dset) {
   // console.log("saving", ns + "." + dname);
   if (!dset) {
@@ -69,7 +50,7 @@ export function saveGlobalData4JS(ns, dname, dset) {
   data.push(prepAnyData(ns || "datasets", dname, dset));
 }
 
-export function saveLocalData4JS(dname, dset, dpath) {
+export function saveLocalData4JS(dname, dset, dpath, ns = "") {
   if (!dset) {
     log.warn("Attempt to save empty dataset:", dname, dpath);
     return;
@@ -117,6 +98,8 @@ export function saveJSAPIfiles(saveFn, copyFn) {
 
   saveFn(
     "/_js/client.js",
-    clientCode.replace(/("|')@DATA@('|")/, JSON.stringify(siteData)),
+    clientCode
+      .replace(/"@LOGLEVEL@"/g, logLevel || 4)
+      .replace(/("|')@DATA@('|")/, JSON.stringify(siteData)),
   );
 }

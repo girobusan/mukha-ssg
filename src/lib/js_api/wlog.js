@@ -7,14 +7,16 @@ const levels = {
   info: 4,
   debug: 5,
 };
+const levelsTxt = Object.keys(levels);
 
 let level = 5;
 
-export function setLevel(str) {
+export function setLevel(L) {
   let R;
-  let numeric = parseInt(str);
-  R = isNan(numeric) ? levels[str.toLowerCase()] || 3 : numeric;
+  let isStr = typeof L === "string" || L instanceof String;
+  R = !isStr ? L : levels[L.toLowerCase()] || 4;
   level = R;
+  wlog.info("Loggingh level is set to", R, `(${levelsTxt[R - 1]})`);
 }
 
 export const wlog = {

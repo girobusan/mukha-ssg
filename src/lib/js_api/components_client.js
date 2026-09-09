@@ -32,7 +32,7 @@ function resolveModule(callee, pathname) {
   if (pathname.startsWith(".")) {
     r = path.resolve("/" + path.dirname(callee), pathname).replace(/^\//, "");
   }
-  wlog.debug(callee, "→", pathname, "resolved to", r);
+  wlog.debug("Resolving:", pathname, "in", callee, "→", r);
   return r;
 }
 
@@ -73,7 +73,7 @@ function loadModule(n) {
 }
 
 export function registerModule(name, exports) {
-  wlog.debug("Registering module", name);
+  wlog.debug("Registering module:", name);
   if (loaded.has(name)) {
     wlog.warn("Already here.");
   } else {
@@ -196,7 +196,7 @@ export async function webInitComponents(
   wlog.debug("Load for this page", ordered);
   // actually, load
   for (let i = 0; i < ordered.length; i++) {
-    wlog.debug("loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
+    wlog.info("Loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
     await loadModule(ordered[i]);
   }
 

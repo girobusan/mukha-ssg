@@ -3,14 +3,14 @@
 // ns system (system data; search)
 // async load of local datasets
 import { posix as path } from "path-browserify";
-import { banertype, wlog } from "./wlog";
+import { banertype, wlog, setLevel } from "./wlog";
 import {
   webRequire,
   webInitComponents,
   registerModule,
 } from "./components_client";
 
-(function () {
+(function() {
   if (window.Mukha) {
     return;
   } // dont
@@ -19,6 +19,7 @@ import {
   const myLocation = document.currentScript.dataset.location;
   banertype("Mukha JS API client", VERSION);
   banertype("at", myLocation);
+  setLevel("@LOGLEVEL@" || 4);
   //
   function relative(from, to) {
     return path.relative(path.dirname(from), to);
@@ -62,7 +63,7 @@ import {
       return Promise.resolve(DataStore[ns][name]);
     }
     let dataP = dataFilePath(ns, name);
-    console.log("requesting data");
+    wlog.debug("...requesting data", dataP);
     return requestData(dataP);
   }
 
@@ -70,7 +71,7 @@ import {
 
   function attachResource(url, atag) {
     let tg = atag || "script";
-    wlog.debug("jsapi: Attaching:", url, "as", tg);
+    wlog.debug("Attaching:", url, "as", tg);
     let relp;
     let absp;
     // is local?
@@ -123,7 +124,7 @@ import {
   let requested = {};
   function requestData(jspath) {
     //TODO: rewrite
-    console.log("sending request", jspath);
+    wlog.debug("Sending request:", jspath);
     return new Promise((res, rej) => {
       attachResource(jspath).catch((e) => {
         wlog.error("Can not load data from", sc, e);
@@ -132,7 +133,7 @@ import {
       requested[jspath] = (d) => {
         // save data => register funtion
         delete requested[jspath];
-        console.log("data recieved", d);
+        wlog.debug("Data recieved:", d);
         res(d);
       };
     });
@@ -149,12 +150,12 @@ import {
     attachScript: (...args) => {
       return attachResource(...args);
     },
-    getLocalData: function (name, ns) {
+    getLocalData: function(name, ns) {
       // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function (name, ns) {
+    getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },

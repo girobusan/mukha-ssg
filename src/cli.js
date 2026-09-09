@@ -27,10 +27,12 @@ const options = {
   timed: { type: "boolean", short: "t" },
   version: { type: "boolean", short: "v" },
   cleanup: { type: "boolean", short: "c" },
-  nocolor: { type: "boolean", short: "C" },
+  nocolor: { type: "boolean", short: "C" }, // REVIEW:
+  "bw-text": { type: "boolean", short: "b" }, //←←←!
   watch: { type: "boolean", short: "w" },
   port: { type: "string", short: "p" },
   loglevel: { type: "string", short: "l" },
+  "js-loglevel": { type: "string", short: "L" },
   new: { type: "boolean", short: "n" },
 };
 
@@ -67,8 +69,11 @@ Conf.safe_mode = params.values.safe;
 if (params.values.timed) {
   Conf.timed = params.values.timed;
 }
+if (params.values["js-loglevel"]) {
+  Conf.js_loglevel = params.values["js-loglevel"];
+}
 //
-if (params.values.nocolor) {
+if (params.values.nocolor || params.values["bw-text"]) {
   Conf.nocolor = true;
   process.env["NO_COLOR"] = 1;
   process.env["NODE_DISABLE_COLORS"] = 1;

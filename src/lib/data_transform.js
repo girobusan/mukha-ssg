@@ -318,8 +318,8 @@ function prepPage({ meta, content, path, html }, repDict, data) {
     null, // html ? makeSubst(html, repDict) : "",
     // html ? makeSubst(html, repDict) : "", // prehtml
   );
-  page.local_data = data;
-  // page.debug = JSON.stringify(data, null, 2); // FIX: remove
+  page.local_data = data; // REVIEW:
+  page.source_data = data; // maybe?
   return page;
 }
 

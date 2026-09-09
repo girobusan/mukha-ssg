@@ -5,7 +5,7 @@ import { initData } from "./data";
 import { initComponents } from "./components/components";
 import { getLogger } from "./logging";
 var log = getLogger("core");
-import { saveJSAPIfiles } from "./js_api";
+import { saveJSAPIfiles, setJSLogLevel } from "./js_api";
 
 function makeSitePath(sitedir, filename) {
   let p = posixpath.join(sitedir, filename);
@@ -201,7 +201,10 @@ function runSSG({
     Callback.file("copy", f.src, p_to, "theme_assets");
     copyFile(f.src, p_to);
   });
-  if (Config.js_api) saveJSAPIfiles(loggedWriteFn, loggedCopyFn);
+  if (Config.js_api) {
+    setJSLogLevel(Config.js_loglevel);
+    saveJSAPIfiles(loggedWriteFn, loggedCopyFn);
+  }
   Callback.status("done");
   log.info("Generation done.");
 }
