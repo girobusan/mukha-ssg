@@ -91,8 +91,8 @@ console.log(Conf.nocolor ? line : colors.blue(line));
 console.log(Conf.nocolor ? baner : colors.blue(baner));
 console.log(Conf.nocolor ? line : colors.blue(line));
 //
+log.info("Preact version", PREACTVER);
 
-console.log("yey");
 if (Conf.edit_cmd) {
   let [test, msg] = checkSafeEditor(Conf.edit_cmd);
   if (!test) {

@@ -63,7 +63,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   let builddir = argv.mode == "production" ? "dist" : "test";
 
   const nodePart = {
@@ -123,6 +123,9 @@ module.exports = function(_, argv) {
       new webpack.DefinePlugin({
         // Definitions...
         VERSION: JSON.stringify(pkg.version),
+        PREACTVER: JSON.stringify(
+          pkg.devDependencies.preact.replace(/[^0-9.,]/g, ""),
+        ),
         MODE: argv.mode,
         BUILDDATE: new Date().toISOString(),
       }),
@@ -173,6 +176,9 @@ module.exports = function(_, argv) {
       new webpack.DefinePlugin({
         // Definitions...
         VERSION: JSON.stringify(pkg.version),
+        PREACTVER: JSON.stringify(
+          pkg.devDependencies.preact.replace(/[^0-9.,]/g, ""),
+        ),
         BUILDDATE: new Date().toISOString(),
       }),
     ],

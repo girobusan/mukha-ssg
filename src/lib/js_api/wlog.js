@@ -16,7 +16,7 @@ export function setLevel(L) {
   let isStr = typeof L === "string" || L instanceof String;
   R = !isStr ? L : levels[L.toLowerCase()] || 4;
   level = R;
-  wlog.info("Loggingh level is set to", R, `(${levelsTxt[R - 1]})`);
+  console.info("Loggingh level is set to", R, `(${levelsTxt[R - 1]})`);
 }
 
 export const wlog = {

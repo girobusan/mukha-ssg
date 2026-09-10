@@ -56,7 +56,7 @@ const commonSettings = {
   },
 };
 
-module.exports = function(_, argv) {
+module.exports = function (_, argv) {
   // let builddir = argv.mode == "production" ? "prebuild" : "";
   let builddir = "src/lib/js_api/prebuild";
 
@@ -116,6 +116,7 @@ module.exports = function(_, argv) {
       new webpack.DefinePlugin({
         // Definitions...
         VERSION: JSON.stringify(pkg.version),
+        PREACT_VERSION: pkg.devDependencies.preact.replace(/[^0-9.,]/g, ""),
         BUILDDATE: new Date().toISOString(),
       }),
     ],
