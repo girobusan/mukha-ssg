@@ -2,7 +2,7 @@ const posixpath = require("path/posix");
 // const yaml = require("js-yaml");
 import { preprocessFileList } from "./preprocess";
 import { initData } from "./data";
-import { initComponents } from "./components/components";
+import { initComponents } from "./components/index";
 import { getLogger } from "./logging";
 var log = getLogger("core");
 import { saveJSAPIfiles, setJSLogLevel } from "./js_api";

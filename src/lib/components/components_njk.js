@@ -1,4 +1,4 @@
-import { findFunction, renderComponentToString } from "./components.js";
+import { findFunction, renderComponentToString } from "./index.js";
 import { runtime } from "nunjucks";
 import { getLogger } from "../logging.js";
 // import { renderString } from "nunjucks";
