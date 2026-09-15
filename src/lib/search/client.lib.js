@@ -1,9 +1,9 @@
 const lunr = require("lunr");
 const stemmer = require("lunr-languages/lunr.stemmer.support");
 const multi = require("lunr-languages/lunr.multi");
-const MAPI = window.Mukha;
 //
 function retrieveSearchData() {
+  const MAPI = window.Mukha;
   return Promise.all([
     MAPI.getData("index", "search"),
     MAPI.getData("titles", "search"),
@@ -13,6 +13,7 @@ function retrieveSearchData() {
 //
 
 async function createSearcher() {
+  const MAPI = window.Mukha;
   window.lunr = lunr;
 
   let [index, titles_table, setup] = await retrieveSearchData();

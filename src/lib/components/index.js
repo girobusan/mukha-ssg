@@ -299,8 +299,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-      (...args) =>
-        log[what](n + ":", ...args);
+    (...args) =>
+      log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))
@@ -332,6 +332,7 @@ export function initComponents(flist) {
           // src: mDict[n].src,
         });
         log.info(n, "loaded.");
+        log.debug("exports:", Object.keys(env.module.exports));
       } catch (e) {
         log.error("Can not load module", n, e);
       }
