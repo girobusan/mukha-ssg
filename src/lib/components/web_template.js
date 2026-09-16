@@ -15,17 +15,17 @@ export function wrapForWeb(code, name) {
 export function wrapModuleFn(code, name) {
   return `(function(){
 
-let modFn = (regFn)=>{
+let modFn = (regFn , req)=>{
   let module = {};
   function require(what){
-      return window.Mukha.require(what , "${name}")
+      return req(what , "${name}")
     };
   let mrequire = require;
   ${code}
   regFn("${name}" , module.exports)
 }
 
-window.Mukha.registerModuleFn( "${name}" , modFn)
+window.Mukha._rmc( "${name}" , modFn)
 
 })()`;
 }

@@ -11,7 +11,7 @@ import {
   registerModuleFn,
 } from "./components_client";
 
-(function () {
+(function() {
   if (window.Mukha) {
     return;
   } // dont
@@ -151,18 +151,21 @@ import {
     attachScript: (...args) => {
       return attachResource(...args);
     },
-    getLocalData: function (name, ns) {
+    getLocalData: function(name, ns) {
       // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
-    getData: function (name, ns) {
+    // THINK:
+    //
+    getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
     retrieveLib: retrieveLib,
-    // registerModule: registerModule,
-    registerModuleFn: registerModuleFn,
+    // register module container function
+    _rmc: registerModuleFn, //
+    // TODO: ↓ not required ↓
     require: webRequire,
   };
   window._M = window.Mukha;

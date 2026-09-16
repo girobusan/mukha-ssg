@@ -62,22 +62,22 @@ export function webRequire(n, callee) {
   return assetPath;
 }
 
-let moduleEvts = {};
+// let moduleEvts = {};
 
-export function registerModule(name, exports) {
+function registerModule(name, exports) {
   wlog.debug("Registering module:", name);
   if (loaded.has(name)) {
     wlog.warn("Already here.");
   } else {
     loaded.set(name, { exports: exports });
   }
-  if (moduleEvts[name]) {
-    moduleEvts[name].forEach((evt) => {
-      evt(loaded.get(name).exports);
-    });
-  } else {
-    wlog.debug("No notifications sent");
-  }
+  // if (moduleEvts[name]) {
+  //   moduleEvts[name].forEach((evt) => {
+  //     evt(loaded.get(name).exports);
+  //   });
+  // } else {
+  //   wlog.debug("No notifications sent");
+  // }
 }
 
 // Other (more async)
@@ -96,7 +96,7 @@ function loadFunction(n) {
 
 function installModuleFromFn(n) {
   // calls registerModule (via API)
-  loadedFunctions[n](registerModule);
+  loadedFunctions[n](registerModule, webRequire);
   // delete loadedFunctions[n]; // ???
 }
 
@@ -240,9 +240,11 @@ export async function webInitComponents(
   wlog.debug("Load for this page", ordered);
   //
   // actually, load all async
+  const startLoadT = new Date().getTime();
   await Promise.all(ordered.map((u) => loadFunction(u))).catch((e) =>
     wlog.error("Can not load all:", e),
   );
+  wlog.debug("Loading finished in", new Date().getTime() - startLoadT, "ms");
   //
   // install in order
   for (let i = 0; i < ordered.length; i++) {
@@ -251,6 +253,7 @@ export async function webInitComponents(
   }
 
   // hydrate all!
+  wlog.info("Starting hydration...");
   elements.forEach(async (e) => {
     wlog.debug("Hydrating:", e);
     const node = e.element;
@@ -268,5 +271,6 @@ export async function webInitComponents(
     }
     preact.hydrate(preact.h(componentFn, props), node);
   });
+  wlog.info("Done.");
   //
 }
