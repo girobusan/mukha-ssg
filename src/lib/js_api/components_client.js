@@ -96,7 +96,7 @@ function loadFunction(n) {
 
 function installModuleFromFn(n) {
   // calls registerModule (via API)
-  loadedFunctions[n]();
+  loadedFunctions[n](registerModule);
   // delete loadedFunctions[n]; // ???
 }
 
@@ -246,7 +246,7 @@ export async function webInitComponents(
   //
   // install in order
   for (let i = 0; i < ordered.length; i++) {
-    wlog.info("Loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
+    wlog.info("Installing", i + 1 + "/" + ordered.length, ":", ordered[i]);
     installModuleFromFn(ordered[i]);
   }
 

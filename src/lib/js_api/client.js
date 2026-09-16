@@ -96,7 +96,7 @@ import {
     }
 
     if (attached.has(absp)) {
-      wlog.warn("Already attached:", absp);
+      wlog.debug("Already attached.");
       return Promise.resolve(true);
     }
     attached.add(absp);
@@ -161,7 +161,7 @@ import {
       return getData(name, nspace);
     },
     retrieveLib: retrieveLib,
-    registerModule: registerModule,
+    // registerModule: registerModule,
     registerModuleFn: registerModuleFn,
     require: webRequire,
   };

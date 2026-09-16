@@ -9,7 +9,7 @@ import {
 } from "../js_api";
 import { getGlobalData } from "../data.js";
 import { findRequires, normalizeName } from "./comp_util";
-import { wrapForWeb, wrapModuleFn } from "./web_template.js";
+import { wrapModuleFn } from "./web_template.js";
 import { stringify2JSON } from "../util/base.js";
 import { longHash, shortHash } from "../util/hashes.js";
 import { getLogger } from "../logging";
