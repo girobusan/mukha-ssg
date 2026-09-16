@@ -9,7 +9,7 @@ import {
 } from "../js_api";
 import { getGlobalData } from "../data.js";
 import { findRequires, normalizeName } from "./comp_util";
-import { wrapForWeb } from "./web_template.js";
+import { wrapForWeb, wrapModuleFn } from "./web_template.js";
 import { stringify2JSON } from "../util/base.js";
 import { longHash, shortHash } from "../util/hashes.js";
 import { getLogger } from "../logging";
@@ -162,7 +162,7 @@ export function renderComponentToString(fn_name, props = {}, context) {
     const prop_string = Array.from(props_map.entries())
       .map((p) => `${p[0]}="${p[1]}"`)
       .join(" ");
-    tag_open = `<div style="" class="Mukha_hydration_required" ${prop_string}>`;
+    tag_open = `<div class="Mukha_hydration_required ${fn_name}_root" ${prop_string}>`;
     tag_close = "</div>";
   } // end rehydration specific code
   //
@@ -378,7 +378,7 @@ export function initComponents(flist) {
   );
   // save modules and assets
   loaded.forEach((l) => {
-    const src = wrapForWeb(tmp_modules_dict[l.name].src, l.name);
+    const src = wrapModuleFn(tmp_modules_dict[l.name].src, l.name);
     let name = l.name;
     saveLib("components/" + name, src);
   });

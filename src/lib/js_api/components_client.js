@@ -63,14 +63,6 @@ export function webRequire(n, callee) {
 }
 
 let moduleEvts = {};
-function loadModule(n) {
-  if (!moduleEvts[n]) moduleEvts[n] = [];
-  //
-  return new Promise((res, rej) => {
-    moduleEvts[n].push(res);
-    window.Mukha.retrieveLib("components/" + n).catch((e) => rej(e));
-  });
-}
 
 export function registerModule(name, exports) {
   wlog.debug("Registering module:", name);
@@ -82,6 +74,43 @@ export function registerModule(name, exports) {
   if (moduleEvts[name]) {
     moduleEvts[name].forEach((evt) => {
       evt(loaded.get(name).exports);
+    });
+  } else {
+    wlog.debug("No notifications sent");
+  }
+}
+
+// Other (more async)
+
+let fnEvents = {};
+let loadedFunctions = {};
+
+function loadFunction(n) {
+  if (!fnEvents[n]) fnEvents[n] = [];
+  //
+  return new Promise((res, rej) => {
+    fnEvents[n].push(res);
+    window.Mukha.retrieveLib("components/" + n).catch((e) => rej(e));
+  });
+}
+
+function installModuleFromFn(n) {
+  // calls registerModule (via API)
+  loadedFunctions[n]();
+  // delete loadedFunctions[n]; // ???
+}
+
+export function registerModuleFn(name, fn) {
+  wlog.debug("Got module container:", name);
+  if (loadedFunctions[name]) {
+    wlog.warn("Already here.");
+    return;
+  } else {
+    loadedFunctions[name] = fn;
+  }
+  if (fnEvents[name]) {
+    fnEvents[name].forEach((evt) => {
+      evt(name);
     });
   } else {
     wlog.debug("No notifications sent");
@@ -102,8 +131,8 @@ export async function webInitComponents(
       element: e,
       component: e.dataset.componentName,
       cid: e.dataset.componentId,
-      propsEnc: e.dataset.propsEncoded,
-      propsID: e.dataset.propsId,
+      propsEnc: e.dataset.propsEncoded || false,
+      propsID: e.dataset.propsId || false,
       props: {},
     };
   });
@@ -129,7 +158,10 @@ export async function webInitComponents(
   const functions = await getGlobalDataFn("functions", "components");
   const assetsobj = await getGlobalDataFn("assets", "components");
   // console.log("assets table", assetsobj);
-  Object.keys(assetsobj).forEach((a) => assets.set(a, assetsobj[a]));
+  Object.keys(assetsobj).forEach((a) => {
+    const A = assetsobj[a];
+    assets.set(a, A);
+  });
   //
   // gather dehydrated
   // component functions
@@ -186,18 +218,36 @@ export async function webInitComponents(
     }
   } while (userModulesSet.size !== previousSize); // && iter > 0);
   //
+  //
   let ordered = Array.from(userModulesSet)
     .filter((e) => !internal.has(e))
-    .filter((e) => !assets.has(e))
+    .filter((e) => {
+      if (!assets.has(e)) {
+        return true;
+      }
+      const A = assets.get(e); // REVIEW: maybe bad...
+      if (A.site_path && A.site_path.match(/\.css$/i)) {
+        wlog.debug("Preattaching css asset", e);
+        window._M.attachScript(A.site_path, "css");
+      }
+      return false;
+    })
+    // .filter((e) => !assets.has(e))
     .sort((a, b) => {
       return (modDict[a]?.order || 0) - (modDict[b]?.order || 0);
     });
 
   wlog.debug("Load for this page", ordered);
-  // actually, load
+  //
+  // actually, load all async
+  await Promise.all(ordered.map((u) => loadFunction(u))).catch((e) =>
+    wlog.error("Can not load all:", e),
+  );
+  //
+  // install in order
   for (let i = 0; i < ordered.length; i++) {
     wlog.info("Loading", i + 1 + "/" + ordered.length, ":", ordered[i]);
-    await loadModule(ordered[i]);
+    installModuleFromFn(ordered[i]);
   }
 
   // hydrate all!
