@@ -28,6 +28,7 @@ export function loadPackedPromise(id, url) {
   });
 }
 
+// Packed Object CallBack
 export function _pocb(id, obj) {
   if (!registry.has(id)) {
     console.warn("Unregistered:", id);
@@ -49,6 +50,28 @@ export function createLoader(LOC) {
   return (i, u, rs, rj) => loadPackedObject(i, u, rs, rj, LOC);
 }
 
-export function createPromiseLoader(LOC) {
-  return (i, u) => new Promise((rs, rj) => loadPackedObject(i, u, rs, rj, LOC));
+export function createPromisingLoader(LOC, timeout = 5000) {
+  return (i, u) =>
+    new Promise((resolve, reject) => {
+      let done = false;
+      const finish = (fn, val) => {
+        if (done) return;
+        done = true;
+        clearTimeout(TO);
+        fn(val);
+      };
+
+      const TO = setTimeout(
+        () => finish(reject, "Timeout exceed: " + i),
+        timeout,
+      );
+      const resCb = (r) => finish(resolve, r);
+      const errCb = (e) => finish(reject, e);
+
+      try {
+        loadPackedObject(i, u, resCb, errCb, LOC);
+      } catch (e) {
+        finish(reject, e);
+      }
+    });
 }
