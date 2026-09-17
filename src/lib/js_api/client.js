@@ -143,7 +143,6 @@ import {
   //
   // API
   window.Mukha = {
-    // :TODO: redo?
     permalink: myLocation,
     registerData: registerData,
     relpath: relative,
@@ -157,7 +156,6 @@ import {
       return getData(name, nspace);
     },
     // THINK:
-    //
     getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
@@ -165,7 +163,7 @@ import {
     retrieveLib: retrieveLib,
     // register module container function
     _rmc: registerModuleFn, //
-    // TODO: ↓ not required ↓
+    // THINK: ↓ not required ↓
     require: webRequire,
   };
   window._M = window.Mukha;
