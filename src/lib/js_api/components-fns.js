@@ -54,11 +54,11 @@ export function webRequire(n, callee) {
     wlog.error("Module not loaded:", moduleName);
     return null;
   }
-  //load asset
   let assetPath = assets.get(moduleName).site_path;
-  if (assetPath && moduleName.match(/\.css$/i)) {
-    window.Mukha.attachScript(assetPath, "css");
-  }
+  //load asset (edit out — done it before)
+  // if (assetPath && moduleName.match(/\.css$/i)) {
+  //   window.Mukha.attachScript(assetPath, "css");
+  // }
   return assetPath;
 }
 
@@ -95,15 +95,20 @@ function loadFunction(n) {
 }
 
 function installModuleFromFn(n) {
-  // calls registerModule (via API)
+  // loaded "container" function
+  // consumes register function and require (via API)
+  // then registeres module
   loadedFunctions[n](registerModule, webRequire);
   // delete loadedFunctions[n]; // ???
 }
 
 export function registerModuleFn(name, fn) {
   wlog.debug("Got module container:", name);
-  if (loadedFunctions[name]) {
-    wlog.warn("Already here.");
+  if (loadedFunctions[name] || loaded.has(name)) {
+    wlog.warn("Already here:", name);
+    return;
+  } else if (!fnEvents[name]) {
+    wlog.warn("Nobody asked for", name, "— do nothing.");
     return;
   } else {
     loadedFunctions[name] = fn;
@@ -227,7 +232,7 @@ export async function webInitComponents(
       }
       const A = assets.get(e); // REVIEW: maybe bad...
       if (A.site_path && A.site_path.match(/\.css$/i)) {
-        wlog.debug("Preattaching css asset", e);
+        wlog.debug("Preattaching css asset:", e);
         window._M.attachScript(A.site_path, "css");
       }
       return false;
