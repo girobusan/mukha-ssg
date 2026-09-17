@@ -9,7 +9,9 @@ import {
   webInitComponents,
   registerModule,
   registerModuleFn,
-} from "./components_client";
+} from "./components-fns";
+
+import { relative, resolveAbsPath } from "./web-path-ops.js";
 
 (function() {
   if (window.Mukha) {
@@ -18,13 +20,16 @@ import {
   const siteData = "@DATA@";
 
   const myLocation = document.currentScript.dataset.location;
-  banertype("Mukha JS API client", VERSION);
-  banertype("at", myLocation);
+  banertype("Mukha JS API client", VERSION, "at", myLocation);
+  console.info("Preact version", PREACTVER);
   setLevel("@LOGLEVEL@" || 4);
   //
-  function relative(from, to) {
-    return path.relative(path.dirname(from), to);
-  }
+  // function relative(from, to) {
+  //   return path.relative(path.dirname(from), to);
+  // }
+  // function resolveAbsPath(from, to) {
+  //   return path.resolve(path.dirname(from), to);
+  // }
   function uncompact(tobj) {
     const tout = [];
     tobj.rows.forEach((rw) => {
@@ -83,7 +88,7 @@ import {
     // is relative?
     else if (url.startsWith(".")) {
       relp = url;
-      absp = path.resolve(myLocation, relp);
+      absp = resolveAbsPath(myLocation, relp);
     }
     // it's not local at all
     else if (url.match(/^(https:|http:|ftp:|ssh:)/)) {
@@ -92,7 +97,7 @@ import {
       // assuming relative!
     } else {
       relp = url;
-      absp = path.resolve(myLocation, relp);
+      absp = resolveAbsPath(myLocation, relp);
     }
 
     if (attached.has(absp)) {
@@ -146,7 +151,9 @@ import {
     // :TODO: redo?
     permalink: myLocation,
     registerData: registerData,
-    relpath: relative,
+    relPath: (f, t) => (t ? relative(f, t) : relative(myLocation, f)),
+    absPath: (f, t) =>
+      t ? resolveAbsPath(f, t) : resolveAbsPath(myLocation, f),
     relTo: (t) => relative(myLocation, t),
     attachScript: (...args) => {
       return attachResource(...args);
