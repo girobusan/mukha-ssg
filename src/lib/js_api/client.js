@@ -3,15 +3,16 @@
 // ns system (system data; search)
 // async load of local datasets
 import { posix as path } from "path-browserify";
-import { banertype, wlog, setLevel } from "./wlog";
+import { banertype, wlog, setLevel } from "./frontend/wlog";
 import {
   webRequire,
   webInitComponents,
   registerModule,
   registerModuleFn,
-} from "./components-fns";
+} from "./frontend/components-fns";
 
-import { relative, resolveAbsPath } from "./web-path-ops.js";
+import { relative, resolveAbsPath } from "./frontend/web-path-ops.js";
+import { attachResource as AR } from "./frontend/attach-resource.js";
 
 (function() {
   if (window.Mukha) {
@@ -20,16 +21,11 @@ import { relative, resolveAbsPath } from "./web-path-ops.js";
   const siteData = "@DATA@";
 
   const myLocation = document.currentScript.dataset.location;
+  const attachResource = (p, t) => AR(p, t, myLocation);
   banertype("Mukha JS API client", VERSION, "at", myLocation);
   console.info("Preact version", PREACTVER);
   setLevel("@LOGLEVEL@" || 4);
   //
-  // function relative(from, to) {
-  //   return path.relative(path.dirname(from), to);
-  // }
-  // function resolveAbsPath(from, to) {
-  //   return path.resolve(path.dirname(from), to);
-  // }
   function uncompact(tobj) {
     const tout = [];
     tobj.rows.forEach((rw) => {
@@ -44,7 +40,6 @@ import { relative, resolveAbsPath } from "./web-path-ops.js";
   }
 
   var DataStore = {};
-  var Components = {};
   function dataFilePath(ns, name) {
     if (ns.startsWith("/")) {
       //local
@@ -71,56 +66,6 @@ import { relative, resolveAbsPath } from "./web-path-ops.js";
     let dataP = dataFilePath(ns, name);
     wlog.debug("...requesting data", dataP);
     return requestData(dataP);
-  }
-
-  let attached = new Set();
-
-  function attachResource(url, atag) {
-    let tg = atag || "script";
-    wlog.debug("Attaching:", url, "as", tg);
-    let relp;
-    let absp;
-    // is local?
-    if (url.startsWith("/")) {
-      absp = url;
-      relp = relative(myLocation, absp);
-    }
-    // is relative?
-    else if (url.startsWith(".")) {
-      relp = url;
-      absp = resolveAbsPath(myLocation, relp);
-    }
-    // it's not local at all
-    else if (url.match(/^(https:|http:|ftp:|ssh:)/)) {
-      relp = url;
-      absp = url;
-      // assuming relative!
-    } else {
-      relp = url;
-      absp = resolveAbsPath(myLocation, relp);
-    }
-
-    if (attached.has(absp)) {
-      wlog.debug("Already attached.");
-      return Promise.resolve(true);
-    }
-    attached.add(absp);
-
-    const tag = tg === "script" ? "script" : "link";
-    const attr = tg === "script" ? "src" : "href";
-    const rel = tg === "script" ? false : "stylesheet";
-    return new Promise((res, rej) => {
-      let st = document.createElement(tag);
-      rel && st.setAttribute("rel", rel);
-      if ("onload" in st) {
-        st.addEventListener("load", () => res("LOADED"));
-        st.addEventListener("error", () => rej("NOT LOADED"));
-      } else {
-        res(true);
-      }
-      document.head.appendChild(st);
-      st.setAttribute(attr, relp);
-    });
   }
 
   function retrieveLib(lpath) {

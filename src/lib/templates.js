@@ -2,7 +2,7 @@ const nunjucks = require("nunjucks");
 import { format as dateFormat } from "date-fns";
 import { makeLister, LISTER_TAG } from "./list";
 import { tableFilter, shorten, un_para, add_para } from "./template_additions";
-import { componentTag, componentSingle } from "./components/components_njk";
+import { componentTag, componentSingle } from "./components/components-njk";
 import { md2html } from "./md_parser";
 //
 import { rangeArray } from "./util/base";
@@ -25,9 +25,6 @@ function makeObjectLoader(obj) {
   //it's automatically root
   //
   const tpnames = Object.keys(obj);
-  // console.log(
-  //   "Templates files are:\n" + tpnames.map((t) => " -" + t).join("\n"),
-  // );
 
   if (tpnames.length == 1 && tpnames[0] != "index.njk") {
     obj = { "index.njk": obj[tpnames[0]] };
