@@ -4,17 +4,13 @@
 // async load of local datasets
 import { posix as path } from "path-browserify";
 import { banertype, wlog, setLevel } from "./frontend/wlog";
-import {
-  webRequire,
-  webInitComponents,
-  registerModule,
-  registerModuleFn,
-} from "./frontend/components-fns";
+import { webRequire, webInitComponents } from "./frontend/components-fns";
 
 import { relative, resolveAbsPath } from "./frontend/web-path-ops.js";
 import { attachResource as AR } from "./frontend/attach-resource.js";
+import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
 
-(function() {
+(function () {
   if (window.Mukha) {
     return;
   } // dont
@@ -22,6 +18,7 @@ import { attachResource as AR } from "./frontend/attach-resource.js";
 
   const myLocation = document.currentScript.dataset.location;
   const attachResource = (p, t) => AR(p, t, myLocation);
+  const loadLib = createPromisingLoader(myLocation, 5000);
   banertype("Mukha JS API client", VERSION, "at", myLocation);
   console.info("Preact version", PREACTVER);
   setLevel("@LOGLEVEL@" || 4);
@@ -68,8 +65,13 @@ import { attachResource as AR } from "./frontend/attach-resource.js";
     return requestData(dataP);
   }
 
-  function retrieveLib(lpath) {
-    return attachResource(relative(myLocation, path.join("/_js/lib", lpath)));
+  function retrieveLib(lpath, libId) {
+    // use Prmising loader
+    // Promise!
+    return loadLib(
+      libId || lpath,
+      relative(myLocation, path.join("/_js/lib", lpath)),
+    );
   }
 
   let requested = {};
@@ -102,25 +104,25 @@ import { attachResource as AR } from "./frontend/attach-resource.js";
     attachScript: (...args) => {
       return attachResource(...args);
     },
-    getLocalData: function(name, ns) {
+    getLocalData: function (name, ns) {
       // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
     // THINK:
-    getData: function(name, ns) {
+    getData: function (name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },
     retrieveLib: retrieveLib,
     // register module container function
-    _rmc: registerModuleFn, //
+    _rmc: _pocb, //registerModuleFn, //
     // THINK: ↓ not required ↓
     require: webRequire,
   };
   window._M = window.Mukha;
   //
   // init components
-  webInitComponents(getData, attachResource, retrieveLib, relative, myLocation);
+   webInitComponents(getData, attachResource, retrieveLib, relative, myLocation);
   //
 })();

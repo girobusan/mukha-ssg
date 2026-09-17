@@ -1,4 +1,5 @@
 import { attachResource } from "./attach-resource";
+import { wlog } from "./wlog.js";
 const registry = new Map();
 
 export function loadPackedObject(
@@ -11,6 +12,7 @@ export function loadPackedObject(
   if (!url) {
     url = id;
   }
+  wlog.debug("Loading pack:", id, "from", url);
   if (!registry.has(id)) {
     registry.set(id, { url: url, cb: [resolveCb], loaded: false, obj: null });
     //attach script
@@ -38,6 +40,7 @@ export function _pocb(id, obj) {
   if (!entry.loaded) {
     entry.obj = obj;
     entry.loaded = true;
+    wlog.debug("Pack recieved:", id);
   }
   entry.cb.forEach((cb) => cb(obj));
   for (let i = 0; i < entry.cb.length; i++) {

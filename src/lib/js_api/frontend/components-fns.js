@@ -3,6 +3,7 @@ const hooks = require("preact/hooks");
 const htm = require("htm/preact");
 import { posix as path } from "path-browserify";
 import { wlog } from "./wlog";
+import { createPromisingLoader } from "./pack-loader";
 
 // const MAPI = window.Mukha;
 
@@ -82,45 +83,46 @@ function registerModule(name, exports) {
 
 // Other (more async)
 
-let fnEvents = {};
-let loadedFunctions = {};
+// let fnEvents = {};
+// let loadedFunctions = {};
 
 function loadFunction(n) {
-  if (!fnEvents[n]) fnEvents[n] = [];
-  //
-  return new Promise((res, rej) => {
-    fnEvents[n].push(res);
-    window.Mukha.retrieveLib("components/" + n).catch((e) => rej(e));
-  });
+  return window.Mukha.retrieveLib("components/" + n, n);
+  // if (!fnEvents[n]) fnEvents[n] = [];
+  // //
+  // return new Promise((res, rej) => {
+  //   fnEvents[n].push(res);
+  //   window.Mukha.retrieveLib("components/" + n).catch((e) => rej(e));
+  // });
 }
 
-function installModuleFromFn(n) {
-  // loaded "container" function
-  // consumes register function and require (via API)
-  // then registeres module
-  loadedFunctions[n](registerModule, webRequire);
-  // delete loadedFunctions[n]; // ???
-}
+// function installModuleFromFn(n) {
+//   // loaded "container" function
+//   // consumes register function and require (via API)
+//   // then registeres module
+//   loadedFunctions[n](registerModule, webRequire);
+//   // delete loadedFunctions[n]; // ???
+// }
 
-export function registerModuleFn(name, fn) {
-  wlog.debug("Got module container:", name);
-  if (loadedFunctions[name] || loaded.has(name)) {
-    wlog.warn("Already here:", name);
-    return;
-  } else if (!fnEvents[name]) {
-    wlog.warn("Nobody asked for", name, "— do nothing.");
-    return;
-  } else {
-    loadedFunctions[name] = fn;
-  }
-  if (fnEvents[name]) {
-    fnEvents[name].forEach((evt) => {
-      evt(name);
-    });
-  } else {
-    wlog.debug("No notifications sent");
-  }
-}
+// export function registerModuleFn(name, fn) {
+//   wlog.debug("Got module container:", name);
+//   if (loadedFunctions[name] || loaded.has(name)) {
+//     wlog.warn("Already here:", name);
+//     return;
+//   } else if (!fnEvents[name]) {
+//     wlog.warn("Nobody asked for", name, "— do nothing.");
+//     return;
+//   } else {
+//     loadedFunctions[name] = fn;
+//   }
+//   if (fnEvents[name]) {
+//     fnEvents[name].forEach((evt) => {
+//       evt(name);
+//     });
+//   } else {
+//     wlog.debug("No notifications sent");
+//   }
+// }
 
 export async function webInitComponents(
   getGlobalDataFn,
@@ -129,6 +131,7 @@ export async function webInitComponents(
   relative,
   currentLoc,
 ) {
+  // const moduleLoader = createPromisingLoader(currentLoc, 5000);
   const elements = Array.from(
     document.querySelectorAll(".Mukha_hydration_required"),
   ).map((e) => {
@@ -246,7 +249,7 @@ export async function webInitComponents(
   //
   // actually, load all async
   const startLoadT = new Date().getTime();
-  await Promise.all(ordered.map((u) => loadFunction(u))).catch((e) =>
+  let objs = await Promise.all(ordered.map((u) => loadFunction(u))).catch((e) =>
     wlog.error("Can not load all:", e),
   );
   wlog.debug("Loading finished in", new Date().getTime() - startLoadT, "ms");
@@ -254,7 +257,8 @@ export async function webInitComponents(
   // install in order
   for (let i = 0; i < ordered.length; i++) {
     wlog.info("Installing", i + 1 + "/" + ordered.length, ":", ordered[i]);
-    installModuleFromFn(ordered[i]);
+    objs[i](registerModule, webRequire);
+    // installModuleFromFn(ordered[i]);
   }
 
   // hydrate all!
