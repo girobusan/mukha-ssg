@@ -154,17 +154,20 @@ export async function webInitComponents(
   internal.get("mukha-system")["location"] = currentLoc;
   //
   // load  all know modules data
-  //
-  const modules = await getGlobalDataFn("modules", "components").catch((e) => {
-    console.log("Error when loading modules table", e);
-  });
+
+  const [modules, functions, assetsobj] = await Promise.all([
+    getGlobalDataFn("modules", "components").catch((e) => {
+      wlog.error("Error when loading modules table", e);
+    }),
+    getGlobalDataFn("functions", "components"),
+    getGlobalDataFn("assets", "components"),
+  ]);
+
+  console.log("modules", modules);
   var modDict = modules.reduce((a, e) => {
     a[e.name] = e;
     return a;
   }, {});
-  // console.log(modules);
-  const functions = await getGlobalDataFn("functions", "components");
-  const assetsobj = await getGlobalDataFn("assets", "components");
   // console.log("assets table", assetsobj);
   Object.keys(assetsobj).forEach((a) => {
     const A = assetsobj[a];
@@ -258,7 +261,6 @@ export async function webInitComponents(
   for (let i = 0; i < ordered.length; i++) {
     wlog.info("Installing", i + 1 + "/" + ordered.length, ":", ordered[i]);
     objs[i](registerModule, webRequire);
-    // installModuleFromFn(ordered[i]);
   }
 
   // hydrate all!

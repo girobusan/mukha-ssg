@@ -1,7 +1,3 @@
-// async load of clobal datasets
-// ns global (from data module)
-// ns system (system data; search)
-// async load of local datasets
 import { posix as path } from "path-browserify";
 import { banertype, wlog, setLevel } from "./frontend/wlog";
 import { webRequire, webInitComponents } from "./frontend/components-fns";
@@ -14,14 +10,18 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
   if (window.Mukha) {
     return;
   } // dont
-  const siteData = "@DATA@";
 
+  const siteData = "@DATA@";
   const myLocation = document.currentScript.dataset.location;
-  const attachResource = (p, t) => AR(p, t, myLocation);
-  const loadLib = createPromisingLoader(myLocation, 5000);
+  //
   banertype("Mukha JS API client", VERSION, "at", myLocation);
   console.info("Preact version", PREACTVER);
   setLevel("@LOGLEVEL@" || 4);
+  //
+  //
+  const attachResource = (p, t) => AR(p, t, myLocation);
+  const packLoader = createPromisingLoader(myLocation, 10000);
+  //
   //
   function uncompact(tobj) {
     const tout = [];
@@ -45,52 +45,34 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
     return "/_js/data/global/" + ns + "/" + name.replace(/\./g, "/") + ".js";
   }
   //
-  function registerData(ns, dname, dt, compacted) {
-    let dpath = dataFilePath(ns, dname);
-    //save data!
+  async function registerData(ns, dname, dt, compacted) {
+    // console.log("registering", ns, dname);
     if (DataStore[ns] && DataStore[ns][dname]) {
+      wlog.debug("Already registered:", ns, dname);
       return;
     }
     if (!DataStore[ns]) DataStore[ns] = {};
     DataStore[ns][dname] = compacted ? uncompact(dt) : dt;
-    if (requested[dpath]) requested[dpath](DataStore[ns][dname]);
   }
   //
-  function getData(name, ns) {
+  async function getData(name, ns) {
     if (DataStore[ns] && DataStore[ns][name]) {
-      return Promise.resolve(DataStore[ns][name]);
+      return DataStore[ns][name];
     }
     let dataP = dataFilePath(ns, name);
     wlog.debug("...requesting data", dataP);
-    return requestData(dataP);
+    await packLoader(dataP).then((r) => r(registerData));
+    return DataStore[ns][name]; // return requestData(dataP);
   }
 
   function retrieveLib(lpath, libId) {
-    // use Prmising loader
     // Promise!
-    return loadLib(
+    return packLoader(
       libId || lpath,
       relative(myLocation, path.join("/_js/lib", lpath)),
     );
   }
 
-  let requested = {};
-  function requestData(jspath) {
-    //TODO: rewrite
-    wlog.debug("Sending request:", jspath);
-    return new Promise((res, rej) => {
-      attachResource(jspath).catch((e) => {
-        wlog.error("Can not load data from", sc, e);
-        rej("Can not attach");
-      });
-      requested[jspath] = (d) => {
-        // save data => register funtion
-        delete requested[jspath];
-        wlog.debug("Data recieved:", d);
-        res(d);
-      };
-    });
-  }
   //
   //
   // API
@@ -116,13 +98,17 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
     },
     retrieveLib: retrieveLib,
     // register module container function
-    _rmc: _pocb, //registerModuleFn, //
+    _rmc: (...args) => {
+      console.warn("_rmc must be changed to _pocb since september!");
+      _pocb(...args);
+    }, //registerModuleFn, //
+    _pocb: _pocb, //registerModuleFn, //
     // THINK: ↓ not required ↓
     require: webRequire,
   };
   window._M = window.Mukha;
   //
   // init components
-   webInitComponents(getData, attachResource, retrieveLib, relative, myLocation);
+  webInitComponents(getData, attachResource, retrieveLib, relative, myLocation);
   //
 })();

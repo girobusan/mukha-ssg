@@ -21,6 +21,22 @@ function anyData2js(ns, dname, dt, compacted) {
   return `window.Mukha.registerData( "${ns}" , "${dname}" , ${json} , ${compacted})`;
 }
 
+function packData(dataUrl, ns, dname, dataObj, compacted) {
+  //
+  const json = stringify2JSON(dataObj);
+  //
+  let thePack = `(function(){
+// the pack
+   function packed(registerFn){
+     registerFn( "${ns}" , "${dname}" , ${json} , ${compacted || false}) 
+   }
+
+ window.Mukha._pocb( "${dataUrl}" , packed);
+
+})()`;
+  return thePack;
+}
+
 function prepAnyData(ns, dname, dt) {
   let r = testTable(dt, ns + "." + dname);
   r.ns = ns;
@@ -71,16 +87,19 @@ export function saveLib(pth, cnt) {
 
 export function saveJSAPIfiles(saveFn, copyFn) {
   // global datasets
-  data.forEach((d) =>
+  data.forEach((d) => {
+    const dUrl =
+      "/_js/data/global/" + d.ns + "/" + d.name.replace(/\./g, "/") + ".js";
     saveFn(
-      "/_js/data/global/" + d.ns + "/" + d.name.replace(/\./g, "/") + ".js",
-      anyData2js(d.ns, d.name, d.data, d.compacted),
-    ),
-  );
+      dUrl,
+      // anyData2js(d.ns, d.name, d.data, d.compacted),
+      packData(dUrl, d.ns, d.name, d.data, d.compacted),
+    );
+  });
   // local datasets
   localData.forEach((d) => {
-    let dp = "/_js/data/local" + d.ns + "/" + d.name + ".js"; //?
-    saveFn(dp, anyData2js(d.ns, d.name, d.data, d.compacted));
+    let dUrl = "/_js/data/local" + d.ns + "/" + d.name + ".js"; //?
+    saveFn(dUrl, packData(dUrl, d.ns, d.name, d.data, d.compacted));
   });
   //lib
   lib.forEach((l) => {
