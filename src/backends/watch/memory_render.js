@@ -7,7 +7,7 @@ import { createCore } from "../../lib/core";
 import { cleanupAfter } from "../node_fs";
 import { getLogger } from "../../lib/logging";
 import { execHooks } from "../../lib/hooks";
-import { absPath } from "../../lib/util/path_sys.js";
+import { absPath } from "../../lib/util/path-sys.js";
 var log = getLogger("memrender");
 
 const errorDoc = (e, p) => {

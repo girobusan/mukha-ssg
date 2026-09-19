@@ -16,11 +16,6 @@ let lib = [];
 let lib_to_copy = [];
 let siteData = { version: VERSION };
 
-function anyData2js(ns, dname, dt, compacted) {
-  const json = stringify2JSON(dt);
-  return `window.Mukha.registerData( "${ns}" , "${dname}" , ${json} , ${compacted})`;
-}
-
 function packData(dataUrl, ns, dname, dataObj, compacted) {
   //
   const json = stringify2JSON(dataObj);
@@ -67,6 +62,7 @@ export function saveGlobalData4JS(ns, dname, dset) {
 }
 
 export function saveLocalData4JS(dname, dset, dpath, ns = "") {
+  log.debug("Must save local data: ", dname, dset, dpath);
   if (!dset) {
     log.warn("Attempt to save empty dataset:", dname, dpath);
     return;
@@ -86,10 +82,12 @@ export function saveLib(pth, cnt) {
 }
 
 export function saveJSAPIfiles(saveFn, copyFn) {
+  log.debug("Saving data files...");
   // global datasets
   data.forEach((d) => {
     const dUrl =
       "/_js/data/global/" + d.ns + "/" + d.name.replace(/\./g, "/") + ".js";
+    log.debug("Saving global data file", dUrl);
     saveFn(
       dUrl,
       // anyData2js(d.ns, d.name, d.data, d.compacted),
@@ -99,6 +97,7 @@ export function saveJSAPIfiles(saveFn, copyFn) {
   // local datasets
   localData.forEach((d) => {
     let dUrl = "/_js/data/local" + d.ns + "/" + d.name + ".js"; //?
+    log.debug("Saving local data file", dUrl);
     saveFn(dUrl, packData(dUrl, d.ns, d.name, d.data, d.compacted));
   });
   //lib

@@ -209,7 +209,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         try {
           page.html = tpl.renderString(page.content, SC);
         } catch (e) {
-          log.warn("Template tags in content error", page.file.path, e.message);
+          log.warn("Template tags in content error", page.file.path, e);
         }
       }
       // if markdown, render markdown then?

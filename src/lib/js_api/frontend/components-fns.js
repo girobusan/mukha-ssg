@@ -6,6 +6,7 @@ import { wlog } from "./wlog";
 import { createPromisingLoader } from "./pack-loader";
 
 // const MAPI = window.Mukha;
+var myLocation;
 
 const internal = new Map([
   ["preact", { exports: preact, order: 0 }], //module!!
@@ -17,7 +18,9 @@ const internal = new Map([
       exports: {
         module_state: "frontend",
         static_render: false,
-        getGlobalData: (...args) => window.Mukha.getData(...args),
+        data: {
+          getGlobal: (...args) => window.Mukha.getData(...args),
+        },
       },
     },
   ],
@@ -72,57 +75,11 @@ function registerModule(name, exports) {
   } else {
     loaded.set(name, { exports: exports });
   }
-  // if (moduleEvts[name]) {
-  //   moduleEvts[name].forEach((evt) => {
-  //     evt(loaded.get(name).exports);
-  //   });
-  // } else {
-  //   wlog.debug("No notifications sent");
-  // }
 }
-
-// Other (more async)
-
-// let fnEvents = {};
-// let loadedFunctions = {};
 
 function loadFunction(n) {
   return window.Mukha.retrieveLib("components/" + n, n);
-  // if (!fnEvents[n]) fnEvents[n] = [];
-  // //
-  // return new Promise((res, rej) => {
-  //   fnEvents[n].push(res);
-  //   window.Mukha.retrieveLib("components/" + n).catch((e) => rej(e));
-  // });
 }
-
-// function installModuleFromFn(n) {
-//   // loaded "container" function
-//   // consumes register function and require (via API)
-//   // then registeres module
-//   loadedFunctions[n](registerModule, webRequire);
-//   // delete loadedFunctions[n]; // ???
-// }
-
-// export function registerModuleFn(name, fn) {
-//   wlog.debug("Got module container:", name);
-//   if (loadedFunctions[name] || loaded.has(name)) {
-//     wlog.warn("Already here:", name);
-//     return;
-//   } else if (!fnEvents[name]) {
-//     wlog.warn("Nobody asked for", name, "— do nothing.");
-//     return;
-//   } else {
-//     loadedFunctions[name] = fn;
-//   }
-//   if (fnEvents[name]) {
-//     fnEvents[name].forEach((evt) => {
-//       evt(name);
-//     });
-//   } else {
-//     wlog.debug("No notifications sent");
-//   }
-// }
 
 export async function webInitComponents(
   getGlobalDataFn,
@@ -131,6 +88,7 @@ export async function webInitComponents(
   relative,
   currentLoc,
 ) {
+  myLocation = currentLoc;
   // const moduleLoader = createPromisingLoader(currentLoc, 5000);
   const elements = Array.from(
     document.querySelectorAll(".Mukha_hydration_required"),
@@ -151,7 +109,7 @@ export async function webInitComponents(
   //
   // populate system module
   //
-  internal.get("mukha-system")["location"] = currentLoc;
+  internal.get("mukha-system")["permalink"] = currentLoc;
   //
   // load  all know modules data
 
@@ -267,6 +225,19 @@ export async function webInitComponents(
   wlog.info("Starting hydration...");
   elements.forEach(async (e) => {
     wlog.debug("Hydrating:", e);
+    //
+    //preparing system module
+    let sys = internal.get("mukha-system").exports;
+    sys._cid = e.cid;
+    //
+    // (name, data, sys.location + "/" + "c" + component_id);
+    sys.data.getLocal = (name) => {
+      const dp = myLocation + "/c" + e.cid;
+      // TODO: use lib fn, not API?
+      return window._M.getLocalData(name, dp);
+    };
+
+    //
     const node = e.element;
     // const component = [e.component];
     let module = loaded.get(functions[e.component]);
@@ -277,7 +248,7 @@ export async function webInitComponents(
     }
     if (e.propsID) {
       // REVIEW:
-      // load props from filr
+      // load props from file
       props = await window.Mukha.getData(e.propsID, "components/props");
     }
     preact.hydrate(preact.h(componentFn, props), node);

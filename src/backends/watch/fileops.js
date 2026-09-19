@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 import { niceDate } from "../../lib/util/text.js";
 import { getLogger } from "../../lib/logging";
-import { absPath } from "../../lib/util/path_sys.js";
+import { absPath } from "../../lib/util/path-sys.js";
 import { sanitizeFileName } from "../../lib/util/mukha.js";
 var log = getLogger("file ops");
 

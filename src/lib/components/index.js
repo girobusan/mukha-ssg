@@ -8,8 +8,8 @@ import {
   saveLib,
 } from "../js_api";
 import { getGlobalData } from "../data.js";
-import { findRequires, normalizeName } from "./comp_util";
-import { wrapModuleFn } from "./web_template.js";
+import { findRequires, normalizeName } from "./components-util.js";
+import { wrapModuleFn } from "./web-template.js";
 import { stringify2JSON } from "../util/base.js";
 import { longHash, shortHash } from "../util/hashes.js";
 import { getLogger } from "../logging";
@@ -18,11 +18,6 @@ var log = getLogger("comps");
 const preact = require("preact");
 const hooks = require("preact/hooks");
 const htm = require("htm/preact");
-/*
-const { useState } = hooks;
-const { h, render } = preact;
-const { html } = htm;
-*/
 // cache
 const rehydrationCache = new Map();
 //
@@ -40,9 +35,15 @@ const internal = new Map([
       exports: {
         module_state: "loading",
         static_render: true,
-        getGlobalData: (...args) => Promise.resolve(getGlobalData(...args)),
-        // awailable only in static render
-        getGlobalDataSync: getGlobalData,
+        data: {
+          getGlobal: (...args) => Promise.resolve(getGlobalData(...args)),
+          // getPageData — front
+          // getLocalData - static
+          // saveLocalData - static
+          // awailable only in static render
+          getGlobalSync: getGlobalData,
+        },
+        context: {},
       },
     },
   ],
@@ -127,7 +128,7 @@ export function createElement(fn_name, props) {
 
 const componentIDs = {};
 export function renderComponentToString(fn_name, props = {}, context) {
-  internal.get("mukha-system").module_state = "static";
+  internal.get("mukha-system").exports.module_state = "static";
   // let __H = 1;
   let element = preact.h(findFunction(fn_name), props);
   let props_to_save;
@@ -170,17 +171,20 @@ export function renderComponentToString(fn_name, props = {}, context) {
     // console.log("render to string NOW", component_id);
     // tanpering with system module
     let sys = internal.get("mukha-system").exports;
-    sys.page = context.ctx.page; // won't be awailable on frontentd ANYway
-    sys.cid = component_id; // won't work on frontend THIS way
+    //
+    // add render contexts
+    sys.context.page = context.ctx.page; // won't be awailable on frontentd ANYway
+    sys.context.lister = context.ctx.list;
+    sys.context.file = context.ctx.file;
+    //
+    sys._cid = component_id;
     sys.location = context.ctx.page.permalink;
-    sys.data = {
-      // save local data for this particular component
-      saveLocal: (name, data) => {
-        saveLocalData4JS(name, data, sys.location + "/" + "c" + component_id);
-      },
-      // loadLocal: (name)=>{ } is not available here
-      // load global data
+    // save local data for this particular component
+    sys.data.saveLocal = (name, data) => {
+      log.debug("Preparing to save", name);
+      saveLocalData4JS(name, data, sys.location + "/" + "c" + component_id);
     };
+    // loadLocal: (name)=>{ } is not available here
     //
     html = renderToString(element);
   } catch (e) {
@@ -299,8 +303,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-    (...args) =>
-      log[what](n + ":", ...args);
+      (...args) =>
+        log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))

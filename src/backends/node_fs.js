@@ -3,7 +3,7 @@ const path = require("path");
 import { createCore } from "../lib/core";
 import { getLogger } from "../lib/logging";
 import { execHooks } from "../lib/hooks";
-import { absPath } from "../lib/util/path_sys.js";
+import { absPath } from "../lib/util/path-sys.js";
 var log = getLogger("node-fs");
 
 // backend takes its args
