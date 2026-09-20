@@ -43,6 +43,10 @@ const internal = new Map([
           // awailable only in static render
           getGlobalSync: getGlobalData,
         },
+        path: {
+          // TODO:
+          relative: (p, t) => console.log("Not implemented"),
+        },
         context: {},
       },
     },
@@ -303,8 +307,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-      (...args) =>
-        log[what](n + ":", ...args);
+    (...args) =>
+      log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))

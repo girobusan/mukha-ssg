@@ -35,6 +35,11 @@ _If any components found..._
 ## System API for component
 
 - [x] Load/save global datasets (sync at render, async at frontend?)
-- [ ] Local data storage for components?
-- [ ] (???) Change basic data storage to one file for one page principle.
-- [ ] Access to render context at GT
+- [x] Local data storage for components?
+- [x] Access to render context at GT (mukha-system module)
+
+## Data ops
+
+- [ ](!) Do: Better namespacing of local data (page => ..page/name, component => ..componenta/id/name)
+- [ ] Decide: maybe, save all page data to single JSON? Partially solves preloading problem.
+- Data, saved by module, preloaded before hydration, like props?
