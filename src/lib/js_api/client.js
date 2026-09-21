@@ -24,10 +24,9 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
   const attachResource = (p, t) => AR(p, t, myLocation);
   const packLoader = createPromisingLoader(myLocation, 10000);
   //
-  var pageData;
-  packLoader(myLocation, "/_js/data/local" + myLocation + ".js")
-    .then((r) => (pageData = r))
-    .catch((_) => console.log("No data attached"));
+  var pageData = await
+    packLoader(myLocation, "/_js/data/local" + myLocation + ".js")
+      .catch((_) => { return {} }));
   //
   function uncompact(tobj) {
     const tout = [];
