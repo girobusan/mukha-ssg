@@ -43,6 +43,7 @@ export function _pocb(id, obj) {
     wlog.debug("Pack recieved:", id);
   }
   entry.cb.forEach((cb) => cb(obj));
+
   for (let i = 0; i < entry.cb.length; i++) {
     entry.cb[i](obj);
     delete entry.cb[i];

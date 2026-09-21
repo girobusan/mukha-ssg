@@ -6,13 +6,15 @@ import { relative, resolveAbsPath } from "./frontend/web-path-ops.js";
 import { attachResource as AR } from "./frontend/attach-resource.js";
 import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
 
-(function () {
+(async function() {
   if (window.Mukha) {
     return;
   } // dont
 
   const siteData = "@DATA@";
   const myLocation = document.currentScript.dataset.location;
+  // test
+
   //
   banertype("Mukha JS API client", VERSION, "at", myLocation);
   console.info("Preact version", PREACTVER);
@@ -22,6 +24,10 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
   const attachResource = (p, t) => AR(p, t, myLocation);
   const packLoader = createPromisingLoader(myLocation, 10000);
   //
+  var pageData;
+  packLoader(myLocation, "/_js/data/local" + myLocation + ".js")
+    .then((r) => (pageData = r))
+    .catch((_) => console.log("No data attached"));
   //
   function uncompact(tobj) {
     const tout = [];
@@ -86,13 +92,13 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
     attachScript: (...args) => {
       return attachResource(...args);
     },
-    getLocalData: function (name, ns) {
+    getLocalData: function(name, ns) {
       // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
     // THINK:
-    getData: function (name, ns) {
+    getData: function(name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },

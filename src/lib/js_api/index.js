@@ -1,4 +1,4 @@
-import { isTable, compactTable } from "../util/data";
+import { isTable, compactTable, writeByString } from "../util/data";
 import { stringify2JSON } from "../util/base";
 import { getLogger } from "../logging";
 var log = getLogger("js API");
@@ -15,6 +15,28 @@ let localData = [];
 let lib = [];
 let lib_to_copy = [];
 let siteData = { version: VERSION };
+
+// new local data routines
+const localPageData = new Map();
+//
+function addLocalData(pageUrl, ns, dname, dataObj) {
+  if (!localPageData.get(pageUrl)) {
+    localPageData.set(pageUrl, { page: {}, components: {} });
+  }
+  let entry = localPageData.get(pageUrl);
+  writeByString(dname, dataObj, ns, entry);
+}
+
+function packLocalData(pageUrl) {
+  let data = localPageData.get(pageUrl);
+  // console.log("packing", localPageData);
+  if (!data) {
+    return null;
+  }
+  return `(function(){
+window.Mukha._pocb( "${pageUrl}" , ${stringify2JSON(data)})
+})()`;
+}
 
 function packData(dataUrl, ns, dname, dataObj, compacted) {
   //
@@ -61,6 +83,7 @@ export function saveGlobalData4JS(ns, dname, dset) {
   data.push(prepAnyData(ns || "datasets", dname, dset));
 }
 
+//in tpl: saveData: (name, dt) => saveLocalData4JS(name, dt, page.file.path),
 export function saveLocalData4JS(dname, dset, dpath, ns = "") {
   log.debug("Must save local data: ", dname, dset, dpath);
   if (!dset) {
@@ -68,6 +91,10 @@ export function saveLocalData4JS(dname, dset, dpath, ns = "") {
     return;
   }
   localData.push(prepAnyData(dpath, dname, dset));
+}
+
+export function saveLocalData2FrontEnd(pageUrl, ns, dname, dataObj) {
+  addLocalData(pageUrl, ns, dname, dataObj);
 }
 
 export function copyToLib(srcpath, targetpath) {
@@ -99,6 +126,13 @@ export function saveJSAPIfiles(saveFn, copyFn) {
     let dUrl = "/_js/data/local" + d.ns + "/" + d.name + ".js"; //?
     log.debug("Saving local data file", dUrl);
     saveFn(dUrl, packData(dUrl, d.ns, d.name, d.data, d.compacted));
+  });
+  // NEW local datasets
+  localPageData.keys().forEach((key) => {
+    log.debug("Save local page data for:", key);
+    const pack = packLocalData(key);
+    // console.log(content);
+    saveFn("/_js/data/local" + key + ".js", pack);
   });
   //lib
   lib.forEach((l) => {
