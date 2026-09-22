@@ -6,7 +6,7 @@ import { relative, resolveAbsPath } from "./frontend/web-path-ops.js";
 import { attachResource as AR } from "./frontend/attach-resource.js";
 import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
 
-(async function() {
+(async function () {
   if (window.Mukha) {
     return;
   } // dont
@@ -24,9 +24,12 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
   const attachResource = (p, t) => AR(p, t, myLocation);
   const packLoader = createPromisingLoader(myLocation, 10000);
   //
-  var pageData = await
-    packLoader(myLocation, "/_js/data/local" + myLocation + ".js")
-      .catch((_) => { return {} }));
+  var pageData = await packLoader(
+    myLocation,
+    "/_js/data/local" + myLocation + ".js",
+  ).catch((_) => {
+    return {};
+  });
   //
   function uncompact(tobj) {
     const tout = [];
@@ -91,13 +94,13 @@ import { createPromisingLoader, _pocb } from "./frontend/pack-loader.js";
     attachScript: (...args) => {
       return attachResource(...args);
     },
-    getLocalData: function(name, ns) {
+    getLocalData: function (name, ns) {
       // REVIEW:
       let nspace = ns ? ns : myLocation;
       return getData(name, nspace);
     },
     // THINK:
-    getData: function(name, ns) {
+    getData: function (name, ns) {
       let nspace = ns ? ns : "datasets";
       return getData(name, nspace);
     },

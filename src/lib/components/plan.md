@@ -41,5 +41,5 @@ _If any components found..._
 ## Data ops
 
 - [ ](!) Do: Better namespacing of local data (page => ..page/name, component => ..componenta/id/name)
-- [ ] Decide: maybe, save all page data to single JSON? Partially solves preloading problem.
+- [x] Decide: maybe, save all page data to single JSON? Partially solves preloading problem.
 - Data, saved by module, preloaded before hydration, like props?
