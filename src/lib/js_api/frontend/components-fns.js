@@ -231,8 +231,8 @@ export async function webInitComponents(
     sys._cid = e.cid;
     //
     // (name, data, sys.location + "/" + "c" + component_id);
-    sys.data.getLocal = (name) => {
-      const dp = myLocation + "/c" + e.cid;
+    sys.data.getLocal = (name, ns) => {
+      const dp = ns || "components.c" + e.cid;
       // TODO: use lib fn, not API?
       return window._M.getLocalData(name, dp);
     };

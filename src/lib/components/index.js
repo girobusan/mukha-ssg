@@ -4,7 +4,7 @@ import { renderToString } from "preact-render-to-string";
 import {
   copyToLib,
   saveGlobalData4JS,
-  saveLocalData4JS,
+  saveLocalData2FrontEnd,
   saveLib,
 } from "../js_api";
 import { getGlobalData } from "../data.js";
@@ -186,7 +186,12 @@ export function renderComponentToString(fn_name, props = {}, context) {
     // save local data for this particular component
     sys.data.saveLocal = (name, data) => {
       log.debug("Preparing to save", name);
-      saveLocalData4JS(name, data, sys.location + "/" + "c" + component_id);
+      saveLocalData2FrontEnd(
+        sys.location,
+        "components.c" + component_id,
+        name,
+        data,
+      );
     };
     // loadLocal: (name)=>{ } is not available here
     //
@@ -307,8 +312,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-    (...args) =>
-      log[what](n + ":", ...args);
+      (...args) =>
+        log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))

@@ -49,13 +49,17 @@ export function rangeArray(start, length) {
   return r;
 }
 
-export function stringify2JSON(obj) {
+export function stringify2JSON(obj, pretty = false) {
   const seen = new WeakSet();
-  return JSON.stringify(obj, (_, value) => {
-    if (value !== null && typeof value === "object") {
-      if (seen.has(value)) return;
-      seen.add(value);
-    }
-    return value;
-  });
+  return JSON.stringify(
+    obj,
+    (_, value) => {
+      if (value !== null && typeof value === "object") {
+        if (seen.has(value)) return undefined;
+        seen.add(value);
+      }
+      return value;
+    },
+    pretty ? 2 : null,
+  );
 }

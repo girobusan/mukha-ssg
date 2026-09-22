@@ -20,6 +20,7 @@ let siteData = { version: VERSION };
 const localPageData = new Map();
 //
 function addLocalData(pageUrl, ns, dname, dataObj) {
+  console.log("ADDING LOCAL DATA", pageUrl);
   if (!localPageData.get(pageUrl)) {
     localPageData.set(pageUrl, { page: {}, components: {} });
   }
@@ -84,7 +85,7 @@ export function saveGlobalData4JS(ns, dname, dset) {
 }
 
 //in tpl: saveData: (name, dt) => saveLocalData4JS(name, dt, page.file.path),
-export function saveLocalData4JS(dname, dset, dpath, ns = "") {
+export function _saveLocalData4JS(dname, dset, dpath, ns = "") {
   log.debug("Must save local data: ", dname, dset, dpath);
   if (!dset) {
     log.warn("Attempt to save empty dataset:", dname, dpath);
@@ -94,6 +95,7 @@ export function saveLocalData4JS(dname, dset, dpath, ns = "") {
 }
 
 export function saveLocalData2FrontEnd(pageUrl, ns, dname, dataObj) {
+  log.info("Must save local data: ", dname, pageUrl);
   addLocalData(pageUrl, ns, dname, dataObj);
 }
 
@@ -107,7 +109,20 @@ export function saveLib(pth, cnt) {
   lib.push({ path: pth, content: cnt });
   return path.join("/_js/lib", pth);
 }
-
+export function injectPageData(url, html) {
+  let e = localPageData.get(url);
+  if (!e) {
+    // console.log(localPageData);
+    return html;
+  }
+  log.debug("Asking to inject data", url);
+  let datastr = stringify2JSON(e, true);
+  return html.replace(
+    /<\/body>(\s|\n|\r)*<\/html>(\s|\n|\r)*$/i,
+    `<script type="application/json" id="mukha_page_data">${datastr}
+</script></body></html>`,
+  );
+}
 export function saveJSAPIfiles(saveFn, copyFn) {
   log.debug("Saving data files...");
   // global datasets
@@ -115,11 +130,7 @@ export function saveJSAPIfiles(saveFn, copyFn) {
     const dUrl =
       "/_js/data/global/" + d.ns + "/" + d.name.replace(/\./g, "/") + ".js";
     log.debug("Saving global data file", dUrl);
-    saveFn(
-      dUrl,
-      // anyData2js(d.ns, d.name, d.data, d.compacted),
-      packData(dUrl, d.ns, d.name, d.data, d.compacted),
-    );
+    saveFn(dUrl, packData(dUrl, d.ns, d.name, d.data, d.compacted));
   });
   // local datasets
   localData.forEach((d) => {

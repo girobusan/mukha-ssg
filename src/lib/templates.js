@@ -13,7 +13,7 @@ import { addNumber, niceDate, getFirstPara } from "./util/text";
 import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
 import { indexAll } from "./search";
-import { saveLocalData4JS, saveLocalData2FrontEnd } from "./js_api";
+import { saveLocalData2FrontEnd, injectPageData } from "./js_api";
 import { getLogger } from "./logging";
 var log = getLogger("templates");
 var dlog = getLogger("tpl-debug");
@@ -251,6 +251,9 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       });
       let html = tpl.render("index.njk", adultContext);
       html = postprocess(html, page.file.path, fullLister);
+      if (config.js_api) {
+        html = injectPageData(page.file.path, html);
+      }
       writeFn(page.file.path, html, page);
     });
   }
