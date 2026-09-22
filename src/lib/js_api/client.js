@@ -1,6 +1,7 @@
 import { posix as path } from "path-browserify";
 import { banertype, wlog, setLevel } from "./frontend/wlog";
 import { webRequire, webInitComponents } from "./frontend/components-fns";
+import { readObj } from "./frontend/read-obj.js";
 
 import { relative, resolveAbsPath } from "./frontend/web-path-ops.js";
 import { attachResource as AR } from "./frontend/attach-resource.js";
