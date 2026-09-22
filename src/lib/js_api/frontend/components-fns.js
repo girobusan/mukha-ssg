@@ -105,7 +105,7 @@ export async function webInitComponents(
   if (elements.length === 0) {
     return;
   }
-  console.info("Checking for components...");
+  wlog.info("Checking for components...");
   //
   // populate system module
   //
@@ -248,7 +248,7 @@ export async function webInitComponents(
     }
     if (e.propsID) {
       // REVIEW:
-      // load props from file
+      // preload all externally saved props at once
       props = await window.Mukha.getData(e.propsID, "components/props");
     }
     preact.hydrate(preact.h(componentFn, props), node);
