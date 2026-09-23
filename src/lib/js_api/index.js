@@ -84,7 +84,7 @@ export function saveGlobalData4JS(ns, dname, dset) {
   data.push(prepAnyData(ns || "datasets", dname, dset));
 }
 
-//in tpl: saveData: (name, dt) => saveLocalData4JS(name, dt, page.file.path),
+/*/in tpl: saveData: (name, dt) => saveLocalData4JS(name, dt, page.file.path),
 export function _saveLocalData4JS(dname, dset, dpath, ns = "") {
   log.debug("Must save local data: ", dname, dset, dpath);
   if (!dset) {
@@ -92,7 +92,7 @@ export function _saveLocalData4JS(dname, dset, dpath, ns = "") {
     return;
   }
   localData.push(prepAnyData(dpath, dname, dset));
-}
+}*/
 
 export function saveLocalData2FrontEnd(pageUrl, ns, dname, dataObj) {
   log.info("Must save local data: ", dname, pageUrl);
@@ -115,11 +115,18 @@ export function injectPageData(url, html) {
     // console.log(localPageData);
     return html;
   }
-  log.debug("Asking to inject data", url);
-  let datastr = stringify2JSON(e, true);
+  log.debug("Injecting data to", url);
+  const datastr = stringify2JSON(e, true);
+  const dataSize = Math.round(new Blob([datastr]).size / 102.4) / 10;
+  if (dataSize > 64) {
+    log.warn("Big inject:", dataSize, "KiB", "in", url);
+  } else {
+    log.debug("Inject size is", dataSize, "KiB");
+  }
+
   return html.replace(
     /<\/body>(\s|\n|\r)*<\/html>(\s|\n|\r)*$/i,
-    `<script type="application/json" id="mukha_page_data">${datastr}
+    `<script type="application/json" id="mukha_page_data" data-size-kb="${dataSize}">${datastr}
 </script></body></html>`,
   );
 }
