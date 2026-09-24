@@ -21,7 +21,8 @@ const htm = require("htm/preact");
 // cache
 const rehydrationCache = new Map();
 //
-// dicts
+// css requirements
+const cssToInject = new Map();
 //
 // modules, which are preloaded
 const internal = new Map([
@@ -133,6 +134,21 @@ export function createElement(fn_name, props) {
 const componentIDs = {};
 export function renderComponentToString(fn_name, props = {}, context) {
   internal.get("mukha-system").exports.module_state = "static";
+  //
+  //check, if module has css requires
+  let currentModuleCSS = loaded
+    .get(lookup.get(fn_name))
+    .requires.filter((e) => e.match(/\.css$/i));
+  if (currentModuleCSS.length > 0) {
+    let record = cssToInject.get(context.page.permalink);
+    if (!record) {
+      cssToInject.set(context.page.permalink, new Set());
+      record = cssToInject.get(context.page.permalink);
+    }
+    currentModuleCSS.forEach((e) => record.add(e));
+  }
+  //
+
   // let __H = 1;
   let element = preact.h(findFunction(fn_name), props);
   let props_to_save;
@@ -201,6 +217,20 @@ export function renderComponentToString(fn_name, props = {}, context) {
     html = e;
   }
   return tag_open + html + tag_close;
+}
+
+export function injectAllCSS(permalink, html) {
+  let record = cssToInject.get(permalink);
+  if (!record) return html;
+  let tags = Array.from(record).reduce((a, e) => {
+    a + `<link rel="stylesheet" href=${"_js/lib/components/" + e} />`;
+  }, "");
+
+  return html.replace(
+    /<\/body>(\s|\n|\r)*<\/html>(\s|\n|\r)*$/i,
+    `${tags}
+</body></html>`,
+  );
 }
 //
 // Components initialization
@@ -312,8 +342,8 @@ export function initComponents(flist) {
   let ord = 1;
   const makeLog =
     (n, what) =>
-      (...args) =>
-        log[what](n + ":", ...args);
+    (...args) =>
+      log[what](n + ":", ...args);
   queue
     .filter((n) => !internal.has(n))
     .filter((n) => !assets.has(n))
