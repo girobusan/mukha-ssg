@@ -14,6 +14,7 @@ import { generate as makePaginationSeq } from "./pagination/pagination";
 import postprocess from "./postprocess";
 import { indexAll } from "./search";
 import { saveLocalData2FrontEnd, injectPageData } from "./js_api";
+import { injectCSS } from "./components";
 import { getLogger } from "./logging";
 var log = getLogger("templates");
 var dlog = getLogger("tpl-debug");
@@ -61,7 +62,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
   // which makes multipage list
   // for file
   function makeMP(f) {
-    return function(lst, length) {
+    return function (lst, length) {
       if (f.page_count) {
         log.warn("Split to pages more than once, skipping:", f.file.path);
         return;
@@ -108,7 +109,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
       config: config,
       datasets: data.datasets,
       data: data,
-      splitToPages: pass && pass === 1 ? makeMP(page) : () => { },
+      splitToPages: pass && pass === 1 ? makeMP(page) : () => {},
       // splitToPages: () =>
       //   log.warn(
       //     "Attempt to call unsafe function in safe context",
@@ -127,7 +128,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         dateFormat: (dt, fmt, opts) => dateFormat(dt, fmt, opts),
         makeTable: (d) => tableFilter(d),
         debugObj: (o) => dlog.info(JSON.stringify(o, null, 2)),
-        debug: function() {
+        debug: function () {
           dlog.info.apply(this, arguments);
         },
         groupBy: (d, keyPath) => {
@@ -250,6 +251,7 @@ export function renderAndSave(fullLister, config, templates, writeFn, data) {
         jsapi: JSAPI, // TODO: remove
       });
       let html = tpl.render("index.njk", adultContext);
+      html = injectCSS(html, page.file.path);
       html = postprocess(html, page.file.path, fullLister);
       if (config.js_api) {
         html = injectPageData(page.file.path, html);

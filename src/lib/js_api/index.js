@@ -20,7 +20,7 @@ let siteData = { version: VERSION };
 const localPageData = new Map();
 //
 function addLocalData(pageUrl, ns, dname, dataObj) {
-  console.log("ADDING LOCAL DATA", pageUrl);
+  // console.log("ADDING LOCAL DATA", pageUrl);
   if (!localPageData.get(pageUrl)) {
     localPageData.set(pageUrl, { page: {}, components: {} });
   }
@@ -126,7 +126,7 @@ export function injectPageData(url, html) {
 
   return html.replace(
     /<\/body>(\s|\n|\r)*<\/html>(\s|\n|\r)*$/i,
-    `<script type="application/json" id="mukha_page_data" data-size-kb="${datasize}">${datastr}
+    `<script type="application/json" id="mukha_page_data" data-size-kib="${dataSize}">${datastr}
 </script></body></html>`,
   );
 }

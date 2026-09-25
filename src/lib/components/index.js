@@ -61,6 +61,24 @@ const assets = new Map();
 // function name -> name of module, which exports it
 const lookup = new Map();
 //
+function gatherDeps(modList) {
+  console.log("gathering...");
+  let deps = new Set(modList);
+  let startSize;
+
+  do {
+    startSize = deps.size;
+    console.log("size", startSize);
+    deps.forEach((d) => {
+      const mod = loaded.get(d) || assets.get(d);
+      if (!mod || !mod.requires) return;
+      mod.requires.forEach((r) => deps.add(r));
+    });
+    console.log("iteration has", deps.size);
+  } while (deps.size !== startSize);
+  console.log("return", deps);
+  return Array.from(deps);
+}
 //
 function resolveModule(callee, pathname) {
   // return pathname;
@@ -136,15 +154,21 @@ export function renderComponentToString(fn_name, props = {}, context) {
   internal.get("mukha-system").exports.module_state = "static";
   //
   //check, if module has css requires
-  let currentModuleCSS = loaded
-    .get(lookup.get(fn_name))
-    .requires.filter((e) => e.match(/\.css$/i));
+  // console.log("check css", fn_name, lookup[fn_name], lookup);
+  let currentModuleCSS = gatherDeps([lookup.get(fn_name)]).filter((e) =>
+    e.match(/\.css/i),
+  );
+  console.log(currentModuleCSS);
   if (currentModuleCSS.length > 0) {
-    let record = cssToInject.get(context.page.permalink);
+    // console.log("found css", context.ctx.page.permalink);
+    const pagePath = context.ctx.page.permalink;
+    let record = cssToInject.get(pagePath);
     if (!record) {
-      cssToInject.set(context.page.permalink, new Set());
-      record = cssToInject.get(context.page.permalink);
+      console.log("creating record");
+      cssToInject.set(pagePath, new Set());
+      record = cssToInject.get(pagePath);
     }
+    console.log("add records");
     currentModuleCSS.forEach((e) => record.add(e));
   }
   //
@@ -219,12 +243,19 @@ export function renderComponentToString(fn_name, props = {}, context) {
   return tag_open + html + tag_close;
 }
 
-export function injectAllCSS(permalink, html) {
+export function injectCSS(html, permalink) {
   let record = cssToInject.get(permalink);
   if (!record) return html;
+  console.log(cssToInject, permalink);
   let tags = Array.from(record).reduce((a, e) => {
-    a + `<link rel="stylesheet" href=${"_js/lib/components/" + e} />`;
+    let p = assets.get(e).site_path;
+    console.log("PPP", p);
+    if (!p) return a;
+    a += `<link rel="stylesheet" href="${p}" />
+`;
+    return a;
   }, "");
+  console.log("tags", tags);
 
   return html.replace(
     /<\/body>(\s|\n|\r)*<\/html>(\s|\n|\r)*$/i,

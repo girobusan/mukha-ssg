@@ -194,11 +194,12 @@ export async function webInitComponents(
       if (!assets.has(e)) {
         return true;
       }
-      const A = assets.get(e); // REVIEW: maybe bad...
-      if (A.site_path && A.site_path.match(/\.css$/i)) {
-        wlog.debug("Preattaching css asset:", e);
-        window._M.attachScript(A.site_path, "css");
-      }
+      // const A = assets.get(e);
+      // REVIEW: maybe bad...
+      // if (A.site_path && A.site_path.match(/\.css$/i)) {
+      //   wlog.debug("Preattaching css asset:", e);
+      //   window._M.attachScript(A.site_path, "css");
+      // }
       return false;
     })
     // .filter((e) => !assets.has(e))
