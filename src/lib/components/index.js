@@ -72,12 +72,15 @@ function gatherDeps(modList) {
     deps.forEach((d) => {
       const mod = loaded.get(d) || assets.get(d);
       if (!mod || !mod.requires) return;
+      // console.log("ADD");
       mod.requires.forEach((r) => deps.add(r));
     });
-    console.log("iteration has", deps.size);
+    // console.log("iteration has", deps.size);
   } while (deps.size !== startSize);
-  console.log("return", deps);
-  return Array.from(deps);
+  // console.log("return", deps);
+  let r = Array.from(deps);
+  console.log("deps", r);
+  return r;
 }
 //
 function resolveModule(callee, pathname) {
@@ -126,6 +129,7 @@ export function findFunction(fn_name) {
 }
 
 export function isRehydrated(fn_name) {
+  // console.log("is rehydrated?");
   const cached = rehydrationCache.get(fn_name);
   if (cached) return cached;
   let result = true;
@@ -133,8 +137,15 @@ export function isRehydrated(fn_name) {
   let module_name = lookup.get(fn_name);
   let module = loaded.get(module_name);
   if (module.requires.indexOf("do-not-hydrate") != -1) {
+    log.debug("Component is static on module level", fn_name);
     result = false;
   } // name of the module
+  // if function has _static property, set to true
+  //
+  if (module.exports[fn_name]._static) {
+    log.debug("Component is static on function level", fn_name);
+    result = false;
+  }
   rehydrationCache.set(fn_name, result);
   return result;
 }
@@ -152,23 +163,24 @@ export function createElement(fn_name, props) {
 const componentIDs = {};
 export function renderComponentToString(fn_name, props = {}, context) {
   internal.get("mukha-system").exports.module_state = "static";
+  const currentPage = context.ctx.page.permalink;
   //
   //check, if module has css requires
   // console.log("check css", fn_name, lookup[fn_name], lookup);
   let currentModuleCSS = gatherDeps([lookup.get(fn_name)]).filter((e) =>
     e.match(/\.css/i),
   );
-  console.log(currentModuleCSS);
+  // console.log(currentModuleCSS);
   if (currentModuleCSS.length > 0) {
     // console.log("found css", context.ctx.page.permalink);
-    const pagePath = context.ctx.page.permalink;
-    let record = cssToInject.get(pagePath);
+    // const pagePath = context.ctx.page.permalink;
+    let record = cssToInject.get(currentPage);
     if (!record) {
       console.log("creating record");
-      cssToInject.set(pagePath, new Set());
-      record = cssToInject.get(pagePath);
+      cssToInject.set(currentPage, new Set());
+      record = cssToInject.get(currentPage);
     }
-    console.log("add records");
+    console.log("add records", currentModuleCSS, cssToInject);
     currentModuleCSS.forEach((e) => record.add(e));
   }
   //
@@ -181,10 +193,11 @@ export function renderComponentToString(fn_name, props = {}, context) {
   let tag_close = "";
   let html = "";
   //
-  const c_page = context.ctx.page.permalinkl;
   // increment
-  const component_id = componentIDs[c_page] ? componentIDs[c_page] + 1 : 1;
-  componentIDs[c_page] = component_id;
+  const component_id = componentIDs[currentPage]
+    ? componentIDs[currentPage] + 1
+    : 1;
+  componentIDs[currentPage] = component_id;
 
   if (isRehydrated(fn_name)) {
     const props_map = new Map([

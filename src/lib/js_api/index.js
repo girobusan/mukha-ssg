@@ -116,7 +116,7 @@ export function injectPageData(url, html) {
     return html;
   }
   log.debug("Injecting data to", url);
-  const datastr = stringify2JSON(e, true);
+  const datastr = stringify2JSON(e);
   const dataSize = Math.round(new Blob([datastr]).size / 102.4) / 10;
   if (dataSize > 64) {
     log.warn("Big inject:", dataSize, "KiB", "in", url);
@@ -126,7 +126,8 @@ export function injectPageData(url, html) {
 
   return html.replace(
     /<\/body>(\s|\n|\r)*<\/html>(\s|\n|\r)*$/i,
-    `<script type="application/json" id="mukha_page_data" data-size-kib="${dataSize}">${datastr}
+    `<script type="application/json" id="mukha_page_data" data-size-kib="${dataSize}">
+${datastr}
 </script></body></html>`,
   );
 }
@@ -146,12 +147,12 @@ export function saveJSAPIfiles(saveFn, copyFn) {
     saveFn(dUrl, packData(dUrl, d.ns, d.name, d.data, d.compacted));
   });
   // NEW local datasets
-  localPageData.keys().forEach((key) => {
-    log.debug("Save local page data for:", key);
-    const pack = packLocalData(key);
-    // console.log(content);
-    saveFn("/_js/data/local" + key + ".js", pack);
-  });
+  // localPageData.keys().forEach((key) => {
+  //   log.debug("Save local page data for:", key);
+  //   const pack = packLocalData(key);
+  //   // console.log(content);
+  //   saveFn("/_js/data/local" + key + ".js", pack);
+  // });
   //lib
   lib.forEach((l) => {
     let lp = path.join("/_js/lib", l.path);

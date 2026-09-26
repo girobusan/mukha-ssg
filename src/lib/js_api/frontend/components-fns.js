@@ -143,7 +143,7 @@ export async function webInitComponents(
       e.props = JSON.parse(decodeURI(e.propsEnc));
     }
     if (e.propsID) {
-      e.props = getGlobalDataFn(e.propsID, "component/props");
+      e.props = getGlobalDataFn(e.propsID, "components/props");
     }
   });
   await Promise.all(elements.map((e) => e.props));
@@ -189,19 +189,20 @@ export async function webInitComponents(
   //
   //
   let ordered = Array.from(userModulesSet)
-    .filter((e) => !internal.has(e))
-    .filter((e) => {
-      if (!assets.has(e)) {
-        return true;
-      }
-      // const A = assets.get(e);
-      // REVIEW: maybe bad...
-      // if (A.site_path && A.site_path.match(/\.css$/i)) {
-      //   wlog.debug("Preattaching css asset:", e);
-      //   window._M.attachScript(A.site_path, "css");
-      // }
-      return false;
-    })
+    .filter((e) => !internal.has(e) && !assets.has(e))
+    // .filter((e) => !assets.has(e))
+    // {
+    //   if (!assets.has(e)) {
+    //     return true;
+    //   }
+    //   // const A = assets.get(e);
+    //   // if (A.site_path && A.site_path.match(/\.css$/i)) {
+    //   //   wlog.debug("Preattaching css asset:", e);
+    //   //   window._M.attachScript(A.site_path, "css");
+    //   // }
+    //   return false;
+    // }
+    // )
     // .filter((e) => !assets.has(e))
     .sort((a, b) => {
       return (modDict[a]?.order || 0) - (modDict[b]?.order || 0);
